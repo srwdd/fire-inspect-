@@ -266,6 +266,7 @@ createApp({
       showJumpMenu: false,
       sectionIndex: {},
       lastReportId: localStorage.getItem('fire_last_inspection_id') || '',
+      inspectionHistory: JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'),
       jumpKeyword: '',
       jumpFiltered: null,
       nineSmallSubTypes: [
@@ -312,7 +313,8 @@ createApp({
   methods: {
     toggleTheme() {
       this.theme = this.theme === 'light' ? 'dark' : 'light';
-      document.body.classList.toggle('light-mode', this.theme === 'light');
+      this.inspectionHistory = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+    document.body.classList.toggle('light-mode', this.theme === 'light');
       localStorage.setItem('fire_theme', this.theme);
     },
     showToast(msg, type='info') {
@@ -604,7 +606,11 @@ createApp({
     // === 检查完成 ===
     completeInspection() {
       this.inspected = true;
-      localStorage.setItem('fire_last_inspection_id', this.inspectionId);
+      var history = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+        history.unshift({id: this.inspectionId, name: this.report.venue_name, date: this.report.date, score: this.report.assessment.score, color: this.report.assessment.color, total: this.report.summary.checked, fail: this.report.summary.fail});
+        if (history.length > 5) history = history.slice(0,5);
+        localStorage.setItem('fire_inspection_history', JSON.stringify(history));
+        this.inspectionHistory = history;
       this.currentItem = null;
       this.currentSectionName = '';
       this.currentStepName = '';

@@ -21,3 +21,14 @@ async def verify_api_key(
     if x_api_key == expected:
         return True
     raise HTTPException(status_code=401, detail="无效的 API Key — 请在请求头中设置 X-API-Key")
+
+async def get_current_user(authorization: str = Header(None)) -> dict:
+    """JWT authentication middleware. Returns user payload or raises 401."""
+    from app.api.v1.auth import _decode_token
+    if not authorization:
+        raise HTTPException(status_code=401, detail="请先登录")
+    token = authorization.replace("Bearer ", "")
+    payload = _decode_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="登录已过期，请重新登录")
+    return payload

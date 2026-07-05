@@ -367,7 +367,11 @@ createApp({
       } catch(e) { console.error('preload failed:', e); }
     },
     async goToItem(index) {
-      if (index < 0 || index >= this.totalItems) return;
+      if (index < 0) return;
+      if (index >= this.totalItems) {
+        if (this.judgedCount >= this.totalItems) { this.completeInspection(); }
+        return;
+      }
       // 优先从缓存读取，缓存未命中才请求 API
       let item = this._itemsCache && this._itemsCache[index];
       if (!item) {
@@ -606,21 +610,16 @@ createApp({
     // === 检查完成 ===
     completeInspection() {
       this.inspected = true;
-      var history = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
-        history.unshift({id: this.inspectionId, name: this.report.venue_name, date: this.report.date, score: this.report.assessment.score, color: this.report.assessment.color, total: this.report.summary.checked, fail: this.report.summary.fail});
-        if (history.length > 5) history = history.slice(0,5);
-        localStorage.setItem('fire_inspection_history', JSON.stringify(history));
-        this.inspectionHistory = history;
       this.currentItem = null;
       this.currentSectionName = '';
       this.currentStepName = '';
-      // 自动生成报告
       this.generateReport();
     },
     async generateReport() {
       try {
         const r = await API.get(`/${this.inspectionId}/report`);
         this.report = r.data.data; localStorage.setItem("fire_last_inspection_id", this.inspectionId);
+        var h = JSON.parse(localStorage.getItem("fire_inspection_history") || "[]"); h.unshift({id: this.inspectionId, name: this.report.venue_name, date: this.report.date, score: this.report.assessment.score, color: this.report.assessment.color, total: this.report.summary.checked, fail: this.report.summary.fail}); if (h.length > 5) h = h.slice(0,5); localStorage.setItem("fire_inspection_history", JSON.stringify(h)); this.inspectionHistory = h;
       } catch (e) {
         console.error('生成报告失败:', e);
         this.showToast('报告生成失败，请稍后重试', 'error');

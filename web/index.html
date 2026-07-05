@@ -44,12 +44,12 @@ if ('serviceWorker' in navigator) {
 <div id="app">
   <!-- 顶部导航 -->
   <header class="app-header">
-    <h1>🧯 消防检查助手</h1>
-    <button class="theme-toggle" @click="toggleTheme" :title="theme==='light'?'切换到深色':'切换到浅色'">{{ theme==='light' ? '☀️' : '🌙' }}</button><span class="version">v0.1</span>
+    <h1>🧯 消防检查助手<span v-if="currentUser" style="font-size:11px;margin-left:8px;color:var(--text-muted)">{{ currentUser.display_name }} ({{ {admin:"管理员",chief:"大队长",lead:"主办",assist:"协办"}[currentUser.role] }})</span></h1>
+    <button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:12px;padding:4px 10px;border-radius:4px;cursor:pointer;margin-right:6px" title="退出登录">退出</button><button class="theme-toggle" @click="toggleTheme" :title="theme==='light'?'切换到深色':'切换到浅色'">{{ theme==='light' ? '☀️' : '🌙' }}</button><span class="version">v0.1</span>
   </header>
 
   <!-- 首页: 场景选择 + 检查模式 -->
-  <div v-if="page==='home'" class="page home-page">
+  <h1>🧯 消防检查助手<span v-if="currentUser" style="font-size:11px;margin-left:8px;color:var(--text-muted)">{{ currentUser.display_name }} ({{ {admin:"管理员",chief:"大队长",lead:"主办",assist:"协办"}[currentUser.role] }})</span></h1>
     <!-- 检查类型切换 -->
     <div class="mode-tabs">
       <button :class="{active:inspectType==='preopen'}" @click="inspectType='preopen'">🏢 开业前检查</button>
@@ -645,6 +645,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v81.js"></script>
+<script src="app_v86.js"></script>
 </body>
 </html>

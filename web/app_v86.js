@@ -1,6 +1,12 @@
 const { createApp } = Vue;
 const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
 const API = axios.create({ baseURL: API_BASE });
+// Auto-attach JWT token
+API.interceptors.request.use(function(config) {
+  var token = localStorage.getItem('fire_token');
+  if (token) config.headers.Authorization = 'Bearer ' + token;
+  return config;
+});
 
 const SCENES = [
   { key: 'hotel', total_items: 97, name: '宾馆/酒店', icon: '🏨', preopen: true },
@@ -98,12 +104,8 @@ const OPERATION_GUIDES = {
     video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E7%94%B5%E6%B0%94-%E6%9F%A5%E9%AA%8C%E6%95%99%E5%AD%A6.mp4',
   },
 	  
-  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
-	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
 	  '消防电话': { question: '请测试消防电话系统', steps: ['核查关键部位均有消防电话分机','控制室总机逐一呼叫各分机','通话清晰无杂音','线路采用独立回路'], passCriteria: '分机到位、通话清晰、线路独立' },
 	  '消防广播': { question: '请测试消防应急广播', steps: ['扬声器覆盖: 走道/大厅均有、间距≤25m','强制切换: 音量最小→火警→自动最大音量播放','分区广播: 按楼层/防火分区选择','全楼广播: 可同时播放疏散指令'], passCriteria: '覆盖到位、强制切换正常' },
-	  '自动喷水': { question: '请测试自动喷水灭火系统', steps: ['喷头: 无涂料/粉尘覆盖','报警阀组: 阀门启闭正常、水力警铃完好','末端试水: 压力≥0.05MPa','5分钟内压力开关动作→启泵','水流指示器动作→控制室信号'], passCriteria: '喷头完好、末端压力≥0.05MPa、启泵正常' },
-	  '防排烟': { question: '请测试防排烟系统', steps: ['三种方式启动风机(远程/现场/联动)','送风口/排烟口自动开启','排烟防火阀280℃自动关闭并连锁停风机','自然排烟窗开启灵活'], passCriteria: '三种启动正常、风口/防火阀动作正确' },
 	  '疏散': { question: '请检查疏散设施', steps: ['走道畅通、宽度≥1.1m','安全出口数量≥2个、向外开启','疏散指示间距≤20m','地面照度走道≥1.0lx/密集场所≥3.0lx'], passCriteria: '畅通、宽度达标、指示清晰、照度合格' },
 	  '安全出口': { question: '请检查安全出口', steps: ['数量: 公共建筑≥2个','开启方向: 向疏散方向','门外1.4m无台阶','无锁闭/堵塞/遮挡','上方安全出口标志灯完好'], passCriteria: '数量足够、畅通无阻、标志完好' },
 	  '消防水泵': { question: '请检查消防水泵接合器', steps: ['外观完好、无埋压/圈占/遮挡','标志铭牌清晰','距外墙≥5m','接口密封盖完好'], passCriteria: '无埋压遮挡、标识清晰' },
@@ -121,10 +123,6 @@ const OPERATION_GUIDES = {
     passCriteria: '泡沫液有效、储罐完好、混合比达标',
     video: '/inspect/api/v1/inspection/videos/%E6%B3%A1%E6%B2%AB%E7%81%AD%E7%81%AB%E7%B3%BB%E7%BB%9F.mp4',
   },
-  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
-	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
-	  '自动喷水': { question: '请测试自动喷水灭火系统', steps: ['喷头: 无涂料/粉尘覆盖','报警阀组: 阀门启闭正常、水力警铃完好','末端试水: 压力≥0.05MPa','5分钟内压力开关动作→启泵','水流指示器动作→控制室信号'], passCriteria: '喷头完好、末端压力≥0.05MPa、启泵正常' },
-	  '防排烟': { question: '请测试防排烟系统', steps: ['三种方式启动风机(远程/现场/联动)','送风口/排烟口自动开启','排烟防火阀280℃自动关闭并连锁停风机','自然排烟窗开启灵活'], passCriteria: '三种启动正常、风口/防火阀动作正确' },
 	  '疏散': { question: '请检查疏散设施', steps: ['走道畅通、宽度≥1.1m','安全出口数量≥2个、向外开启','疏散指示间距≤20m','地面照度走道≥1.0lx/密集场所≥3.0lx'], passCriteria: '畅通、宽度达标、指示清晰、照度合格' },
 	  '安全出口': { question: '请检查安全出口', steps: ['数量: 公共建筑≥2个','开启方向: 向疏散方向','门外1.4m无台阶','无锁闭/堵塞/遮挡','上方安全出口标志灯完好'], passCriteria: '数量足够、畅通无阻、标志完好' },
 	  '消防水泵': { question: '请检查消防水泵接合器', steps: ['外观完好、无埋压/圈占/遮挡','标志铭牌清晰','距外墙≥5m','接口密封盖完好'], passCriteria: '无埋压遮挡、标识清晰' },
@@ -216,8 +214,13 @@ function getOperationGuide(facility) {
 createApp({
   data() {
     return {
-      page: 'home',
+      page: (localStorage.getItem('fire_token') && localStorage.getItem('fire_user')) ? 'home' : 'login',
       theme: localStorage.getItem('fire_theme') || 'dark',
+      token: localStorage.getItem('fire_token') || '',
+      currentUser: JSON.parse(localStorage.getItem('fire_user') || 'null'),
+      loginUsername: '',
+      loginPassword: '',
+      loginError: '',
       inspectType: 'preopen',  // preopen | daily
       mode: 'first',
       scenes: SCENES,
@@ -225,7 +228,7 @@ createApp({
       searched: false,
       historyList: [],
       // 检查状态
-      inspectionId: '',
+      inspectionId: (new URLSearchParams(window.location.search)).get('report') || '',
       currentIndex: 0,
       totalItems: 0,
       currentItem: null,
@@ -252,7 +255,7 @@ createApp({
       // 规模参数 + 子类型
       showScaleInput: false,
       showSubTypePicker: false,
-      scaleForm: { area: '', staff: '', floors: '', buildings: '1' },
+      scaleForm: { area: '', staff: '', floors: '', buildings: '1', venueName: '' },
       selectedSubType: '',
       pendingScene: null,
       samplingInfo: null,
@@ -274,6 +277,7 @@ createApp({
       showJumpMenu: false,
       sectionIndex: {},
       lastReportId: localStorage.getItem('fire_last_inspection_id') || '',
+      inspectionHistory: JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'),
       jumpKeyword: '',
       jumpFiltered: null,
       nineSmallSubTypes: [
@@ -320,8 +324,30 @@ createApp({
   methods: {
     toggleTheme() {
       this.theme = this.theme === 'light' ? 'dark' : 'light';
-      document.body.classList.toggle('light-mode', this.theme === 'light');
+      this.inspectionHistory = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+    document.body.classList.toggle('light-mode', this.theme === 'light');
       localStorage.setItem('fire_theme', this.theme);
+    },
+    async doLogin() {
+      this.loginError = '';
+      try {
+        var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+        var r = await authAPI.post('/login', { username: this.loginUsername, password: this.loginPassword });
+        var d = r.data.data;
+        this.token = d.token;
+        this.currentUser = d.user;
+        localStorage.setItem('fire_token', d.token);
+        localStorage.setItem('fire_user', JSON.stringify(d.user));
+        this.loginPassword = '';
+        this.page = 'home';
+      } catch (e) {
+        this.loginError = e.response?.data?.detail || '登录失败，请检查用户名密码';
+      }
+    },
+    doLogout() {
+      this.token = ''; this.currentUser = null; this.page = 'login';
+      localStorage.removeItem('fire_token'); localStorage.removeItem('fire_user');
+      localStorage.removeItem('fire_inspection_history');
     },
     showToast(msg, type='info') {
       this.toast = { msg, type };
@@ -373,7 +399,11 @@ createApp({
       } catch(e) { console.error('preload failed:', e); }
     },
     async goToItem(index) {
-      if (index < 0 || index >= this.totalItems) return;
+      if (index < 0) return;
+      if (index >= this.totalItems) {
+        if (this.judgedCount >= this.totalItems) { this.completeInspection(); }
+        return;
+      }
       // 优先从缓存读取，缓存未命中才请求 API
       let item = this._itemsCache && this._itemsCache[index];
       if (!item) {
@@ -450,7 +480,7 @@ createApp({
       const params = {
         venue_type: scene.key,
         inspection_type: this.inspectType,
-        location: '',
+        location: this.scaleForm.venueName || '',
         inspector: '消防员',
         staff_count: parseInt(s.staff) || 0,
         floor_count: parseInt(s.floors) || 0,
@@ -615,13 +645,13 @@ createApp({
       this.currentItem = null;
       this.currentSectionName = '';
       this.currentStepName = '';
-      // 自动生成报告
       this.generateReport();
     },
     async generateReport() {
       try {
         const r = await API.get(`/${this.inspectionId}/report`);
-        this.report = r.data.data;
+        this.report = r.data.data; localStorage.setItem("fire_last_inspection_id", this.inspectionId);
+        var h = JSON.parse(localStorage.getItem("fire_inspection_history") || "[]"); h = h.filter(function(e) { return e.id !== this.inspectionId; }); h.unshift({id: this.inspectionId, name: this.report.venue_name, date: this.report.date, score: this.report.assessment.score, color: this.report.assessment.color, total: this.report.summary.checked, fail: this.report.summary.fail}); if (h.length > 5) h = h.slice(0,5); localStorage.setItem("fire_inspection_history", JSON.stringify(h)); this.inspectionHistory = h;
       } catch (e) {
         console.error('生成报告失败:', e);
         this.showToast('报告生成失败，请稍后重试', 'error');
