@@ -232,7 +232,7 @@ class AgentService:
             {
                 "role": "system",
                 "content": (
-                    "You are a planning module for a fire-safety agent."
+                    "你是消防检查智能助手的规划模块。只返回JSON，不要使用markdown，不要解释。优先基于证据进行规划，避免不必要的工具调用。"
                     " Return JSON only. Do not use markdown and do not explain."
                     " Prefer evidence-driven planning and avoid unnecessary tool calls."
                 ),
@@ -240,18 +240,14 @@ class AgentService:
             {
                 "role": "user",
                 "content": (
-                    "Decide which tools are needed for the user question."
-                    " Available tools: rules(legal retrieval), history(history records), insights(trend insights),"
-                    " record_detail(single record detail), long_term_memory(experience memory retrieval),"
-                    " production_safety(construction/industrial safety guidance)."
-                    " Return JSON: "
+                    "判断用户问题需要哪些工具。可用工具: rules(法规检索), history(历史记录), insights(趋势分析), record_detail(单条记录详情), long_term_memory(经验记忆检索), production_safety(施工/工业安全指导)。只返回JSON: "
                     "{\"goal\":\"...\",\"scene\":\"campus\",\"needs_rules\":true,\"needs_history\":false,"
                     "\"needs_insights\":false,\"needs_production_safety\":false,"
                     "\"needs_record_detail\":false,\"record_id\":\"\","
                     "\"rule_query\":\"...\",\"max_records\":5,\"insight_days\":7,"
                     "\"response_style\":\"concise|actionable|detailed\"}\n\n"
-                    f"SCENE: {scene}\n"
-                    f"QUESTION: {message}"
+                    f"场景: {scene}\n"
+                    f"用户问题: {message}"
                 ),
             },
         ]
@@ -432,20 +428,20 @@ class AgentService:
         long_term_memory: Optional[Dict[str, Any]],
         used_tools: List[str],
     ) -> Dict[str, Any]:
-        lines: List[str] = [f"Question: {self._safe_text(message, 200)}"]
+        lines: List[str] = [f"用户问题: {self._safe_text(message, 200)}"]
 
         if current_record_context and current_record_context.get("found"):
             record = current_record_context.get("record") or {}
             lines.append(
-                f"Current record: {record.get('record_id', '')}, "
-                f"risk {self._safe_text(record.get('overall_risk'), 40)}, "
+                f"当前记录: {record.get('record_id', '')}, "
+                f"风险等级 {self._safe_text(record.get('overall_risk'), 40)}, "
                 f"{self._safe_text(record.get('summary'), 160)}"
             )
 
         if rules_context and rules_context.get("rules"):
             top_rule = rules_context["rules"][0]
             lines.append(
-                "Rule evidence: "
+                "📖 法规依据: "
                 f"{self._safe_text(top_rule.get('source'), 80)} "
                 f"{self._safe_text(top_rule.get('article'), 40)}, "
                 f"{self._safe_text(top_rule.get('text'), 120)}"
@@ -453,19 +449,19 @@ class AgentService:
 
         if history_context and history_context.get("count"):
             danger_count = int((history_context.get("risk_counter") or {}).get("danger", 0))
-            lines.append(f"History: {history_context.get('count', 0)} records, high-risk {danger_count}.")
+            lines.append(f"📋 历史记录: 共 {history_context.get('count', 0)} records, 其中高风险 {danger_count} 条。")
 
         if insights_context and insights_context.get("windows"):
             score = insights_context.get("safety_score", 0)
             trend = ((insights_context.get("trends") or {}).get("7d") or {}).get("summary", "")
-            lines.append(f"Trend insight: safety score {score}. {self._safe_text(trend, 80)}")
+            lines.append(f"📈 趋势分析: 安全评分 {score} 分。{self._safe_text(trend, 80)}")
 
         if production_safety_context and production_safety_context.get("count"):
             topics = production_safety_context.get("topics") or []
             if topics:
                 top_topic = topics[0]
                 lines.append(
-                    "Production safety focus: "
+                    "🏗️ 施工安全重点: "
                     f"{self._safe_text(top_topic.get('title'), 120)} "
                     f"({self._safe_text(top_topic.get('domain'), 40)})."
                 )
@@ -473,13 +469,13 @@ class AgentService:
         if long_term_memory:
             summary = self._safe_text(long_term_memory.get("summary"), 180)
             if summary:
-                lines.append(f"Long-term memory: {summary}")
+                lines.append(f"🧠 长期记忆: {summary}")
             if long_term_memory.get("similar_cases"):
-                lines.append("Similar past cases were found and can be used for remediation planning.")
+                lines.append("发现类似历史案例，可用于整改方案参考。")
 
         if record_detail_context and record_detail_context.get("found"):
             record = record_detail_context.get("record") or {}
-            lines.append(f"Record {record.get('record_id', '')}: {self._safe_text(record.get('summary'), 120)}")
+            lines.append(f"📝 记录 {record.get('record_id', '')}: {self._safe_text(record.get('summary'), 120)}")
 
         citations: List[Dict[str, str]] = []
         if rules_context:
@@ -495,8 +491,8 @@ class AgentService:
         return {
             "reply": "\n".join(lines),
             "next_actions": [
-                "I can expand this into a remediation checklist if needed.",
-                "You can ask to list open long-term remediation tasks.",
+                "如需我可以将此展开为整改检查清单。",
+                "您可以要求列出长期未关闭的整改任务。",
             ],
             "citations": citations,
             "used_tools": used_tools,
@@ -698,12 +694,12 @@ class AgentService:
             )
 
         system_prompt = (
-            "You are the built-in fire-safety agent for this project."
-            " Answer using the provided retrieval results, production safety context, history, trend context, and long-term memory only."
-            " Do not invent legal evidence, and omit citations when no rule evidence is available."
-            " If evidence is insufficient, say so clearly."
-            f" Core rules: {'; '.join(memory_manager.core_rules(db=db, scene=scene))}"
-            " Return JSON only."
+            "你是本项目的消防检查智能助手。请仅使用提供的检索结果来回答问题。所有回答必须使用中文，禁止使用英文。不要编造法规依据，没有法规证据时省略引用。如果证据不足，请明确说明。"
+            " 只返回JSON，reply 字段必须全部为中文。"
+            ""
+            ""
+            f" 核心规则: {'; '.join(memory_manager.core_rules(db=db, scene=scene))}"
+            ""
         )
 
         final_payload = {
@@ -727,10 +723,10 @@ class AgentService:
             {
                 "role": "user",
                 "content": (
-                    "Based on the tool outputs below, return JSON only: "
+                    "请基于以下工具输出，用中文回答。只返回JSON: "
                     "{\"reply\":\"\",\"next_actions\":[\"\"],\"citations\":[{\"article\":\"\",\"source\":\"\",\"quote\":\"\"}],"
                     "\"used_tools\":[\"rules\"],\"confidence\":\"high|medium|low\"}\n\n"
-                    f"DATA:\n{json.dumps(final_payload, ensure_ascii=False)}"
+                    f"数据:\n{json.dumps(final_payload, ensure_ascii=False)}"
                 ),
             },
         ]

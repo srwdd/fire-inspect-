@@ -23,49 +23,49 @@ const OPERATION_GUIDES = {
     question: '请现场测试室内消火栓的出水压力和启泵功能',
     steps: ['打开消火栓箱门（箱门开启角度≥160°）','检查箱内器材：水枪×1、水带×1（25m）、栓阀','展开水带，连接水枪和栓阀接口','逆时针旋转手轮全开栓阀','握紧水枪对准排水方向，观察充实水柱（一般≥10m，高层≥13m）','按下消火栓箱内启泵按钮','到消防控制室确认：控制器收到启泵反馈信号，水泵30秒内启动'],
     passCriteria: '水压充足、充实水柱达标、启泵按钮有效、控制室收到信号',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E7%81%AB%E6%A0%93%E7%B3%BB%E7%BB%9F.mp4',
+    video: '',
   },
   '火灾自动报警系统': {
     question: '请测试火灾自动报警系统的探测器报警和控制器响应功能',
     steps: ['在消防控制室查看控制器面板：确认无故障灯/屏蔽灯常亮','抽查2个感烟探测器：使用专用烟感测试器加烟','观察控制器：30秒内收到报警信号，显示正确地址编码和部位','按下1个手动报警按钮','观察控制器：3秒内收到信号，启动声光报警器和应急广播','检查控制器主备电切换：断开主电源，备电应自动投入'],
     passCriteria: '探测器30s内报警、地址正确、手报3s内响应、主备电切换正常',
-    video: '/inspect/api/v1/inspection/videos/%E7%81%AB%E7%81%BE%E8%87%AA%E5%8A%A8%E6%8A%A5%E8%AD%A6%E7%B3%BB%E7%BB%9F.mp4',
+    video: '',
   },
   '自动喷水灭火系统': {
     question: '请测试自动喷水灭火系统末端试水装置',
     steps: ['找到系统最不利点的末端试水装置','打开末端试水阀','观察压力表读数：应≥0.05MPa','观察水流指示器：应动作并反馈信号至控制室','等待5分钟内压力开关动作并直接启动喷淋泵','到控制室确认：收到水流指示器、压力开关、喷淋泵启动信号','关闭试水阀，系统恢复'],
     passCriteria: '压力≥0.05MPa、水流指示器动作、压力开关启泵、控制室信号齐全',
-    video: '/inspect/api/v1/inspection/videos/%E8%87%AA%E5%8A%A8%E5%96%B7%E6%B0%B4%E7%81%AD%E7%81%AB%E7%B3%BB%E7%BB%9F.mp4',
+    video: '',
   },
   '防排烟系统': {
     question: '请测试防排烟风机的启动和联动功能',
     steps: ['在消防控制室远程手动启动排烟风机→确认风机运转、收到反馈','现场手动启动送风机→确认运转方向正确','触发2个火灾探测器（联动测试）：风机自动启动','观察送风口/排烟口自动开启','排烟风机入口处的排烟防火阀：手动测试关闭→排烟风机应连锁停止','确认消防控制室显示所有风机、风口、防火阀状态'],
     passCriteria: '三种启动方式均正常、风口正确开启、防火阀连锁关闭有效',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E6%8E%92%E7%83%9F%E7%B3%BB%E7%BB%9F.mp4',
+    video: '',
   },
   '防火门': {
     question: '请检查防火门的闭门器、顺序器和联动关闭功能',
     steps: ['常闭防火门：手动开启后释放→应自动关闭严密','双扇防火门：开启后释放→顺序器控制关闭顺序正确','检查闭门器：无漏油、弹簧有效','测量门扇与门框缝隙：≥2mm不合格','常开防火门：触发火灾报警→应联动自动关闭','消防控制室：确认收到防火门关闭反馈信号'],
     passCriteria: '自闭严密、顺序正确、闭门器完好、常开门联动关闭有效',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E7%81%AB%E9%97%A8%E5%92%8C%E9%98%B2%E7%81%AB%E5%8D%B7%E5%B8%98.mp4',
+    video: '',
   },
   '防火卷帘': {
     question: '请测试防火卷帘的手动和联动降落功能',
     steps: ['外观检查：帘板无锈蚀、导轨无卡阻、下方0.3m黄色警示线内无物品','操作两侧手动按钮：上升↓下降↓停止 均正常','操作手动速放链条：卷帘应能靠自重下降','疏散通道处：触发1个感烟探测器→卷帘降至距地1.8m','触发感温探测器→卷帘降到底','非疏散通道处：触发2个探测器→一步降到底','消防控制室：确认收到卷帘动作反馈信号'],
     passCriteria: '手动/联动升降正常、一步降/两步降正确、控制室反馈到位',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E7%81%AB%E9%97%A8%E5%92%8C%E9%98%B2%E7%81%AB%E5%8D%B7%E5%B8%98.mp4',
+    video: '',
   },
   '灭火器配置': {
     question: '请检查灭火器的配置、压力和有效期',
     steps: ['抽查3个配置点的灭火器','查看压力表：指针必须在绿区','查看生产日期和维修标签：在有效期内（干粉5年、CO₂ 3年）','检查筒体：无锈蚀、变形','检查喷射软管和保险销：完好','核对灭火器类型是否与场所火灾类别匹配','核对配置数量是否符合GB 50140要求'],
     passCriteria: '压力绿区、有效期内、筒体完好、类型匹配、数量足够',
-    video: '/inspect/api/v1/inspection/videos/%E7%81%AD%E7%81%AB%E5%99%A8%E9%85%8D%E7%BD%AE.mp4',
+    video: '',
   },
   '消防应急照明和疏散指示标志': {
     question: '请测试应急照明灯的切换和持续时间',
     steps: ['抽查任一疏散路线上的3处应急照明灯','切断主电源→灯具应在5s内自动切换至应急状态','使用照度计测量地面最低水平照度：疏散走道≥1.0lx、人员密集场所≥3.0lx','记录应急照明持续时间→应≥90分钟','核查疏散指示标志的方向→应指向最近安全出口','确认标志安装高度和间距符合要求'],
     passCriteria: '5s内切换、照度达标、持续时间≥90分钟、方向正确',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E5%BA%94%E6%80%A5%E7%85%A7%E6%98%8E.mp4',
+    video: '',
   },
   '电气线路安全': {
     question: '请检查电气线路的敷设和保护措施',
@@ -77,19 +77,19 @@ const OPERATION_GUIDES = {
     question: '请测试消防电梯的迫降和运行功能',
     steps: ['现场检查消防电梯前室面积和防火分隔','触发火灾报警→消防电梯应自动迫降至首层','检查消防电梯轿厢内：应设消防电话分机','手动操作消防电梯：从首层到顶层运行时间≤60s','测试消防电梯的消防员操作功能','消防控制室：确认显示消防电梯运行状态'],
     passCriteria: '自动迫降有效、运行时间≤60s、消防电话可用、设防水措施',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E7%94%B5%E6%A2%AF.mp4',
+    video: '',
   },
   '消防控制室值班': {
     question: '请测试消防控制室值班人员的设备操作能力',
     steps: ['确认值班人员持证上岗、每班≥2人','要求值班员操作火灾报警控制器：消音→查看信息→复位','要求值班员使用消防电话总机呼叫水泵房分机','要求值班员启动应急广播进行全楼广播','查看值班记录：完整、至少保存1年','确认控制器处于自动状态（非手动）'],
     passCriteria: '持证上岗、双人值班、操作熟练、记录完整、控制器自动状态',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E6%8E%A7%E5%88%B6%E5%AE%A4%E5%80%BC%E7%8F%AD.mp4',
+    video: '',
   },
   '消防水泵接合器': {
     question: '请检查消防水泵接合器的状态和标识',
     steps: ['现场查看水泵接合器外观完整性','检查是否被埋压、圈占、遮挡','查看永久性标志铭牌：标明供水系统类型和供水范围','确认距建筑外墙边缘≥5m','检查接口密封盖完好'],
     passCriteria: '无埋压遮挡、标识清晰、距外墙≥5m、接口完好',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E6%B0%B4%E6%B3%B5%E6%8E%A5%E5%90%88%E5%99%A8.mp4',
+    video: '',
   },
   '消防供电': {
     question: '请测试消防供电和备用电源切换功能',
@@ -97,20 +97,7 @@ const OPERATION_GUIDES = {
     passCriteria: '专用回路、备电自动投入、切换≤15s、发电机正常启动',
     video: '',
   },
-	  
-  '气体灭火系统': {
-    question: '请检查气体灭火系统的储瓶和防护区',
-    steps: ['检查储瓶间压力表在绿区（CO2称重≤5%）','电磁阀与瓶头阀连接牢固','启动管路无堵塞','抽查1个防护区门窗能自动关闭','泄压口位置正确、放气指示灯完好'],
-    passCriteria: '储瓶压力正常、防护区密闭、放气指示灯完好',
-    video: '',
-  },
-  '泡沫灭火系统': {
-    question: '请检查泡沫灭火系统的泡沫液和比例混合器',
-    steps: ['检查泡沫液有效期内（≤3年）','储罐无锈蚀泄漏','比例混合器未堵塞','泡沫产生器过滤网清洁、吸气口通畅'],
-    passCriteria: '泡沫液有效、储罐完好、混合比达标',
-    video: '',
-  },
-  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
+	  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
 	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
 	  '消防电话': { question: '请测试消防电话系统', steps: ['核查关键部位均有消防电话分机','控制室总机逐一呼叫各分机','通话清晰无杂音','线路采用独立回路'], passCriteria: '分机到位、通话清晰、线路独立' },
 	  '消防广播': { question: '请测试消防应急广播', steps: ['扬声器覆盖: 走道/大厅均有、间距≤25m','强制切换: 音量最小→火警→自动最大音量播放','分区广播: 按楼层/防火分区选择','全楼广播: 可同时播放疏散指令'], passCriteria: '覆盖到位、强制切换正常' },
@@ -122,20 +109,7 @@ const OPERATION_GUIDES = {
 	  '安全出口': { question: '请检查安全出口', steps: ['数量: 公共建筑≥2个','开启方向: 向疏散方向','门外1.4m无台阶','无锁闭/堵塞/遮挡','上方安全出口标志灯完好'], passCriteria: '数量足够、畅通无阻、标志完好' },
 	  '消防水泵': { question: '请检查消防水泵接合器', steps: ['外观完好、无埋压/圈占/遮挡','标志铭牌清晰','距外墙≥5m','接口密封盖完好'], passCriteria: '无埋压遮挡、标识清晰' },
 	  '防烟分区': { question: '请检查防烟分区', steps: ['每个分区≤500m²、不跨越防火分区','挡烟垂壁完好有效','底部距地面≥2.0m'], passCriteria: '分区合理、挡烟垂壁完好' },
-	  
-  '气体灭火系统': {
-    question: '请检查气体灭火系统的储瓶和防护区',
-    steps: ['检查储瓶间压力表在绿区（CO2称重≤5%）','电磁阀与瓶头阀连接牢固','启动管路无堵塞','抽查1个防护区门窗能自动关闭','泄压口位置正确、放气指示灯完好'],
-    passCriteria: '储瓶压力正常、防护区密闭、放气指示灯完好',
-    video: '',
-  },
-  '泡沫灭火系统': {
-    question: '请检查泡沫灭火系统的泡沫液和比例混合器',
-    steps: ['检查泡沫液有效期内（≤3年）','储罐无锈蚀泄漏','比例混合器未堵塞','泡沫产生器过滤网清洁、吸气口通畅'],
-    passCriteria: '泡沫液有效、储罐完好、混合比达标',
-    video: '',
-  },
-  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
+	  '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
 	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
 	  '消防电话': { question: '请测试消防电话系统', steps: ['核查关键部位均有消防电话分机','控制室总机逐一呼叫各分机','通话清晰无杂音','线路采用独立回路'], passCriteria: '分机到位、通话清晰、线路独立' },
 	  '消防广播': { question: '请测试消防应急广播', steps: ['扬声器覆盖: 走道/大厅均有、间距≤25m','强制切换: 音量最小→火警→自动最大音量播放','分区广播: 按楼层/防火分区选择','全楼广播: 可同时播放疏散指令'], passCriteria: '覆盖到位、强制切换正常' },
@@ -197,36 +171,9 @@ function getTypicalHazard(facility) {
   return null;
 }
 
-// 关键词→操作指南映射（比字符串匹配更鲁棒）
-const GUIDE_KEYWORDS = {
-  '消火栓系统': ['消火栓','启泵','消防给水','水带','栓阀','消防水泵','消防水池','消防水箱'],
-  '火灾自动报警系统': ['火灾自动报警','火灾报警','报警控制器','探测器','声光','手动火灾报警','手动报警','消防电话','消防广播','联动控制','火灾探测器','火灾警报'],
-  '自动喷水灭火系统': ['自动喷水','喷淋','喷头','末端试水','水流指示器','报警阀','洒水喷头'],
-  '防排烟系统': ['排烟','防烟','送风','防火阀','排烟窗','挡烟垂壁','自然排烟','风机启动'],
-  '防火门': ['防火门','闭门器','顺序器','耐火等级'],
-  '防火卷帘': ['防火卷帘'],
-  '灭火器配置': ['灭火器'],
-  '消防应急照明和疏散指示标志': ['应急照明','疏散指示','应急灯','疏散通道','安全出口','疏散楼梯'],
-  '电气线路安全': ['电气线路','配电','电线','电缆井','管道井'],
-  '消防电梯': ['消防电梯'],
-  '消防控制室值班': ['消防控制室','值班','图形显示'],
-  '消防水泵接合器': ['水泵接合器'],
-  '消防供电': ['消防供电','发电','ATS','备用电源'],
-  '气体灭火系统': ['气体灭火','储瓶','气瓶','防护区'],
-  '泡沫灭火系统': ['泡沫灭火','泡沫液','比例混合'],
-};
-
 function getOperationGuide(facility) {
-  if (!facility) return null;
-  // 精确匹配优先
   for (const [k, v] of Object.entries(OPERATION_GUIDES)) {
-    if (facility.includes(k)) return v;
-  }
-  // 关键词匹配
-  for (const [k, keywords] of Object.entries(GUIDE_KEYWORDS)) {
-    for (const kw of keywords) {
-      if (facility.includes(kw)) return OPERATION_GUIDES[k];
-    }
+    if (facility && facility.includes(k)) return v;
   }
   return null;
 }
@@ -256,7 +203,6 @@ createApp({
       showPhoto: false,
       photoAnalyzing: false,
       photoResult: null,
-      photoCompareHazard: null,
       // 报告
       report: null,
       // 搜索
@@ -265,14 +211,6 @@ createApp({
       searchResult: '',
       isRecording: false,
       recognition: null,
-      // 语音判决
-      isVoiceJudging: false,
-      voiceJudgeText: '',
-      // 复查提醒
-      pendingRechecks: null,
-      // 设备历史
-      facilityHistory: null,
-      showFacilityHistory: false,
       // 规模参数 + 子类型
       showScaleInput: false,
       showSubTypePicker: false,
@@ -283,8 +221,6 @@ createApp({
       selectedBrand: '',
       showQaAnswer: false,
       showOpGuide: false,
-      recheckPhoto: null, recheckPreviewData: null,
-      loading: false, loadingText: '', toast: null,
       // 计算器 + 智能诊断
       showCalc: false,
       calcType: '',
@@ -295,14 +231,7 @@ createApp({
       ownerRpt: null,
       showJumpMenu: false,
       sectionIndex: {},
-      nineSmallSubTypes: [
-        '小商店/小超市', '小餐饮/小吃店', '小旅馆/民宿', '小娱乐/网吧',
-        '小诊所/卫生室', '小培训机构/托育', '小加工/小仓储', '其他小场所'
-      ],
-      // 视频弹窗
-      showVideoModal: false,
-      currentVideoUrl: '',
-      currentVideoTitle: '',
+      nineSmallSubTypes: ['小商店','小旅馆','小学校/幼儿园','小医院/诊所','小网吧','小餐饮场所','小歌舞娱乐场所','小美容洗浴场所','小生产加工企业','小培训机构','小民政服务机构','小托育机构','小健身场所','小娱乐休闲场所','小冰雪活动场所','小仓储物流场所','小民宿','小汽修场所','小照相馆','小金融服务场所','小网络直播场所','小公共体育场馆','小宗教活动场所'],
     };
   },
 
@@ -313,26 +242,7 @@ createApp({
     },
   },
 
-  mounted() {
-    this.fetchPendingRechecks();
-  },
-
-  watch: {
-    page(newPage) {
-      if (newPage === 'rechecks') this.fetchPendingRechecks();
-      if (newPage === 'home') this.fetchPendingRechecks();
-    },
-  },
-
   methods: {
-    showToast(msg, type='info') {
-      this.toast = { msg, type };
-      setTimeout(() => { this.toast = null; }, 3000);
-    },
-    confirmBackToHome() {
-      if (this.judgedCount > 0 && !confirm('已判断 ' + this.judgedCount + ' 项，将丢失进度。确定返回？')) return;
-      this.page = 'home'; this.inspectionId = ''; this.currentItem = null; this.judgments = {}; this.judgedCount = 0;
-    },
     categoryLabel(cat) {
       return { '消防管理': '管理', '技术条件': '技术', '设施完好': '设施' }[cat] || cat;
     },
@@ -350,63 +260,31 @@ createApp({
     },
 
     // === 导航 ===
-    // itemsCache: 本地缓存全部检查项（避免每次跳转请求 API）
-    async preloadItems() {
-      // 一次请求加载全部检查项（替代逐个请求）
-      if (this._itemsCache && Object.keys(this._itemsCache).length >= this.totalItems) return;
-      try {
-        const r = await API.get(`/${this.inspectionId}/items`);
-        const all = r.data.data || [];
-        this._itemsCache = this._itemsCache || {};
-        for (const item of all) {
-          this._itemsCache[item.item_index] = item;
-        }
-      } catch(e) { console.error('preload failed:', e); }
-    },
     async goToItem(index) {
       if (index < 0 || index >= this.totalItems) return;
-      // 优先从缓存读取，缓存未命中才请求 API
-      let item = this._itemsCache && this._itemsCache[index];
-      if (!item) {
-        try {
-          const r = await API.get(`/${this.inspectionId}/item/${index}`);
-          item = r.data.data;
-          if (!this._itemsCache) this._itemsCache = {};
-          this._itemsCache[index] = item;
-        } catch (e) { console.error(e); return; }
-      }
-      this.currentItem = item;
-      this.currentIndex = index;
-      // Section header
-      const step = this.currentItem.step || 5;
-      const order = this.currentItem.section_order || 0;
-      const secName = this.getSectionName(step, order) || '';
-      if (secName !== this._lastSectionName) {
-        this.currentSectionName = secName;
-        this.currentStepName = this.currentItem.step_name || '';
-        this._lastSectionName = secName;
-      } else {
-        this.currentSectionName = '';
-        this.currentStepName = '';
-      }
-      this.showQaAnswer = false;
-      this.selectedBrand = '';
-      this.showOpGuide = false;
-      this.recheckPhoto = null;
+      try {
+        const r = await API.get(`/${this.inspectionId}/item/${index}`);
+        this.currentItem = r.data.data;
+        this.currentIndex = index;
+        // Section header — only show when section changes
+        const step = this.currentItem.step || 5;
+        const order = this.currentItem.section_order || 0;
+        const secName = this.getSectionName(step, order) || '';
+        if (secName !== this._lastSectionName) {
+          this.currentSectionName = secName;
+          this.currentStepName = this.currentItem.step_name || '';
+          this._lastSectionName = secName;
+        } else {
+          this.currentSectionName = '';
+          this.currentStepName = '';
+        }
+        this.showQaAnswer = false;
+        this.selectedBrand = '';
+        this.showOpGuide = false;
+      } catch (e) { console.error(e); }
     },
     async goPrev() { if (this.currentIndex > 0) await this.goToItem(this.currentIndex - 1); },
-    async goNext() {
-      if (this.currentIndex < this.totalItems - 1) {
-        await this.goToItem(this.currentIndex + 1);
-      } else {
-        // 已在最后一项，检查是否全部判定完毕
-        if (this.judgedCount >= this.totalItems) {
-          this.completeInspection();
-        } else {
-          this.showToast(`还有 ${this.totalItems - this.judgedCount} 项未判定，请逐项完成`, 'info');
-        }
-      }
-    },
+    async goNext() { if (this.currentIndex < this.totalItems - 1) await this.goToItem(this.currentIndex + 1); },
 
     // === 历史搜索 ===
     async searchHistory() {
@@ -417,38 +295,17 @@ createApp({
         this.searched = true;
       } catch (e) { console.error(e); }
     },
-    async lookupFacilityHistory(facility) {
-      try {
-        const r = await axios.get(API_BASE + '/facility-history', { params: { facility } });
-        this.facilityHistory = r.data.data;
-        this.showFacilityHistory = true;
-      } catch (e) { this.facilityHistory = null; }
-    },
-
-    async fetchPendingRechecks() {
-      try {
-        const r = await axios.get(API_BASE + '/pending-rechecks');
-        this.pendingRechecks = r.data.data;
-      } catch (e) { this.pendingRechecks = { total: 0, urgent: 0, upcoming: 0, tasks: [] }; }
-    },
 
     // === 开始检查 ===
     startInspection(scene) {
       this.pendingScene = scene;
       // 非公众聚集场所不适用开业前检查
       if (!scene.preopen) this.inspectType = 'daily';
-      // 九小场所: 跳过规模参数，直接选子类型
-      if (scene.key === 'nine_small') {
-        this.showSubTypePicker = true;
-        this.showScaleInput = false;
-        this.selectedSubType = '';
-        this.scaleForm = { area: '100', staff: '3', floors: '1', buildings: '1' };
-      } else {
-        this.showSubTypePicker = false;
-        this.showScaleInput = true;
-        this.selectedSubType = '';
-        this.scaleForm = { area: '', staff: '', floors: '', buildings: '1' };
-      }
+      if (scene.key === 'nine_small') this.showSubTypePicker = true;
+      else this.showSubTypePicker = false;
+      this.showScaleInput = true;
+      this.selectedSubType = '';
+      this.scaleForm = { area: '', staff: '', floors: '', buildings: '1' };
     },
     async confirmStartInspection() {
       const s = this.scaleForm;
@@ -465,9 +322,7 @@ createApp({
         sub_type: this.selectedSubType,
       };
       try {
-        this.loading = true; this.loadingText = '正在生成检查项...';
         const r = await API.post('/start', params);
-        this.loading = false;
         const d = r.data.data;
         this.inspectionId = d.inspection_id;
         this.totalItems = d.total_items;
@@ -481,15 +336,9 @@ createApp({
         this.showSubTypePicker = false;
         this.page = 'inspect';
         await this.goToItem(0);
-        // 后台预加载剩余检查项（不阻塞首屏）
-        this.preloadItems();
-      } catch (e) { this.loading = false; this.showToast('启动检查失败: ' + e.message, 'error'); }
+      } catch (e) { alert('启动检查失败: ' + e.message); }
     },
 
-    async previewRecheck(h) {
-      this.recheckPreviewData = h;
-      this.page = 'recheckPreview';
-    },
     async startRecheck(history) {
       try {
         const r = await API.post('/recheck', { previous_inspection_id: history.inspection_id, inspector: '消防员' });
@@ -503,39 +352,38 @@ createApp({
         this.judgments = {};
         this.page = 'inspect';
         await this.goToItem(0);
-        this.preloadItems();
-      } catch (e) { this.showToast('启动复查失败: ' + e.message, 'error'); }
+      } catch (e) { alert('启动复查失败: ' + e.message); }
     },
 
     // === 提交判断（可覆盖之前的结果） ===
-    // 获取章节分组键（按 step 值，用于 N/A 跳过整个大类）
-    getSectionGroup(item) {
-      return item?.step || 0;
+    // 获取项目的系统分组键（用于跳过同类子项）
+    getSystemGroup(item) {
+      const f = item?.facility || '';
+      if (f.includes('消火栓')) return '消火栓系统';
+      if (f.includes('报警') || f.includes('探测器') || f.includes('声光') || f.includes('手动报警')) return '火灾自动报警';
+      if (f.includes('喷水') || f.includes('喷头') || f.includes('报警阀') || f.includes('末端试水') || f.includes('水流指示器')) return '自动喷水';
+      if (f.includes('排烟') || f.includes('防烟') || f.includes('防火阀') || f.includes('送风')) return '防排烟';
+      if (f.includes('防火门') || f.includes('闭门器') || f.includes('顺序器') || f.includes('耐火')) return '防火门';
+      if (f.includes('防火卷帘')) return '防火卷帘';
+      if (f.includes('广播') || f.includes('扬声器')) return '消防广播';
+      if (f.includes('消防电话')) return '消防电话';
+      if (f.includes('气体灭火') || f.includes('储瓶') || f.includes('防护区')) return '气体灭火';
+      if (f.includes('泡沫')) return '泡沫灭火';
+      if (f.includes('发电机') || f.includes('储油') || f.includes('供电')) return '消防供电';
+      if (f.includes('灭火器')) return '灭火器';
+      if (f.includes('应急照明') || f.includes('疏散指示')) return '应急照明';
+      if (f.includes('消防电梯')) return '消防电梯';
+      return f;
     },
 
-    async getGps() {
-      if (this._gpsCached) return this._gpsCached;
-      try {
-        const pos = await new Promise((resolve, reject) => {
-          if (!navigator.geolocation) return reject(new Error('no geolocation'));
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, maximumAge: 60000 });
-        });
-        this._gpsCached = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        return this._gpsCached;
-      } catch (e) { return null; }
-    },
-
-    async judge(result, prefillNote, prefillRectification) {
+    async judge(result) {
       const wasJudged = this.judgments[this.currentIndex] !== undefined;
       const wasFail = wasJudged && this.judgments[this.currentIndex].result === 'fail';
       const wasNA = wasJudged && this.judgments[this.currentIndex].result === 'na';
 
-      let note = prefillNote || '';
-      if (!note && result === 'fail') {
+      let note = '';
+      if (result === 'fail') {
         note = prompt('请填写问题描述:', this.judgments[this.currentIndex]?.note || '') || '';
-        this.diagnosis = this.getDiagnosis(this.currentItem);
-        this.showDiagnosis = true;
-      } else if (result === 'fail') {
         this.diagnosis = this.getDiagnosis(this.currentItem);
         this.showDiagnosis = true;
       } else if (result === 'na') {
@@ -543,39 +391,39 @@ createApp({
         this.showDiagnosis = false;
         this.diagnosis = null;
 
-        // 确保全部检查项已缓存，然后纯本地跳过同章节
-        await this.preloadItems();
-        const currentSection = this.getSectionGroup(this.currentItem);
-        let skipEnd = this.currentIndex + 1;
-
-        // 从缓存中找到第一个不同章节的项
-        while (skipEnd < this.totalItems) {
-          const nextItem = this._itemsCache && this._itemsCache[skipEnd];
-          if (nextItem && this.getSectionGroup(nextItem) !== currentSection) break;
-          skipEnd++;
+        // 跳过同类系统的所有子项（用 /next 端点，每次自动推进）
+        const currentGroup = this.getSystemGroup(this.currentItem);
+        let skipped = 0;
+        while (true) {
+          try {
+            const r = await API.get(`/${this.inspectionId}/next`);
+            const nextItem = r.data.data;
+            if (!nextItem || r.data.is_complete) break;
+            const nextGroup = this.getSystemGroup(nextItem);
+            if (nextGroup !== currentGroup) {
+              // Different system → stop here, load this item
+              this.currentItem = nextItem;
+              this.currentIndex = skipped + this.currentIndex + 1;
+              this.showQaAnswer = false;
+              this.selectedBrand = '';
+              this.showOpGuide = false;
+              break;
+            }
+            // Same system → auto-judge and continue
+            this.judgments[this.currentIndex + skipped + 1] = { result: 'na', note: '自动跳过' };
+            API.post(`/${this.inspectionId}/judge`, { item_index: this.currentIndex + skipped + 1, result: 'na', note: '自动跳过', judge_source: 'manual' }).catch(()=>{});
+            skipped++;
+          } catch(e) { break; }
         }
-
-        // 批量标记中间项为 N/A（并行发 API）
-        const skipCount = skipEnd - this.currentIndex - 1;
-        const judgePromises = [];
-        for (let i = this.currentIndex + 1; i < skipEnd; i++) {
-          this.judgments[i] = { result: 'na', note: '自动跳过' };
-          judgePromises.push(
-            API.post(`/${this.inspectionId}/judge`, {
-              item_index: i, result: 'na', note: '自动跳过', judge_source: 'manual'
-            }).catch(() => {})
-          );
-        }
-        await Promise.all(judgePromises);
-
-        this.judgedCount += skipCount + (wasJudged ? 0 : 1);
+        this.judgedCount += skipped + (wasJudged ? 0 : 1);
         this.judgments[this.currentIndex] = { result, note };
-
-        // 跳转到第一个不同章节的项，或完成检查
-        if (skipEnd < this.totalItems) {
-          await this.goToItem(skipEnd);
-        } else {
-          this.completeInspection();
+        if (skipped === 0) {
+          // No skipping happened (already at last item or error), just load next
+          try {
+            const r = await API.get(`/${this.inspectionId}/item/${this.currentIndex + 1}`);
+            this.currentItem = r.data.data;
+            this.currentIndex++;
+          } catch(e) {}
         }
         return;
       } else {
@@ -584,12 +432,7 @@ createApp({
       }
 
       try {
-        const judgePayload = { item_index: this.currentIndex, result, note, judge_source: 'manual' };
-        if (prefillRectification) judgePayload.rectification_status = prefillRectification;
-        const gps = await this.getGps();
-        if (gps) { judgePayload.lat = gps.lat; judgePayload.lng = gps.lng; }
-        const r = await API.post(`/${this.inspectionId}/judge`, judgePayload);
-        if (r.data?.data?.gps_warning) alert(r.data.data.gps_warning);
+        await API.post(`/${this.inspectionId}/judge`, { item_index: this.currentIndex, result, note, judge_source: 'manual' });
       } catch (e) { console.error(e); }
 
       // 更新本地记录
@@ -601,11 +444,9 @@ createApp({
 
       this.judgments[this.currentIndex] = { result, note };
 
-      // 自动跳到下一项，或完成检查
+      // 自动跳到下一项
       if (this.currentIndex < this.totalItems - 1) {
         await this.goToItem(this.currentIndex + 1);
-      } else {
-        this.completeInspection();
       }
     },
 
@@ -630,70 +471,48 @@ createApp({
       return { causes: ['需要进一步现场排查'], impacts: [], fixes: ['根据现场情况制定整改方案'] };
     },
     closeDiagnosis() { this.showDiagnosis = false; this.diagnosis = null; },
-
-    // === 检查完成 ===
-    completeInspection() {
-      this.inspected = true;
-      this.currentItem = null;
-      this.currentSectionName = '';
-      this.currentStepName = '';
-      // 自动生成报告
-      this.generateReport();
-    },
-    async generateReport() {
-      try {
-        const r = await API.get(`/${this.inspectionId}/report`);
-        this.report = r.data.data;
-      } catch (e) {
-        console.error('生成报告失败:', e);
-        this.showToast('报告生成失败，请稍后重试', 'error');
-      }
-    },
-
-    // === 视频弹窗 ===
-    openVideo(url, title) {
-      this.currentVideoUrl = url;
-      this.currentVideoTitle = title || '示范视频';
-      this.showVideoModal = true;
-    },
-    closeVideo() {
-      this.showVideoModal = false;
-      this.currentVideoUrl = '';
-      this.currentVideoTitle = '';
-    },
     async toggleJumpMenu() {
       this.showJumpMenu = !this.showJumpMenu;
-      if (this.showJumpMenu) {
-        await this.preloadItems();
-        this.buildSectionIndex();
-      }
-    },
-    buildSectionIndex() {
-      // 从缓存读取（preloadItems 已一次加载全部），不再逐项请求 API
-      if (Object.keys(this.sectionIndex).length > 0) return;
-      const idx = {};
-      let lastSection = ''; let sectionStart = 0;
-      for (let i = 0; i < this.totalItems; i++) {
-        const item = (this._itemsCache && this._itemsCache[i]);
-        if (!item) continue;
-        const secName = this.getSectionName(item.step || 5, item.section_order || 0);
-        if (secName && secName !== lastSection && i > 0) {
-          if (lastSection) idx[lastSection] = { start: sectionStart, end: i - 1 };
-          sectionStart = i;
-        }
-        if (secName) lastSection = secName;
-      }
-      if (lastSection) idx[lastSection] = { start: sectionStart, end: this.totalItems - 1 };
-      this.sectionIndex = idx;
+      if (this.showJumpMenu) await this.buildSectionIndex();
     },
     judgedInRange(start, end) {
       let c = 0;
       for (let i = start; i <= end; i++) { if (this.judgments[i]) c++; }
       return c;
     },
+    async buildSectionIndex() {
+      if (Object.keys(this.sectionIndex).length > 0) return;
+      const idx = {};
+      let lastSection = ''; let sectionStart = 0;
+      // Fetch every item to accurately detect section boundaries
+      const batchSize = 5;
+      for (let pos = 0; pos < this.totalItems; pos += batchSize) {
+        try {
+          const promises = [];
+          for (let i = pos; i < Math.min(pos + batchSize, this.totalItems); i++) {
+            promises.push(API.get(`/${this.inspectionId}/item/${i}`));
+          }
+          const results = await Promise.all(promises);
+          for (let j = 0; j < results.length; j++) {
+            const actualPos = pos + j;
+            const item = results[j].data.data || {};
+            const step = item.step || 5;
+            const order = item.section_order || 0;
+            const secName = this.getSectionName(step, order);
+            if (secName && secName !== lastSection && actualPos > 0) {
+              if (lastSection) idx[lastSection] = { start: sectionStart, end: actualPos - 1 };
+              sectionStart = actualPos;
+            }
+            if (secName) lastSection = secName;
+          }
+        } catch(e) { break; }
+      }
+      if (lastSection) idx[lastSection] = { start: sectionStart, end: this.totalItems - 1 };
+      this.sectionIndex = idx;
+    },
     getSectionName(step, order) {
       if (this.inspectType === 'daily') {
-        const dm = {31:'1 建筑消防合法性',32:'2 消防安全管理',33:'3 消防设施器材',34:'4 建筑防火与疏散',35:'5 消防产品检查',36:'6 电器线路燃气管路',37:'7 火灾隐患整改'};
+        const dm = {31:'3.1 建筑消防合法性',32:'3.2 消防安全管理',33:'3.3 消防设施器材',34:'3.4 建筑防火与疏散',35:'3.5 消防产品检查',36:'3.6 电器线路燃气管路',37:'3.7 火灾隐患整改'};
         return dm[step] || '';
       }
       const o = order || 0;
@@ -753,24 +572,226 @@ createApp({
       } catch (e) { this.calcResult = { result: '计算失败: ' + (e.response?.data?.msg || e.message) }; }
     },
 
-    // (photo/report/voice 方法委托到 APP_EXTRAS — 见 app-extras.js)
-    uploadPhoto(e) { APP_EXTRAS.uploadPhoto.call(this, e); },
-    confirmPhotoResult() { APP_EXTRAS.confirmPhotoResult.call(this); },
-    uploadRecheckPhoto(e) { APP_EXTRAS.uploadRecheckPhoto.call(this, e); },
-    viewReport() { return APP_EXTRAS.viewReport.call(this); },
-    newInspection() { APP_EXTRAS.newInspection.call(this); },
-    viewOwnerReport() { return APP_EXTRAS.viewOwnerReport.call(this); },
-    printOwnerReport() { APP_EXTRAS.printOwnerReport.call(this); },
+    // === 拍照 ===
+    async uploadPhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.photoAnalyzing = true;
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        form.append('item_index', this.currentIndex);
+        const r = await API.post(`/${this.inspectionId}/photo`, form);
+        this.photoResult = r.data.data?.analysis || { violation: null, reason: '分析完成', confidence: 0 };
+      } catch (e) {
+        this.photoResult = { violation: null, reason: '分析失败: ' + e.message, confidence: 0 };
+      }
+      this.photoAnalyzing = false;
+    },
+
+    confirmPhotoResult() {
+      this.judge(this.photoResult?.violation ? 'fail' : 'pass');
+      this.showPhoto = false;
+      this.photoResult = null;
+    },
+
+    // === 报告 ===
+    async viewReport() {
+      try {
+        const r = await API.get(`/${this.inspectionId}/report`);
+        this.report = r.data.data;
+        this.page = 'report';
+      } catch (e) { alert('获取报告失败: ' + e.message); }
+    },
+
+    newInspection() {
+      this.page = 'home';
+      this.report = null;
+      this.ownerRpt = null;
+    },
+
+    // === 业主告知书 ===
+    async viewOwnerReport() {
+      try {
+        const r = await API.get(`/${this.inspectionId}/owner-report`);
+        this.ownerRpt = r.data.data;
+        this.page = 'ownerReport';
+      } catch (e) { alert('获取业主报告失败: ' + e.message); }
+    },
+    printOwnerReport() {
+      const el = document.getElementById('owner-print-area');
+      if (!el) return;
+      const win = window.open('', '_blank', 'width=800,height=600');
+      win.document.write(`<html><head><meta charset="UTF-8"><title>消防安全隐患整改告知书</title>
+<style>body{font-family:SimSun,serif;max-width:700px;margin:20px auto;font-size:14px;line-height:1.8}
+h3{text-align:center;font-size:20px}.or-meta{display:flex;gap:20px;margin:12px 0}
+.or-score{padding:10px;border-radius:4px;margin:10px 0;font-weight:bold}
+.risk-red{background:#fff1f0;color:#cf1322}.risk-orange{background:#fff7e6;color:#d46b08}
+.risk-yellow{background:#fffbe6;color:#d48806}.risk-green{background:#f6ffed;color:#389e0d}
+.or-section{margin:16px 0}.or-section h4{font-size:16px;margin-bottom:8px}
+.or-item{padding:8px 12px;margin:6px 0;border-radius:4px}
+.urgent{border-left:4px solid #d4380d;background:#fff1f0}
+.deadline{border-left:4px solid #e85d04;background:#fff7e6}
+.suggestion{border-left:4px solid #faad14;background:#fffbe6}
+.or-note{color:#666;font-size:13px}.or-src{color:#1890ff;font-size:12px}
+.or-footer{padding:12px;background:#fafafa;border-radius:6px;margin:16px 0}
+.or-sign{display:flex;gap:30px;margin-top:30px;padding-top:20px;border-top:1px dashed #ccc}
+@media print{body{margin:0;padding:10px}button{display:none}}
+</style></head><body>${el.innerHTML}</body></html>`);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    },
     printReport() {
       window.print();
     },
 
-    // (voice/search 方法委托到 APP_EXTRAS — 见 app-extras.js)
-    startSearch() { APP_EXTRAS.startSearch.call(this); },
-    doSearch() { return APP_EXTRAS.doSearch.call(this); },
-    voiceAvailable() { return APP_EXTRAS.voiceAvailable(); },
-    voiceUnavailableReason() { return APP_EXTRAS.voiceUnavailableReason(); },
-    startVoice() { return APP_EXTRAS.startVoice.call(this); },
-    stopVoice() { APP_EXTRAS.stopVoice.call(this); },
+    // === 法规检索 + 语音 ===
+    startSearch() {
+      this.page = 'search';
+      this.searchResult = '';
+      this.searchQuery = '';
+    },
+    async doSearch() {
+      const q = this.searchQuery.trim();
+      if (!q) return;
+      this.searching = true;
+      this.searchResult = '';
+      try {
+        const chatAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/agent') });
+        const r = await chatAPI.post('/chat', { message: q, scene: 'general' });
+        this.searchResult = r.data.reply || r.data.answer || '未获取到结果';
+      } catch (e) {
+        this.searchResult = '查询失败: ' + (e.response?.data?.detail || e.message);
+      }
+      this.searching = false;
+    },
+
+    // === 语音转文字（MediaRecorder + 服务端 faster-whisper） ===
+    voiceAvailable() {
+      // 检测 MediaRecorder + getUserMedia 支持（远好于 Web Speech API）
+      const hasMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      const hasRecorder = typeof MediaRecorder !== 'undefined';
+      const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+      return hasMedia && hasRecorder && isSecure;
+    },
+    voiceUnavailableReason() {
+      if (typeof MediaRecorder === 'undefined') {
+        const ua = navigator.userAgent;
+        if (/iPad|iPhone|iPod/.test(ua)) return 'iOS 请使用 Safari 浏览器（iOS 14.5+）';
+        if (/MicroMessenger/.test(ua)) return '微信内置浏览器不支持录音，请点击右上角"在浏览器中打开"';
+        return '您的浏览器不支持录音功能，请使用 Chrome/Safari 浏览器';
+      }
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        return '录音功能需要 HTTPS 安全连接';
+      }
+      return '';
+    },
+    async startVoice() {
+      // 手动停止录音
+      if (this.isRecording) {
+        this.stopVoice();
+        return;
+      }
+
+      // 不可用时给出具体原因
+      if (!this.voiceAvailable()) {
+        const reason = this.voiceUnavailableReason();
+        this.searchResult = '⚠️ ' + reason;
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        this._mediaStream = stream;
+
+        // 检测支持的 MIME 类型（移动端通常支持 webm 或 mp4）
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : MediaRecorder.isTypeSupported('audio/mp4')
+            ? 'audio/mp4'
+            : 'audio/webm';
+
+        const recorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstart = () => {
+          this.isRecording = true;
+          this.searchResult = '';
+          this.searchQuery = '🎤 正在聆听...';
+          console.log('[Voice] MediaRecorder 已启动, mimeType:', mimeType);
+        };
+
+        recorder.onstop = async () => {
+          console.log('[Voice] 录音结束, chunks:', chunks.length);
+          this.isRecording = false;
+          this.searchQuery = '';
+
+          // 释放麦克风
+          stream.getTracks().forEach(t => t.stop());
+
+          if (chunks.length === 0) {
+            this.searchResult = '⚠️ 未录制到音频，请重试';
+            return;
+          }
+
+          const blob = new Blob(chunks, { type: mimeType });
+          console.log('[Voice] 音频大小:', (blob.size / 1024).toFixed(1), 'KB');
+
+          // 上传到服务端转文字
+          this.searching = true;
+          this.searchResult = '🎧 AI 正在聆听...';
+          try {
+            const form = new FormData();
+            form.append('file', blob, 'recording.' + (mimeType.includes('mp4') ? 'mp4' : 'webm'));
+            const speechAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/speech') });
+            const r = await speechAPI.post('/transcribe', form);
+            const text = r.data?.text || r.data?.transcript || '';
+            console.log('[Voice] 识别结果:', text);
+            if (text.trim()) {
+              this.searchQuery = text.trim();
+              this.doSearch();
+            } else {
+              this.searchResult = '⚠️ 未识别到语音内容，请重试或使用文字输入';
+              this.searching = false;
+            }
+          } catch (e) {
+            console.error('[Voice] 上传失败:', e);
+            this.searchResult = '⚠️ 语音识别失败: ' + (e.response?.data?.detail || e.message || '网络错误');
+            this.searching = false;
+          }
+        };
+
+        this._recorder = recorder;
+        recorder.start();
+        console.log('[Voice] 开始录音...');
+      } catch (e) {
+        console.error('[Voice] getUserMedia 失败:', e);
+        this.isRecording = false;
+        if (e.name === 'NotAllowedError') {
+          const isAndroid = /Android/.test(navigator.userAgent);
+          const msg = isAndroid
+            ? '麦克风权限未开启\n\n请在 Chrome 地址栏右侧点击🔒图标 → 权限 → 麦克风 → 允许\n\n或: 手机设置 → 应用管理 → Chrome → 权限 → 麦克风 → 允许'
+            : '麦克风权限未开启\n\n请允许浏览器访问麦克风后重试\n\n（iOS: 设置 → Safari → 麦克风）';
+          alert(msg);
+        } else if (e.name === 'NotFoundError') {
+          alert('未找到麦克风设备，请检查设备连接');
+        } else {
+          alert('无法访问麦克风: ' + (e.message || '未知错误'));
+        }
+      }
+    },
+    stopVoice() {
+      if (this._recorder && this._recorder.state === 'recording') {
+        this._recorder.stop();
+      }
+      if (this._mediaStream) {
+        this._mediaStream.getTracks().forEach(t => t.stop());
+      }
+      this.isRecording = false;
+    },
   },
 }).mount('#app');

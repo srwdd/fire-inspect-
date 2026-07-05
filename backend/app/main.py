@@ -84,6 +84,11 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, **cors_config)
 
 app.mount("/static", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="static")
+
+# 视频教学文件（供前端示范视频播放）
+videos_dir = settings.BASE_DIR / "app" / "api" / "videos"
+if videos_dir.exists():
+    app.mount("/api/v1/inspection/videos", StaticFiles(directory=str(videos_dir)), name="inspection_videos")
 web_dir = settings.BASE_DIR.parent / "web"
 if web_dir.exists():
     app.mount("/web", StaticFiles(directory=str(web_dir), html=True), name="web")

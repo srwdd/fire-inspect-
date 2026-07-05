@@ -1,0 +1,292 @@
+{
+  "_meta": {
+    "description": "消防隐患细分类标签体系 — 对标海南AI消防大模型11大类28细项",
+    "version": "1.0",
+    "total_categories": 11,
+    "total_labels": 28
+  },
+  "categories": {
+    "FIRE_LANE": {
+      "name": "消防通道",
+      "icon": "🚒",
+      "labels": {
+        "FIRE_LANE-01": {
+          "name": "消防车道被占用",
+          "description": "消防车道被车辆、摊位、堆放物等占用或堵塞",
+          "regulation": ["GB 50016 第7.1.8条", "消防法第28条"],
+          "rectification": "立即清除占用物，恢复消防车道畅通",
+          "deadline": "立即",
+          "severity": "important"
+        },
+        "FIRE_LANE-02": {
+          "name": "消防车道宽度/高度不足",
+          "description": "消防车道净宽不足4m或净高不足4m，转弯半径不满足消防车通行",
+          "regulation": ["GB 50016 第7.1.8条"],
+          "rectification": "拓宽车道至4m以上，清除上方障碍物至4m以上",
+          "deadline": "7天",
+          "severity": "important"
+        }
+      }
+    },
+    "EXIT": {
+      "name": "安全出口",
+      "icon": "🚪",
+      "labels": {
+        "EXIT-01": {
+          "name": "安全出口锁闭/堵塞",
+          "description": "安全出口被锁死、封堵、堆放杂物或被遮挡无法正常开启",
+          "regulation": ["消防法第28条", "GB 50016 第5.5.1条"],
+          "rectification": "立即拆除锁具和障碍物，确保安全出口畅通可开启",
+          "deadline": "立即",
+          "severity": "important"
+        },
+        "EXIT-02": {
+          "name": "安全出口数量不足",
+          "description": "楼层或防火分区安全出口少于2个，或疏散宽度不满足要求",
+          "regulation": ["GB 50016 第5.5.8条"],
+          "rectification": "增设安全出口或扩大疏散宽度",
+          "deadline": "30天",
+          "severity": "important"
+        },
+        "EXIT-03": {
+          "name": "安全出口标识缺失",
+          "description": "安全出口上方或疏散走道未设置灯光疏散指示标志",
+          "regulation": ["GB 50016 第10.3.5条"],
+          "rectification": "安装符合GB 17945要求的灯光疏散指示标志",
+          "deadline": "3天",
+          "severity": "normal"
+        }
+      }
+    },
+    "EXTINGUISHER": {
+      "name": "灭火器配置",
+      "icon": "🧯",
+      "labels": {
+        "EXT-01": {
+          "name": "灭火器缺失/数量不足",
+          "description": "灭火器未按规定配置、数量不足或设置位置不合理",
+          "regulation": ["GB 50140 第6.1条"],
+          "rectification": "按中危险级A类火灾配置灭火器，每具保护面积≤75㎡",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "EXT-02": {
+          "name": "灭火器过期/压力不足",
+          "description": "灭火器超过有效期、压力表指针不在绿区、瓶体锈蚀",
+          "regulation": ["GB 50140 第5.2条", "GB 50444 第7.1条"],
+          "rectification": "立即更换或重新充装灭火器",
+          "deadline": "立即",
+          "severity": "important"
+        },
+        "EXT-03": {
+          "name": "灭火器被遮挡/取用不便",
+          "description": "灭火器被杂物遮挡、放置位置过高或不易取用",
+          "regulation": ["GB 50140 第6.1.3条"],
+          "rectification": "清除遮挡物，确保灭火器设置在明显、易取用位置",
+          "deadline": "立即",
+          "severity": "normal"
+        }
+      }
+    },
+    "HYDRANT": {
+      "name": "消火栓系统",
+      "icon": "🚿",
+      "labels": {
+        "HYDR-01": {
+          "name": "消火栓无水/水压不足",
+          "description": "消火栓无水、水压达不到规定要求，充实水柱不足10m",
+          "regulation": ["GB 50974 第7.4.12条"],
+          "rectification": "检查供水管网和消防水泵，恢复消火栓正常供水和压力",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "HYDR-02": {
+          "name": "消火栓箱损坏/配件缺失",
+          "description": "消火栓箱门损坏、水带水枪缺失、启泵按钮失灵",
+          "regulation": ["GB 50974 第7.4.7条"],
+          "rectification": "修复消火栓箱，补齐水带水枪等配件",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "HYDR-03": {
+          "name": "消火栓被圈占/遮挡",
+          "description": "消火栓被装修、货架、杂物等遮挡，或栓体被圈占无法操作",
+          "regulation": ["消防法第28条", "GB 50974 第7.4.8条"],
+          "rectification": "清除遮挡物，确保消火栓周围无阻碍",
+          "deadline": "立即",
+          "severity": "normal"
+        }
+      }
+    },
+    "ALARM": {
+      "name": "火灾报警系统",
+      "icon": "🔔",
+      "labels": {
+        "ALRM-01": {
+          "name": "报警系统未开机/故障",
+          "description": "火灾自动报警系统主机未开机、有故障灯亮起、被关闭",
+          "regulation": ["GB 50116 第4.1.1条"],
+          "rectification": "立即开机并修复故障，确保系统24小时正常运行",
+          "deadline": "立即",
+          "severity": "important"
+        },
+        "ALRM-02": {
+          "name": "探测器缺失/失效",
+          "description": "烟感/温感探测器被拆除、遮挡、灰尘覆盖或超出有效期",
+          "regulation": ["GB 50116 第6.2.5条"],
+          "rectification": "清洗或更换探测器，恢复探测功能",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "ALRM-03": {
+          "name": "手动报警按钮故障",
+          "description": "手动火灾报警按钮损坏、被遮挡或未按规定间距设置",
+          "regulation": ["GB 50116 第6.3.1条"],
+          "rectification": "修复或增设手动报警按钮，间距≤30m",
+          "deadline": "3天",
+          "severity": "normal"
+        }
+      }
+    },
+    "SPRINKLER": {
+      "name": "自动喷水灭火",
+      "icon": "💦",
+      "labels": {
+        "SPR-01": {
+          "name": "喷头被遮挡/损坏",
+          "description": "喷头被装修遮挡、涂料覆盖、吊顶封堵或机械损坏",
+          "regulation": ["GB 50084 第6.1.3条"],
+          "rectification": "清除喷头遮挡物，更换损坏喷头",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "SPR-02": {
+          "name": "报警阀组故障",
+          "description": "湿式报警阀组关闭、压力开关失灵、水力警铃不响",
+          "regulation": ["GB 50084 第6.2.1条"],
+          "rectification": "修复报警阀组，确保压力开关和水力警铃正常工作",
+          "deadline": "3天",
+          "severity": "important"
+        }
+      }
+    },
+    "ELECTRICAL": {
+      "name": "电气线路安全",
+      "icon": "⚡",
+      "labels": {
+        "ELEC-01": {
+          "name": "电线私拉乱接",
+          "description": "电线未穿管保护、私拉乱接、接线不规范、超负荷用电",
+          "regulation": ["GB 50016 第10.2.3条"],
+          "rectification": "拆除违规线路，由专业电工按规范重新布线穿管",
+          "deadline": "7天",
+          "severity": "important"
+        },
+        "ELEC-02": {
+          "name": "配电箱/开关隐患",
+          "description": "配电箱前堆放可燃物、箱门缺失、开关裸露、无漏电保护",
+          "regulation": ["GB 50054 第4.1.2条"],
+          "rectification": "清除配电箱前杂物、安装箱门、增设漏电保护器",
+          "deadline": "3天",
+          "severity": "normal"
+        }
+      }
+    },
+    "FIRE_DOOR": {
+      "name": "防火门/防火卷帘",
+      "icon": "🚧",
+      "labels": {
+        "FD-01": {
+          "name": "防火门损坏/常开",
+          "description": "防火门闭门器/顺序器损坏、防火门被楔住常开、门扇变形无法关闭",
+          "regulation": ["GB 50016 第6.5.1条"],
+          "rectification": "修复闭门器和顺序器，拆除楔块，确保防火门常闭",
+          "deadline": "3天",
+          "severity": "important"
+        },
+        "FD-02": {
+          "name": "防火卷帘下方堆放物品",
+          "description": "防火卷帘下方堆放货物、货架等物品，影响卷帘正常降落",
+          "regulation": ["GB 50016 第6.5.3条"],
+          "rectification": "清除防火卷帘下方堆放物，地面划警示线",
+          "deadline": "立即",
+          "severity": "important"
+        },
+        "FD-03": {
+          "name": "防火门耐火等级不足",
+          "description": "防火门无铭牌/CCC标识，或使用普通门代替防火门",
+          "regulation": ["GB 50016 第6.5.1条"],
+          "rectification": "更换为符合要求的甲级/乙级防火门",
+          "deadline": "30天",
+          "severity": "important"
+        }
+      }
+    },
+    "EMERGENCY_LIGHT": {
+      "name": "应急照明",
+      "icon": "💡",
+      "labels": {
+        "LIGHT-01": {
+          "name": "应急照明灯失效",
+          "description": "应急照明灯不亮、电池耗尽、主电切断后不能自动点亮",
+          "regulation": ["GB 50016 第10.3.2条"],
+          "rectification": "更换应急照明灯或电池，确保断电后持续照明≥30min",
+          "deadline": "3天",
+          "severity": "normal"
+        },
+        "LIGHT-02": {
+          "name": "应急照明缺失",
+          "description": "疏散走道、楼梯间、安全出口等部位未设置应急照明",
+          "regulation": ["GB 50016 第10.3.1条"],
+          "rectification": "在疏散走道等重点部位增设应急照明",
+          "deadline": "7天",
+          "severity": "normal"
+        }
+      }
+    },
+    "EVAC_SIGN": {
+      "name": "疏散指示标志",
+      "icon": "🏃",
+      "labels": {
+        "EVAC-01": {
+          "name": "疏散指示标志缺失/损坏",
+          "description": "疏散走道未设灯光疏散指示标志、标志不亮或方向错误",
+          "regulation": ["GB 50016 第10.3.5条"],
+          "rectification": "增设或修复疏散指示标志，确保指示方向正确",
+          "deadline": "3天",
+          "severity": "normal"
+        },
+        "EVAC-02": {
+          "name": "疏散指示被遮挡",
+          "description": "疏散指示标志被广告牌、装饰物、货架等遮挡",
+          "regulation": ["GB 50016 第10.3.5条"],
+          "rectification": "清除遮挡物，确保疏散指示标志醒目可见",
+          "deadline": "立即",
+          "severity": "normal"
+        }
+      }
+    },
+    "SMOKE_DETECTOR": {
+      "name": "烟感探测器",
+      "icon": "🔍",
+      "labels": {
+        "SMOKE-01": {
+          "name": "烟感探测器缺失/故障",
+          "description": "烟感探测器未按规定设置、指示灯不亮、被灰尘覆盖或发出误报",
+          "regulation": ["GB 50116 第6.2.1条"],
+          "rectification": "增设或清洁烟感探测器，确保按规范覆盖全部区域",
+          "deadline": "7天",
+          "severity": "important"
+        },
+        "SMOKE-02": {
+          "name": "烟感探测器安装不规范",
+          "description": "探测器距墙/梁过近(＜0.5m)、被吊顶/装饰物遮挡",
+          "regulation": ["GB 50116 第6.2.6条"],
+          "rectification": "调整探测器位置，确保距墙≥0.5m且无遮挡",
+          "deadline": "7天",
+          "severity": "normal"
+        }
+      }
+    }
+  }
+}

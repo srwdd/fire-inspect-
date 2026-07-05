@@ -354,7 +354,7 @@ def write_markdown(report: Dict[str, Any], path: Path) -> None:
     lines.append(f"- Open-set cases: `{meta['open_set_case_count']}`")
     lines.append(f"- Retrieval case cap argument: `{meta['max_cases_arg']}`")
     lines.append(f"- Open-set case cap argument: `{meta['max_open_set_cases_arg']}`")
-    lines.append(f"- External model calls: `not used`")
+    lines.append("- External model calls: `not used`")
     lines.append("")
 
     lines.append("## Baseline Comparison")

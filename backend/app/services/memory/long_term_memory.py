@@ -6,7 +6,7 @@ import math
 import os
 import re
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from sqlalchemy.orm import Session
@@ -449,7 +449,7 @@ class LongTermMemoryService:
 
     def _build_profile_summary(self, profiles: List[models.RiskProfile]) -> str:
         if not profiles:
-            return "No long-term hazard profile yet."
+            return "暂无长期隐患档案。"
         top = sorted(profiles, key=lambda x: (getattr(x, "count_30d", 0), getattr(x, "count_7d", 0)), reverse=True)[:3]
         chunks = [
             f"{self._safe_text(item.hazard_type, 60)}({int(getattr(item, 'count_30d', 0))}/30d)"

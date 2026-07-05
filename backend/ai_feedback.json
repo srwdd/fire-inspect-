@@ -1,0 +1,19 @@
+[
+  {
+    "id": "FB-20260704210212-0001",
+    "inspection_id": "INSP-20260704205932-9A1130",
+    "item_index": 0,
+    "facility": "逐级和岗位消防安全职责",
+    "ai": {
+      "violation": true,
+      "confidence": 0.9,
+      "hazard_code": "EXT-02"
+    },
+    "inspector": {
+      "result": "fail",
+      "note": "ok"
+    },
+    "correct": true,
+    "recorded_at": "2026-07-04T21:02:12.523819"
+  }
+]

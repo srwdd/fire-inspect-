@@ -75,12 +75,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .btn-fail { background:#fff1f0; color:#f5222d; border:2px solid #ffa39e; }
 .btn-photo { background:#e6f7ff; color:#1890ff; border:2px solid #91d5ff; }
 .btn-na { background:#fafafa; color:#999; border:2px solid #ddd; }
-.btn-voice { background:#fff7e6; color:#fa8c16; border:2px solid #ffd591; transition:all 0.15s; user-select:none; -webkit-user-select:none; }
-.btn-voice.recording { background:#fa8c16; color:#fff; border-color:#d46b08; transform:scale(1.05); animation:pulse 1s infinite; }
-@keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(250,140,22,0.4); } 50% { box-shadow:0 0 0 8px rgba(250,140,22,0); } }
-.voice-judge-text { text-align:center; padding:8px 12px; margin:8px 0; background:#fff7e6; border-radius:8px; font-size:14px; color:#ad6800; }
-.recheck-alert { padding:12px 16px; margin:8px 12px; background:#fff1f0; border:1px solid #ffa39e; border-radius:8px; font-size:14px; color:#cf1322; cursor:pointer; }
-.recheck-notice { padding:12px 16px; margin:8px 12px; background:#fff7e6; border:1px solid #ffd591; border-radius:8px; font-size:14px; color:#ad6800; cursor:pointer; }
 
 .complete-card { margin:40px 12px; text-align:center; background:#fff; border-radius:12px; padding:30px; }
 .complete-card h2 { color:#52c41a; margin-bottom:10px; }

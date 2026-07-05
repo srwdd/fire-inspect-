@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消防示范视频</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
+.video-container{width:100%;max-width:800px}
+.video-container iframe{width:100%;height:450px;border:none}
+.video-title{color:#fff;text-align:center;padding:8px;font-size:14px}
+.close-btn{position:fixed;top:10px;right:10px;background:rgba(255,255,255,.2);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-size:14px}
+</style>
+</head>
+<body>
+<button class="close-btn" onclick="history.back()">✕ 返回</button>
+<div class="video-container">
+  <div class="video-title" id="title"></div>
+  <iframe id="player" allowfullscreen></iframe>
+</div>
+<script>
+const params = new URLSearchParams(location.search);
+const bvid = params.get('bvid') || 'BV16S4y167tF';
+const title = decodeURIComponent(params.get('title') || '消防示范视频');
+document.getElementById('title').textContent = title;
+document.getElementById('player').src = 'https://player.bilibili.com/player.html?bvid=' + bvid + '&autoplay=1&danmaku=0';
+</script>
+</body>
+</html>

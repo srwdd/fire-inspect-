@@ -1,0 +1,205 @@
+{
+  "scenes": {
+    "hotel": {
+      "name": "宾馆/酒店",
+      "description": "公众聚集场所，含客房、餐饮、会议等功能",
+      "total_items": 35,
+      "mandatory_count": 15,
+      "key_facilities": ["消防控制室", "疏散楼梯", "安全出口", "客房层防火门", "自动喷淋", "火灾报警"],
+      "special_requirements": [
+        "客房内配备应急手电筒、过滤式消防自救呼吸器（有效时间≥30min）",
+        "消防控制室24h双人持证值守",
+        "厨房烟道每季度清洗一次"
+      ]
+    },
+    "mall": {
+      "name": "商场/市场",
+      "description": "公众聚集场所，大空间、人员密集",
+      "total_items": 35,
+      "mandatory_count": 14,
+      "key_facilities": ["防火分区", "疏散通道宽度", "防火卷帘", "自动报警", "消火栓", "防排烟"],
+      "special_requirements": [
+        "营业厅任一点至最近安全出口直线距离≤30m，行走距离≤45m",
+        "防火卷帘两侧各0.3m黄色标识线",
+        "每层外窗间隔≤20m（公共娱乐部分）"
+      ]
+    },
+    "entertainment": {
+      "name": "公共娱乐场所",
+      "description": "歌舞娱乐、网吧、剧本杀、密室逃脱等",
+      "total_items": 35,
+      "mandatory_count": 14,
+      "key_facilities": ["厅室防火分隔", "安全出口数量", "排烟系统", "疏散指示", "应急照明"],
+      "special_requirements": [
+        "厅室防火分隔：2h隔墙+1h楼板+乙级防火门",
+        "严禁使用明火表演或燃放烟花",
+        "每层外窗间隔≤20m，每个面积≥1.0㎡"
+      ]
+    },
+    "school": {
+      "name": "学校/幼儿园",
+      "description": "含教学楼、宿舍、实验室等",
+      "total_items": 30,
+      "mandatory_count": 12,
+      "key_facilities": ["宿舍电气防火", "实验室危化品", "疏散楼梯", "安全出口", "灭火器"],
+      "special_requirements": [
+        "宿舍严禁大功率电器（热得快、电热毯等）",
+        "每间宿舍居住人数≤12人，人均面积≥4.0㎡",
+        "实验室危化品专柜存放"
+      ]
+    },
+    "hospital": {
+      "name": "医院",
+      "description": "含门诊、住院、手术室等",
+      "total_items": 30,
+      "mandatory_count": 13,
+      "key_facilities": ["疏散通道", "消防控制室", "氧气管道", "手术室防火分隔", "自动喷淋"],
+      "special_requirements": [
+        "供氧设备严禁沾染油污",
+        "护士站酒精等易燃品专柜存放",
+        "高层病房避难间设置"
+      ]
+    },
+    "elderly": {
+      "name": "养老机构",
+      "description": "老年人照料设施，含居室、活动室、医疗室等",
+      "total_items": 30,
+      "mandatory_count": 14,
+      "key_facilities": ["避难间", "自动喷淋", "火灾报警", "疏散通道", "灭火器"],
+      "special_requirements": [
+        "老年人居室不得设在地下室/半地下室",
+        "3层及以上或总面积>3000㎡须设避难间",
+        "疏散走道净宽≥1.4m",
+        "夜间防火巡查至少每2小时一次",
+        "微型消防站3分钟到场"
+      ]
+    },
+    "restaurant": {
+      "name": "餐饮场所",
+      "description": "含各类餐馆、饭店、食堂",
+      "total_items": 25,
+      "mandatory_count": 10,
+      "key_facilities": ["厨房灭火装置", "燃气管道", "排油烟系统", "疏散出口", "灭火器"],
+      "special_requirements": [
+        "厨房烟道每季度至少清洗一次",
+        "燃气软管长度≤2m，每18个月更换一次",
+        "公共用餐区严禁设置液化气瓶"
+      ]
+    },
+    "highrise": {
+      "name": "高层建筑",
+      "description": "建筑高度>24m的公共建筑或>27m的住宅建筑",
+      "total_items": 40,
+      "mandatory_count": 18,
+      "key_facilities": ["避难层(≥100m)", "消防电梯", "疏散楼梯", "前室防火门", "消防给水", "自动报警"],
+      "special_requirements": [
+        "≥100m必须设置避难层，首层至第一个≤50m",
+        "消防电梯载重≥800kg，首层至顶层≤60s",
+        "每个防火分区至少1部消防电梯",
+        "18层以上抽查≥总层数1/5"
+      ]
+    },
+    "mixed_use": {
+      "name": "多业态混合经营场所",
+      "description": "集餐饮、住宿、娱乐、商业、办公等两种及以上功能于一体",
+      "total_items": 35,
+      "mandatory_count": 15,
+      "key_facilities": ["防火分隔", "共用疏散通道", "消防控制室", "消防给水", "自动报警"],
+      "special_requirements": [
+        "不同业态间防火分隔≥2h隔墙",
+        "共用疏散通道须确定统一管理责任人",
+        "租赁合同须书面约定消防责任",
+        "严禁厂房仓库内设置员工宿舍"
+      ]
+    },
+    "factory": {
+      "name": "厂房/仓库",
+      "description": "工业生产厂房、物流仓储场所",
+      "total_items": 30,
+      "mandatory_count": 13,
+      "key_facilities": ["防火分区", "消防车道", "电气线路", "消火栓", "灭火器"],
+      "special_requirements": [
+        "物品分类分垛：每垛≤100㎡，垛距≥1m，墙距≥0.5m",
+        "丙类仓库禁用碘钨灯和60W以上白炽灯",
+        "库房外单独安装开关箱，离人必须断电",
+        "库区50m内严禁燃放烟花爆竹",
+        "严禁在仓库内设置员工宿舍"
+      ]
+    },
+    "crowded": {
+      "name": "人员密集场所",
+      "description": "公众聚集场所+医院+学校+养老院等",
+      "total_items": 35,
+      "mandatory_count": 14,
+      "key_facilities": ["安全出口", "疏散指示", "消防控制室", "微型消防站", "应急照明"],
+      "special_requirements": [
+        "消防控制室24h双人持证值守",
+        "动火作业严禁营业时间进行",
+        "电动自行车严禁在场所内停放充电",
+        "营业结束后切断非必要电源"
+      ]
+    },
+    "nine_small": {
+      "name": "九小场所",
+      "description": "小型生产经营场所，面积≤300㎡",
+      "total_items": 12,
+      "mandatory_count": 6,
+      "key_facilities": ["灭火器", "独立烟感", "疏散通道", "电线穿管", "燃气安全", "三合一违规住人"],
+      "special_requirements": [
+        "每50㎡配备1具4kg ABC干粉灭火器，总数≥2具",
+        "屋顶安装独立感烟火灾探测报警器",
+        "电线必须穿管保护",
+        "严禁违规住人（三合一问题）",
+        "疏散通道宽度≥1.1m，严禁堵塞"
+      ],
+      "sub_types": [
+        "小商店/小超市", "小餐饮/小吃店", "小旅馆/民宿", "小娱乐/网吧",
+        "小诊所/卫生室", "小培训机构/托育", "小加工/小仓储", "其他小场所"
+      ]
+    }
+  },
+  "sampling_rules": {
+    "staff": {
+      "description": "员工消防安全知识抽查比例",
+      "rules": [
+        {"min": 0, "max": 5, "sample": "all", "label": "全数检查"},
+        {"min": 6, "max": 49, "sample": 5, "label": "至少抽查5人"},
+        {"min": 50, "max": 99999, "sample": 10, "label": "至少抽查10人"}
+      ]
+    },
+    "floors": {
+      "description": "楼层抽查比例（GB46034-2025）",
+      "rules": [
+        {"min": 1, "max": 3, "sample": "all", "label": "全数检查"},
+        {"min": 4, "max": 9, "sample": 3, "label": "至少抽查3层"},
+        {"min": 10, "max": 17, "sample": 4, "label": "至少抽查4层"},
+        {"min": 18, "max": 999, "sample_fraction": 0.2, "label": "至少抽查总层数的1/5"}
+      ]
+    },
+    "fire_zones": {
+      "description": "防火分区抽查",
+      "rule": "每个防火分区至少抽查1处"
+    },
+    "functional_tests": {
+      "description": "功能测试要求",
+      "rule": "火灾报警、自动喷淋、消火栓、防排烟系统各至少测试1处"
+    }
+  },
+  "item_categories": {
+    "消防管理": {
+      "color": "#1890ff",
+      "icon": "management",
+      "description": "责任制、制度规程、培训演练、防火巡查、消防档案、控制室管理、用火用电审批、微型消防站等"
+    },
+    "技术条件": {
+      "color": "#f5222d",
+      "icon": "technical",
+      "description": "防火分区、安全疏散、消防给水、自动报警、自动喷淋、防排烟、灭火器配置、电气防火等"
+    },
+    "设施完好": {
+      "color": "#faad14",
+      "icon": "facility",
+      "description": "消火栓出水、灭火器压力、应急照明、疏散指示、防火门闭门器、防火卷帘升降等"
+    }
+  }
+}

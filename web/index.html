@@ -1,397 +1,728 @@
-﻿﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>消防隐患 AI Agent</title>
-    <link rel="stylesheet" href="./styles.css?v=20260525-memory-p1" />
-  </head>
-  <body>
-    <div class="app">
-      <header class="header">
-        <div class="title">消防隐患 AI Agent</div>
-        <div class="subtitle">支持识图、法规问答、历史洞察与整改建议的网页工作台</div>
-        <div class="hero-tags">
-          <span class="hero-tag">Agentic Workflow</span>
-          <span class="hero-tag">Knowledge-Enhanced LLM</span>
-          <span class="hero-tag">RAG</span>
-          <span class="hero-tag">Multimodal</span>
-        </div>
-      </header>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>消防监督检查智能辅助系统</title>
 
-      <main class="layout">
-        <div class="control-stack">
-          <section class="card">
-            <div class="card-title">后端地址</div>
-            <div class="row">
-              <label class="label" for="baseUrl">BASE_URL</label>
-              <input id="baseUrl" class="input" type="text" />
-              <button id="saveConfig" class="btn">保存</button>
-            </div>
-            <div id="configStatus" class="hint"></div>
-          </section>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4380d">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="消防检查助手">
 
-          <section class="card agent-card">
-            <div class="agent-card-header">
-              <div>
-                <div class="agent-eyebrow">Frontier Agent Console</div>
-                <div class="card-title agent-card-title">消防智能助手</div>
-              </div>
-              <div id="agentLiveBadge" class="agent-live-badge">Ready</div>
-            </div>
-            <div class="agent-toolbar">
-              <div class="agent-scene-wrap">
-                <label class="label" for="agentSceneSelect">场景</label>
-                <select id="agentSceneSelect">
-                  <option value="campus">校园</option>
-                  <option value="dormitory">宿舍</option>
-                  <option value="residential">居民区</option>
-                  <option value="office">办公</option>
-                  <option value="warehouse">仓储</option>
-                  <option value="industrial">工业</option>
-                  <option value="construction">工地</option>
-                </select>
-              </div>
-              <button id="clearAgentChat" class="btn" type="button">清空对话</button>
-            </div>
-            <!-- Recurrence warning bar: long-term recurring hazards -->
-            <div id="recurrenceAlert" class="recurrence-alert hidden" role="status">
-              <div class="recurrence-alert-row">
-                <span class="recurrence-alert-icon">⚠️</span>
-                <div class="recurrence-alert-text">
-                  <div id="recurrenceAlertTitle" class="recurrence-alert-title">复发预警</div>
-                  <div id="recurrenceAlertBody" class="recurrence-alert-body"></div>
-                </div>
-                <button id="recurrenceAlertDismiss" class="recurrence-alert-dismiss" type="button" aria-label="关闭">×</button>
-              </div>
-            </div>
+<!-- Vue 3 + Axios: 本地优先，CDN回退 -->
+<script src="vue.min.js"></script>
+<script>window.Vue||document.write('<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"><\/script>')</script>
+<script src="axios.min.js"></script>
+<script>window.axios||document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"><\/script>')</script>
+<link rel="stylesheet" href="styles_v3.css">
+<script src="app-extras.js?v=3"></script>
 
-            <div id="sceneGuidePanel" class="scene-guide">
-              <div class="scene-guide-header">
-                <div class="scene-guide-title">场景巡查指引</div>
-                <div id="sceneGuideScene" class="scene-guide-scene">校园</div>
-              </div>
-              <div id="sceneGuidePoem" class="scene-guide-poem"></div>
-              <div id="sceneGuideFocus" class="scene-guide-focus"></div>
-              <ul id="sceneGuideList" class="scene-guide-list"></ul>
-              <div id="sceneGuideTips" class="scene-guide-tips"></div>
-            </div>
-            <div class="quick-prompts">
-              <button class="quick-prompt" type="button" data-prompt="最近的高风险隐患主要是什么？">最近的高风险隐患主要是什么？</button>
-              <button class="quick-prompt" type="button" data-prompt="根据现有记录给我一份整改优先级建议">整改优先级建议</button>
-              <button class="quick-prompt" type="button" data-prompt="消防通道堆放杂物违反了哪些规定？">消防通道法规依据</button>
-              <button class="quick-prompt" type="button" data-prompt="帮我总结近 7 天风险趋势">近 7 天风险趋势</button>
-            </div>
-            <div class="agent-status-panel" data-state="ready">
-              <div class="agent-status-copy">
-                <div id="agentStatus" class="agent-status-text">助手已就绪</div>
-                <div id="agentSubstatus" class="agent-status-subtext">支持法规检索、趋势复盘和整改建议生成</div>
-              </div>
-              <div class="agent-status-orb" aria-hidden="true"></div>
-            </div>
-            <div id="agentContextPanel" class="agent-context-panel hidden">
-              <div class="agent-context-header">
-                <div>
-                  <div class="agent-context-eyebrow">Follow-up Hub</div>
-                  <div class="agent-context-title">当前识别结果已接入对话</div>
-                </div>
-                <label class="agent-context-toggle">
-                  <input id="agentUseCurrentRecord" type="checkbox" checked />
-                  <span>提问时带上当前识图结果</span>
-                </label>
-              </div>
-              <div id="agentContextMeta" class="agent-context-meta"></div>
-              <div id="agentContextSummary" class="agent-context-summary"></div>
-              <div id="agentFollowupPrompts" class="agent-followup-prompts">
-                <button class="agent-followup-prompt" type="button" data-template="这次识别结果违反了什么规定？">这违反了什么规定</button>
-                <button class="agent-followup-prompt" type="button" data-template="基于这次识别结果，先整改什么？">先整改什么</button>
-                <button class="agent-followup-prompt" type="button" data-template="围绕这次识别结果，给我一个复查清单。">怎么复查</button>
-                <button class="agent-followup-prompt" type="button" data-template="根据这次识别结果，帮我生成一段整改通知。">生成整改通知</button>
-              </div>
-            </div>
-            <div id="agentToolRail" class="agent-tool-rail hidden"></div>
-            <div id="agentMessages" class="agent-messages"></div>
+<!-- Service Worker (自动更新) -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/inspect/web/sw.js?v=19').then(reg => {
+      // 检测新版本，自动刷新
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            console.log('[PWA] New version installed, reloading...');
+            window.location.reload();
+          }
+        });
+      });
+    }).catch(() => {});
+  });
+}
+</script>
+</head>
+<body>
+<div id="app">
+  <!-- 顶部导航 -->
+  <header class="app-header">
+    <h1>🧯 消防检查助手<span v-if="!isOnline" style="font-size:11px;background:#f5222d;color:#fff;padding:2px 6px;border-radius:4px;margin-left:8px;vertical-align:middle">🔴 离线</span></h1>
+    <span class="version">v0.1</span>
+  </header>
 
-            <!-- Memory Inspector: four-layer memory observability panel -->
-            <section id="agentMemoryInspector" class="memory-inspector">
-              <div class="memory-inspector-header">
-                <div>
-                  <div class="memory-inspector-eyebrow">Memory Inspector</div>
-                  <div class="memory-inspector-title">四层记忆状态</div>
-                </div>
-                <div class="memory-inspector-actions">
-                  <span id="memoryInspectorStatus" class="memory-inspector-status">尚未发起对话</span>
-                  <button id="refreshMemorySnapshot" class="btn" type="button">刷新快照</button>
-                  <button id="exportMemorySnapshot" class="btn" type="button" title="把当前四层记忆原始 JSON 复制到剪贴板">导出 JSON</button>
-                  <button id="openAdminDrawer" class="btn" type="button" title="Core Memory 编辑与清空记忆 (需 ADMIN_TOKEN)">⚙ 管理</button>
-                </div>
-              </div>
-
-              <details class="memory-layer" data-layer="core" open>
-                <summary>
-                  <span class="memory-layer-name">① Core · 系统宪法</span>
-                  <span id="memoryCoreBadge" class="memory-layer-badge">--</span>
-                </summary>
-                <div class="memory-layer-body">
-                  <div class="memory-layer-hint">每次推理前自动注入，写入需 ADMIN_TOKEN。</div>
-                  <ul id="memoryCoreRules" class="memory-rule-list"></ul>
-                </div>
-              </details>
-
-              <details class="memory-layer" data-layer="task">
-                <summary>
-                  <span class="memory-layer-name">② Task · 任务记忆</span>
-                  <span id="memoryTaskBadge" class="memory-layer-badge">--</span>
-                </summary>
-                <div class="memory-layer-body">
-                  <div class="memory-layer-hint">由 Planner 生成；场景或目标变化时由系统主动重置。</div>
-                  <div id="memoryTaskDetail" class="memory-task-detail"></div>
-                </div>
-              </details>
-
-              <details class="memory-layer" data-layer="short">
-                <summary>
-                  <span class="memory-layer-name">③ Short-term · 短期记忆</span>
-                  <span id="memoryShortBadge" class="memory-layer-badge">--</span>
-                </summary>
-                <div class="memory-layer-body">
-                  <div class="memory-layer-hint">三段式：原文 + 摘要 + 元数据（检索路径 / 证据 ID / 守护状态）。</div>
-                  <div id="memoryShortSummary" class="memory-short-summary"></div>
-                  <div id="memoryShortMeta" class="memory-short-meta"></div>
-                </div>
-              </details>
-
-              <!-- Remediation tasks for closed-loop governance -->
-              <div id="memoryTasksCard" class="memory-tasks-card">
-                <div class="memory-tasks-header">
-                  <div>
-                    <div class="memory-tasks-eyebrow">Remediation Loop</div>
-                    <div class="memory-tasks-title">整改任务</div>
-                  </div>
-                  <div class="memory-tasks-actions">
-                    <span id="memoryTasksStatus" class="memory-tasks-status">--</span>
-                    <button id="refreshMemoryTasks" class="btn" type="button">刷新</button>
-                  </div>
-                </div>
-                <ul id="memoryTasksList" class="memory-tasks-list"></ul>
-              </div>
-
-              <details class="memory-layer" data-layer="long">
-                <summary>
-                  <span class="memory-layer-name">④ Long-term · 长期记忆</span>
-                  <span id="memoryLongBadge" class="memory-layer-badge">--</span>
-                </summary>
-                <div class="memory-layer-body">
-                  <div class="memory-layer-hint">跨会话风险画像 + 复发预警 + 相似案例（μ 加权混合检索）。</div>
-                  <div id="memoryLongMode" class="memory-long-mode"></div>
-                  <div id="memoryLongRecurring" class="memory-long-section"></div>
-                  <div id="memoryLongSimilar" class="memory-long-section"></div>
-                  <div id="memoryLongTasks" class="memory-long-section"></div>
-                </div>
-              </details>
-            </section>
-            <form id="agentForm" class="agent-form">
-              <div class="agent-composer-shell">
-                <textarea id="agentInput" class="agent-input" placeholder="直接问法规、历史隐患、趋势分析或整改建议..." rows="1"></textarea>
-                <div class="agent-composer-bar">
-                  <div class="agent-composer-hints">
-                    <span class="agent-hint-pill">Enter 发送</span>
-                    <span class="agent-hint-pill">Shift + Enter 换行</span>
-                  </div>
-                  <div class="agent-composer-actions">
-                    <div id="agentCharCount" class="agent-char-count">0 / 600</div>
-                    <div id="agentSubmit" class="agent-submit" role="button" tabindex="0" aria-label="发送给 Agent">发送给 Agent</div>
-                  </div>
-                </div>
-              </div>
-            </form>
-          </section>
-
-          <section class="card">
-            <div class="card-title">上传并识别</div>
-            <form id="uploadForm" class="form">
-              <input id="fileInput" class="file-input" type="file" accept="image/*" required />
-              <label for="fileInput" class="btn file-trigger">选择图片</label>
-              <div id="fileName" class="file-name">未选择图片</div>
-              <select id="sceneSelect">
-                <option value="campus">campus</option>
-                <option value="office">office</option>
-                <option value="factory">factory</option>
-                <option value="industrial">industrial</option>
-                <option value="construction">construction</option>
-                <option value="residential">residential</option>
-              </select>
-              <button id="startAnalyze" class="btn primary" type="submit">开始识别</button>
-            </form>
-            <div id="uploadStatus" class="hint"></div>
-            <div id="progressWrap" class="progress-wrap hidden" aria-live="polite">
-              <div class="progress-steps" id="progressSteps">
-                <div class="progress-step" data-progress-step="0">上传中</div>
-                <div class="progress-step" data-progress-step="1">Stage1</div>
-                <div class="progress-step" data-progress-step="2">检索条款</div>
-                <div class="progress-step" data-progress-step="3">Stage2</div>
-                <div class="progress-step" data-progress-step="4">完成</div>
-              </div>
-            </div>
-            <div id="loadingFacts" class="loading-facts hidden" aria-live="polite">
-              <div class="loading-facts-title">消防小知识</div>
-              <div id="loadingFactText" class="loading-facts-text"></div>
-            </div>
-            <div class="row action-row">
-              <button id="openHistory" class="btn" type="button">查看历史</button>
-              <button id="refreshHistory" class="btn" type="button">同步后端历史</button>
-              <button id="rethinkAnalyze" class="btn" type="button">重新思考</button>
-              <button id="clearRemoteHistory" class="btn danger-outline" type="button">清空后端历史</button>
-              <button id="clearLocalHistory" class="btn danger-outline" type="button">清空本地历史</button>
-            </div>
-          </section>
-
-          <section class="card" id="insightsCard">
-            <div class="card-title">本周综合建议</div>
-            <div class="row action-row">
-              <button id="refreshInsights" class="btn" type="button">刷新建议</button>
-              <button id="toggleInsights" class="btn" type="button">折叠建议</button>
-            </div>
-            <div id="insightBody">
-              <div id="insightStatus" class="hint">加载中...</div>
-              <div id="insightMetrics" class="insight-metrics"></div>
-              <div id="insightAlerts" class="insight-alerts"></div>
-              <div id="insightRecommendations" class="items"></div>
-            </div>
-          </section>
-
-          <section class="card" id="historyCard">
-            <div class="card-title">历史记录</div>
-            <div id="historyStatus" class="hint">加载中...</div>
-            <div id="historyList" class="history-list"></div>
-          </section>
-        </div>
-
-        <section class="card result-card">
-          <div class="card-title">识别结果</div>
-          <div id="resultEmpty" class="result-empty">
-            <div class="result-empty-badge">Ready</div>
-            <div class="result-empty-title">等待识别结果</div>
-            <div class="result-empty-text">上传一张图片后，这里会显示风险等级、结构化隐患项、法规依据和模型调试信息。</div>
-            <div class="result-empty-tips">
-              <div class="result-empty-tip">建议上传清晰、主体明确的消防场景图片</div>
-              <div class="result-empty-tip">识别结果会同步写入历史记录与综合建议</div>
-            </div>
-          </div>
-
-          <div id="resultPanel" class="result hidden">
-            <img id="resultImage" class="result-image" alt="上传图片" />
-
-            <div class="result-info">
-              <div id="resultRisk" class="badge"></div>
-              <div id="resultSummary" class="summary"></div>
-            </div>
-
-            <div>
-              <div class="debug-title">风险项</div>
-              <div id="resultItems" class="items"></div>
-            </div>
-
-            <div>
-              <div class="debug-title">法规依据</div>
-              <div id="resultCitations" class="items"></div>
-            </div>
-
-            <div class="debug-section">
-              <div class="debug-title">Stage1 初判结果</div>
-              <pre id="resultStage1" class="debug-content"></pre>
-            </div>
-
-            <div class="debug-section">
-              <div class="debug-title">AI 原始输出</div>
-              <pre id="resultRaw" class="debug-content"></pre>
-            </div>
-
-            <div class="debug-section">
-              <div class="debug-title">调试信息</div>
-              <pre id="resultDebug" class="debug-content"></pre>
-            </div>
-          </div>
-        </section>
-      </main>
+  <!-- 首页: 场景选择 + 检查模式 -->
+  <div v-if="page==='home'" class="page home-page">
+    <!-- 复查提醒角标 -->
+    <div v-if="pendingRechecks && pendingRechecks.urgent > 0" class="recheck-alert" @click="page='rechecks'">
+      ⚠️ {{ pendingRechecks.urgent }} 个场所复查已逾期，请尽快安排复查 →
+    </div>
+    <div v-else-if="pendingRechecks && pendingRechecks.upcoming > 0" class="recheck-notice" @click="page='rechecks'">
+      📅 {{ pendingRechecks.upcoming }} 个场所7天内到期复查
     </div>
 
-    <!-- Admin drawer: Core Memory CRUD + clear-all -->
-    <div id="adminDrawerBackdrop" class="admin-drawer-backdrop hidden"></div>
-    <aside id="adminDrawer" class="admin-drawer hidden" aria-hidden="true">
-      <header class="admin-drawer-header">
-        <div>
-          <div class="admin-eyebrow">Memory Admin</div>
-          <div class="admin-title">记忆系统管理</div>
-        </div>
-        <button id="closeAdminDrawer" class="admin-close" type="button" aria-label="关闭">×</button>
-      </header>
+    <!-- 检查类型切换 -->
+    <div class="mode-tabs">
+      <button :class="{active:inspectType==='preopen'}" @click="inspectType='preopen'">🏢 开业前检查</button>
+      <button :class="{active:inspectType==='daily'}" @click="inspectType='daily'">🔍 日常检查</button>
+    </div>
+    <div class="inspect-type-hint">
+      {{ inspectType==='preopen' ? '依据: GB46034-2025《公众聚集场所投入使用营业消防安全检查规则》+ 120号令' : '依据: 《消防法》+ 61号令 + GB/T40248 + GB25201 等日常管理规范' }}
+    </div>
 
-      <section class="admin-section">
-        <h3 class="admin-section-title">管理员令牌</h3>
-        <p class="admin-section-hint">
-          后端通过 <code>ADMIN_TOKEN</code> 环境变量启用写入；未设置时所有写入端点返回 503。
-          令牌本地保存于浏览器，不会上传。
-        </p>
-        <div class="admin-token-row">
-          <input id="adminTokenInput" class="admin-input" type="password" placeholder="X-Admin-Token 值" autocomplete="off" />
-          <button id="saveAdminToken" class="btn primary" type="button">保存</button>
-          <button id="clearAdminToken" class="btn" type="button">清除</button>
-        </div>
-        <div id="adminTokenStatus" class="admin-status"></div>
-      </section>
+    <!-- 首次/复查切换 -->
+    <div class="mode-tabs">
+      <button :class="{active:mode==='first'}" @click="mode='first'">🆕 首次检查</button>
+      <button :class="{active:mode==='recheck'}" @click="mode='recheck'">🔄 复查</button>
+    </div>
 
-      <section class="admin-section">
-        <div class="admin-section-row">
-          <h3 class="admin-section-title">Core Memory 规则</h3>
-          <div class="admin-section-actions">
-            <select id="adminCoreScopeFilter" class="admin-input">
-              <option value="">所有 scope</option>
-              <option value="global">global</option>
-              <option value="campus">campus</option>
-              <option value="dormitory">dormitory</option>
-              <option value="residential">residential</option>
-              <option value="office">office</option>
-              <option value="warehouse">warehouse</option>
-              <option value="industrial">industrial</option>
-              <option value="construction">construction</option>
-            </select>
-            <button id="refreshAdminCore" class="btn" type="button">刷新</button>
+    <!-- 复查: 搜索历史 -->
+    <div v-if="mode==='recheck'" class="recheck-search">
+      <input v-model="searchVenue" placeholder="输入场所名称搜索历史记录..." @keyup.enter="searchHistory">
+      <button @click="searchHistory">搜索</button>
+      <div v-if="historyList.length" class="history-list">
+        <div v-for="h in historyList" :key="h.inspection_id" class="history-card"
+             :class="'risk-'+getRiskColor(h)" @click="previewRecheck(h)">
+          <div class="hc-header">
+            <strong>{{ h.venue_name || h.location }}</strong>
+            <span>{{ h.date }}</span>
+          </div>
+          <div class="hc-body">
+            <span>问题 {{ h.fail_count }} 项</span>
+            <span v-if="h.important_fail_count">· 重要 {{ h.important_fail_count }} 项</span>
+            <span>· {{ h.inspector }}</span>
           </div>
         </div>
-        <ul id="adminCoreList" class="admin-core-list"></ul>
-        <details class="admin-create">
-          <summary>＋ 新增规则</summary>
-          <div class="admin-create-form">
-            <select id="adminCoreNewScope" class="admin-input">
-              <option value="global">global</option>
-              <option value="campus">campus</option>
-              <option value="dormitory">dormitory</option>
-              <option value="residential">residential</option>
-              <option value="office">office</option>
-              <option value="warehouse">warehouse</option>
-              <option value="industrial">industrial</option>
-              <option value="construction">construction</option>
-            </select>
-            <input id="adminCoreNewPriority" class="admin-input admin-input-small" type="number" min="1" max="10" value="5" title="优先级 1-10，数值越小越靠前" />
-            <textarea id="adminCoreNewText" class="admin-input admin-input-textarea" rows="3" placeholder="新规则文本，例如：受限空间作业需办理审批与监护人到场" maxlength="600"></textarea>
-            <button id="adminCoreCreate" class="btn primary" type="button">提交</button>
+      </div>
+      <div v-if="historyList.length===0 && searchVenue && searched" class="empty-hint">未找到匹配的历史记录</div>
+    </div>
+
+    <!-- 场景选择 -->
+    <div class="scene-grid">
+      <div v-for="s in scenes" :key="s.key" class="scene-card" @click="startInspection(s)">
+        <div class="scene-icon">{{ s.icon }}</div>
+        <div class="scene-name">{{ s.name }}</div>
+        <div class="scene-count">{{ s.total_items }}项</div>
+      </div>
+    </div>
+
+    <!-- 监督检查示范片入口 -->
+    <div style="margin:8px 12px;padding:10px 14px;background:#fff7e6;border:1px solid #ffd591;border-radius:8px;font-size:13px;text-align:center">
+      🎬 <a href="/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E9%AA%8C%E6%94%B6%E6%9F%A5%E9%AA%8C.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">消防验收查验示范片</a>
+      &nbsp;·&nbsp;
+      <a href="/inspect/api/v1/inspection/videos/%E7%9B%91%E7%9D%A3%E6%A3%80%E6%9F%A5%E7%A4%BA%E8%8C%83.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">监督检查示范片</a>
+      <div style="color:#999;font-size:11px;margin-top:4px">深圳市消防救援支队官方出品 · 10类场所检查标准</div>
+    </div>
+
+    <!-- 规模参数弹窗 -->
+    <div v-if="showScaleInput" class="modal-overlay" @click.self="showScaleInput=false">
+      <div class="scale-dialog">
+        <h3>📐 场所规模参数</h3>
+        <p class="dialog-hint">填写后系统将按 GB46034 规则计算抽查比例</p>
+        <div class="scale-field"><label>🏢 场所面积 (m²)</label><input type="number" v-model="scaleForm.area" placeholder="例: 3000" min="0"></div>
+        <div class="scale-field"><label>👥 员工人数</label><input type="number" v-model="scaleForm.staff" placeholder="例: 50" min="0"></div>
+        <div class="scale-field"><label>🏗️ 使用楼层数</label><input type="number" v-model="scaleForm.floors" placeholder="例: 6" min="1"></div>
+        <div class="scale-field"><label>🏘️ 建筑物栋数</label><input type="number" v-model="scaleForm.buildings" placeholder="例: 1" min="1"></div>
+        <div class="scale-actions">
+          <button @click="showScaleInput=false">取消</button>
+          <button class="btn-primary" @click="confirmStartInspection">{{ showSubTypePicker ? '下一步 →' : '开始检查' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 九小场所子类型选择 -->
+    <div v-if="showSubTypePicker" class="modal-overlay" @click.self="showSubTypePicker=false">
+      <div class="scale-dialog">
+        <h3>🏪 选择场所类型</h3>
+        <p class="dialog-hint">九小场所快速检查 — 共12项核心检查，约3分钟完成</p>
+        <div class="subtype-grid nine-small-grid">
+          <button v-for="st in nineSmallSubTypes" :key="st" :class="{active:selectedSubType===st}" @click="selectedSubType=st">{{ st }}</button>
+        </div>
+        <div class="scale-actions">
+          <button @click="showSubTypePicker=false;pendingScene=null;">取消</button>
+          <button class="btn-primary" :disabled="!selectedSubType" @click="confirmStartInspection">开始快速检查 →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-entry">
+      <button @click="startSearch()" class="btn-search-entry">🔍 法规检索 · 语音查询</button>
+    </div>
+  </div>
+
+  <!-- 法规检索页 -->
+  <div v-if="page==='search'" class="page search-page">
+    <div class="search-header">
+      <button class="btn-back" @click="page='home'">← 返回</button>
+      <h2>🔍 消防法规检索</h2>
+    </div>
+    <div class="search-input-area">
+      <input v-model="searchQuery" @keyup.enter="doSearch" placeholder="输入问题或点击语音..." class="search-input">
+      <button @click="doSearch" class="btn-search-go">搜索</button>
+      <button @click="startVoice" class="btn-voice" :class="{recording:isRecording, disabled:!voiceAvailable()}">
+        {{ isRecording ? '🔴 录音中' : '🎤 语音' }}
+      </button>
+    </div>
+    <div v-if="!voiceAvailable()" class="voice-hint">
+      ⚠️ {{ voiceUnavailableReason() }}
+    </div>
+    <div v-if="voiceAvailable()" class="voice-hint-ok">
+      ✅ 语音可用，点击 🎤 开始录音，说完后再次点击停止
+    </div>
+    <div v-if="searchResult" class="search-result"><div class="search-answer">{{ searchResult }}</div></div>
+    <div v-if="searching" class="search-loading">AI 分析中...</div>
+  </div>
+
+  <!-- 复查预览页 -->
+  <div v-if="page==='recheckPreview' && recheckPreviewData" class="page recheck-preview">
+    <div style="padding:12px">
+      <button @click="page='home'" style="padding:6px 14px;background:#f0f0f0;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;">← 返回</button>
+    </div>
+    <div class="assessment-banner" :class="'risk-'+getRiskColor(recheckPreviewData)">
+      <div class="assessment-label">上次检查评分</div>
+    </div>
+    <div style="padding:12px">
+      <div class="report-meta">
+        <span>📅 {{ recheckPreviewData.date }}</span>
+        <span>👤 {{ recheckPreviewData.inspector }}</span>
+        <span>📍 {{ recheckPreviewData.venue_name || recheckPreviewData.location }}</span>
+      </div>
+      <div class="flex-gap-8" style="display:flex;margin:8px 0">
+        <div class="stat fail">❌ {{ recheckPreviewData.fail_count }} 项不合格</div>
+        <div class="stat fail" v-if="recheckPreviewData.important_fail_count">⚠️ {{ recheckPreviewData.important_fail_count }} 项重要</div>
+      </div>
+      <div v-if="recheckPreviewData.findings_summary && recheckPreviewData.findings_summary.length" style="margin-top:8px">
+        <h4 style="margin-bottom:8px">上次发现问题摘要：</h4>
+        <div v-for="f in recheckPreviewData.findings_summary" style="padding:8px;margin:4px 0;background:#fff;border-radius:6px;border-left:3px solid #d4380d;font-size:13px">
+          <strong>{{ f.facility }}</strong>: {{ f.detail }}
+        </div>
+      </div>
+      <button @click="startRecheck(recheckPreviewData)" style="width:100%;margin-top:16px;padding:14px;background:#d4380d;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer">开始复查 →</button>
+    </div>
+  </div>
+
+  <!-- 检查页: 逐项引导 -->
+  <div v-if="page==='inspect'" class="page inspect-page">
+    <!-- 返回按钮 -->
+    <div style="padding:8px 12px">
+      <button @click="confirmBackToHome" style="padding:6px 14px;background:#f0f0f0;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;">← 返回首页</button>
+    </div>
+    <!-- 进度条 -->
+    <div class="progress-bar">
+      <div class="progress-fill" :style="{width:progressPct+'%'}"></div>
+    </div>
+    <div class="progress-text">{{ currentIndex+1 }} / {{ totalItems }} ({{ progressPct }}%)</div>
+    <div v-if="samplingInfo && (samplingInfo.staff || samplingInfo.floor)" class="sampling-info">👥 抽问{{ (samplingInfo.staff||{}).sample || 0 }}名员工 · 🏗️ 抽查{{ (samplingInfo.floor||{}).sample || 0 }}层</div>
+
+    <!-- 章节分组标题 -->
+    <div v-if="currentSectionName" class="section-header">
+      <span class="section-badge">{{ currentSectionName }}</span>
+      <span class="section-sub">{{ currentStepName }}</span>
+    </div>
+
+    <!-- P0-1: 撤销 Toast -->
+    <div v-if="undoToast" class="undo-toast">
+      ✅ 已判定 · <a @click="undoJudgment(undoToast.index)" style="color:#d4380d;cursor:pointer;font-weight:600">撤销</a>
+    </div>
+    <!-- 检查项卡片 -->
+    <div v-if="currentItem" class="check-card" :class="'cat-'+currentItem.category">
+      <!-- 标签行 -->
+      <div class="check-tags">
+        <span v-if="currentItem.is_mandatory" class="tag tag-mandatory">必检</span>
+        <span v-else class="tag tag-sample">抽检</span>
+        <span v-if="currentItem.severity==='important'" class="tag tag-important">重要事项</span>
+        <span class="tag" :class="'tag-cat-'+currentItem.category">{{ categoryLabel(currentItem.category) }}</span>
+        <span v-if="currentItem.previous_judgment" class="tag tag-judged" :class="currentItem.previous_judgment.result==='fail'?'tag-fail':'tag-pass'">
+          {{ currentItem.previous_judgment.result==='fail'?'❌':'✅' }} 已判
+        </span>
+      </div>
+
+      <!-- 上次结果 (复查模式) -->
+      <div v-if="currentItem.previous_result" class="prev-result">
+        ⚠️ 上次检查 ({{ currentItem.previous_result.date }}):
+        <span :class="currentItem.previous_result.result==='fail'?'text-fail':'text-pass'">
+          {{ currentItem.previous_result.result==='fail'?'❌ 不合格':'✅ 合格' }}
+        </span>
+        <span v-if="currentItem.previous_result.detail"> — {{ currentItem.previous_result.detail }}</span>
+        <!-- 上次照片 + 本次对比 -->
+        <div v-if="currentItem.previous_result.photo_urls && currentItem.previous_result.photo_urls.length" style="margin-top:8px">
+          <div class="flex-gap-12" style="display:flex;overflow-x:auto">
+            <div v-for="url in currentItem.previous_result.photo_urls" style="flex:0 0 auto">
+              <div style="font-size:12px;color:#999">📷 上次照片</div>
+              <img :src="url" style="max-width:280px;max-height:200px;border-radius:6px;border:2px solid #d4380d">
+            </div>
+            <div v-if="recheckPhoto" style="flex:0 0 auto">
+              <div style="font-size:12px;color:#389e0d">📸 本次复查</div>
+              <img :src="recheckPhoto" style="max-width:280px;max-height:200px;border-radius:6px;border:2px solid #389e0d">
+            </div>
           </div>
-        </details>
-        <div id="adminCoreStatus" class="admin-status"></div>
-      </section>
+          <div style="margin-top:6px">
+            <label class="btn-photo-recheck" style="display:inline-block;padding:8px 16px;background:#fff7e6;border:1px solid #faad14;border-radius:6px;color:#d48806;cursor:pointer;font-size:14px">
+              📸 拍复查照对比
+              <input type="file" accept="image/*" capture="environment" style="display:none" @change="uploadRecheckPhoto">
+            </label>
+          </div>
+        </div>
+      </div>
 
-      <section class="admin-section danger-zone">
-        <h3 class="admin-section-title">危险操作</h3>
-        <p class="admin-section-hint">
-          清空将删除所有会话、消息、整改任务、风险画像以及长期记忆向量缓存。
-          识别历史（records）由 <code>/records/clear</code> 单独管理，不在此处。
-        </p>
-        <button id="adminClearAll" class="btn danger" type="button">清空全部记忆</button>
-        <div id="adminClearStatus" class="admin-status"></div>
-      </section>
-    </aside>
+      <!-- 检查内容 -->
+      <div class="check-facility">
+        📍 {{ currentItem.facility }}
+        <button @click="lookupFacilityHistory(currentItem.facility)" title="查看该设备在以往检查中的结果记录" style="font-size:11px;padding:2px 8px;border:1px solid #91d5ff;background:#e6f7ff;color:#1890ff;border-radius:4px;cursor:pointer;">📋 历史记录</button>
+      </div>
+      <div class="check-point">🔍 {{ currentItem.check_point }}</div>
+      <div class="check-method">📋 {{ currentItem.check_method }}</div>
 
-    <script src="./app.js?v=20260525-memory-p2"></script>
-  </body>
+      <!-- P1-4: 详情折叠按钮 -->
+      <button @click="showDetail=!showDetail" style="width:100%;padding:6px;margin:8px 0;background:#fafafa;border:1px dashed #d9d9d9;border-radius:6px;font-size:12px;color:#666;cursor:pointer">
+        {{ showDetail ? '🫣 收起详情' : '📋 展开详情（法规/隐患/指南）' }}
+      </button>
+      <div v-if="showDetail">
+      <!-- 操作测试指南 (设施类) -->
+      <div v-if="getOperationGuide(currentItem.facility)" class="op-guide-section">
+        <a v-if="getOperationGuide(currentItem.facility)?.video" class="btn-video-link" @click.prevent="openVideo(getOperationGuide(currentItem.facility).video, currentItem.facility + ' — 检查示范')">▶ 查看示范视频</a>
+        <button class="btn-show-answer" @click="showOpGuide=!showOpGuide" style="background:#f6ffed;border-color:#52c41a;color:#389e0d;">
+          {{ showOpGuide ? '🫣 隐藏操作指南' : '🔧 显示操作指南' }}
+        </button>
+        <div v-if="showOpGuide" class="op-guide">
+          <div class="op-question">❓ {{ getOperationGuide(currentItem.facility).question }}</div>
+          <div class="op-steps"><strong>📋 操作步骤:</strong>
+            <ol><li v-for="s in getOperationGuide(currentItem.facility).steps">{{ s }}</li></ol>
+          </div>
+          <div class="op-pass"><strong>✅ 合格标准:</strong> {{ getOperationGuide(currentItem.facility).passCriteria }}</div>
+        </div>
+      </div>
+
+      <!-- 典型隐患参考 -->
+      <div v-if="getTypicalHazard(currentItem.facility)" class="hazard-ref">
+        <div class="hazard-ref-title">🖼️ 典型隐患参考</div>
+        <div class="hazard-ref-desc">{{ getTypicalHazard(currentItem.facility).desc }}</div>
+        <div v-if="getTypicalHazard(currentItem.facility).img" class="hazard-ref-img">
+          <img :src="getTypicalHazard(currentItem.facility).img" alt="典型隐患示例" style="max-width:100%;border-radius:6px;margin-top:6px;">
+        </div>
+        <div v-else class="hazard-ref-placeholder">📷 拍照上传后可对比参考</div>
+      </div>
+
+      <!-- 法规依据 -->
+      <div class="regulation-box">
+        <div class="reg-title">📖 法规依据</div>
+        <div class="reg-source">{{ currentItem.regulation?.source }}</div>
+        <div class="reg-text">{{ currentItem.regulation?.text?.substring(0,200) }}{{ currentItem.regulation?.text?.length>200?'...':'' }}</div>
+        <div v-if="currentItem.legal_basis" class="reg-legal">
+          ⚖️ 违法条文: {{ currentItem.legal_basis }}
+        </div>
+        <div v-if="currentItem.province_regulations?.length" class="reg-province">
+          📖 省规补充: {{ currentItem.province_regulations.map(p=>p.source).join(', ') }}
+        </div>
+      </div>
+
+      <!-- 管理类 Q&A (考问/操作测试模式) -->
+      <div v-if="currentItem.qa_config" class="qa-section">
+        <div class="qa-question">❓ {{ currentItem.qa_config.question }}</div>
+        <button class="btn-show-answer" @click="showQaAnswer=!showQaAnswer">
+          {{ showQaAnswer ? '🫣 隐藏参考答案' : '👁️ 显示参考答案' }}
+        </button>
+        <select v-if="showQaAnswer && currentItem.qa_config.equipment_related" v-model="selectedBrand" class="brand-select">
+          <option value="">-- 选择设备品牌型号 --</option>
+          <option v-for="(instructions, brand) in currentItem.qa_config.brands" :value="brand">{{ brand }}</option>
+        </select>
+        <div v-if="showQaAnswer && currentItem.qa_config.equipment_related && selectedBrand && currentItem.qa_config.brands" class="qa-reference">
+          <strong>📋 参考操作流程:</strong>
+          <div class="qa-instructions">{{ currentItem.qa_config.brands[selectedBrand] }}</div>
+        </div>
+        <div v-if="showQaAnswer && !currentItem.qa_config.equipment_related" class="qa-reference">
+          <strong>📋 参考答案要点:</strong>
+          <div class="qa-instructions">{{ getQaReference(currentItem) }}</div>
+        </div>
+      </div>
+
+      </div><!-- end showDetail -->
+      <!-- 操作按钮 -->
+      <div class="check-actions">
+        <button class="btn-pass" @click="judge('pass')">✅ 合格</button>
+        <button class="btn-fail" @click="judge('fail')">❌ 不合格</button>
+        <button class="btn-na" @click="judge('na')">⊘ 不涉及</button>
+        <button class="btn-photo" @click="showPhoto=true">📷 拍照</button>
+        <button
+          class="btn-voice"
+          :class="{ recording: isVoiceJudging }"
+          @pointerdown.prevent="startVoiceJudge()"
+          @pointerup.prevent="stopVoiceJudge()"
+           
+           
+        >{{ isVoiceJudging ? '🎤 松开提交 ' + voiceTimer : '🎤 按住说话' }}</button>
+      <div v-if="isVoiceJudging" class="voice-wave"><div class="wave-bar" v-for="i in 5" :key="i" :style="{animationDelay:i*0.1+'s'}"></div></div>
+      </div>
+      <div v-if="voiceJudgeText" class="voice-judge-text">{{ voiceJudgeText }}</div>
+
+      <!-- 设备历史弹窗 -->
+      <div v-if="showFacilityHistory && facilityHistory" class="facility-history-popup">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>📋 {{ facilityHistory.facility }} — 历史记录</strong>
+          <button @click="showFacilityHistory=false" style="border:none;background:none;font-size:18px;cursor:pointer;">✕</button>
+        </div>
+        <div style="font-size:12px;color:#666;margin:4px 0;">{{ facilityHistory.summary }}</div>
+        <div v-for="h in facilityHistory.history" :key="h.inspection_id" style="border-bottom:1px solid #f0f0f0;padding:8px 0;font-size:13px;">
+          <div style="display:flex;justify-content:space-between;">
+            <strong>{{ h.venue }}</strong>
+            <span style="color:#999;">{{ h.date }}</span>
+          </div>
+          <div>{{ h.check_point }}</div>
+          <span :style="{color:h.result==='fail'?'#f5222d':'#52c41a',fontWeight:'bold'}">{{ h.result==='fail'?'❌ 不合格':'✅ 合格' }}</span>
+          <span v-if="h.note" style="color:#666;margin-left:8px;">{{ h.note }}</span>
+        </div>
+      </div>
+
+      <!-- 前后导航 -->
+      <div class="nav-arrows">
+        <button :disabled="currentIndex===0" @click="goPrev()">◀ 上一项</button>
+        <span class="nav-info">第 {{ currentIndex+1 }} / {{ totalItems }} 项 · 已判 {{ judgedCount }} 项 · ❌ {{ failCount }}</span>
+        <button @click="toggleJumpMenu" style="flex:0;padding:4px 10px;font-size:12px;">📑 跳转</button>
+        <button :disabled="currentIndex>=totalItems-1" @click="goNext()">下一项 ▶</button>
+      </div>
+
+      <!-- 分类跳转菜单 -->
+      <div v-if="showJumpMenu" class="jump-menu" @click.self="showJumpMenu=false">
+        <div class="jump-list">
+          <h4>快速跳转</h4>
+          <!-- P0-2: 关键词搜索 -->
+          <input v-model="jumpKeyword" @input="jumpSearch(jumpKeyword)" placeholder="搜索检查项..." style="width:100%;padding:8px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;margin:6px 0;box-sizing:border-box">
+          <div v-if="jumpFiltered" style="max-height:260px;overflow-y:auto">
+            <div v-if="jumpFiltered.length===0" style="color:#999;font-size:12px;padding:8px">未找到匹配项</div>
+            <div v-for="r in jumpFiltered" class="jump-item" @click="goToItem(r.index); showJumpMenu=false; jumpFiltered=null; jumpKeyword=''" style="font-size:12px;padding:6px 8px;border-bottom:1px solid #f0f0f0;cursor:pointer">
+              <b>#{{ r.index+1 }}</b> {{ r.facility }} — {{ (r.check_point||'').substring(0,40) }}
+            </div>
+          </div>
+          <div v-for="(info, name) in sectionIndex" :key="name" class="jump-item"
+               :class="{current: currentIndex >= info.start && currentIndex <= info.end}"
+               @click="goToItem(info.start); showJumpMenu=false">
+            <span class="jump-name">{{ name }}</span>
+            <span class="jump-range">{{ info.start+1 }}-{{ info.end+1 }}项</span>
+            <span class="jump-badge">{{ judgedInRange(info.start, info.end) }}/{{ info.end - info.start + 1 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 智能诊断面板 (不合格时显示) -->
+    <div v-if="showDiagnosis && diagnosis" class="diagnosis-panel">
+      <h4>🔍 智能诊断</h4>
+      <div class="diag-section"><strong>可能原因:</strong><ul><li v-for="c in diagnosis.causes">{{ c }}</li></ul></div>
+      <div v-if="diagnosis.impacts?.length" class="diag-section"><strong>关联影响:</strong> {{ diagnosis.impacts.join('、') }}</div>
+      <div v-if="diagnosis.fixes?.length" class="diag-section"><strong>建议整改:</strong><ul><li v-for="f in diagnosis.fixes">{{ f }}</li></ul></div>
+      <button class="btn-close-diag" @click="closeDiagnosis">✕</button>
+    </div>
+
+    <!-- 计算工具浮动按钮 -->
+    <div v-if="page==='inspect'" class="calc-float">
+      <button @click="openCalc('fire_zone')" title="防火分区">📐</button>
+      <button @click="openCalc('water_tank')" title="消防水池">🪣</button>
+      <button @click="openCalc('evacuation')" title="疏散宽度">📏</button>
+      <button @click="openCalc('extinguisher')" title="灭火器">🧯</button>
+    </div>
+
+    <!-- 计算工具弹窗 -->
+    <div v-if="showCalc" class="modal-overlay" @click.self="showCalc=false">
+      <div class="scale-dialog">
+        <h3>{{ calcTitle }}</h3>
+        <!-- 防火分区 -->
+        <div v-if="calcType==='fire_zone'">
+          <div class="scale-field"><label>每层面积 (m²)</label><input type="number" v-model="calcInput.area" placeholder="例: 2000"></div>
+          <div class="scale-field"><label>楼层数</label><input type="number" v-model="calcInput.floors" placeholder="例: 6"></div>
+          <div class="scale-field"><label><input type="checkbox" v-model="calcInput.sprinkler" checked> 有自动喷水灭火系统</label></div>
+          <div class="scale-field"><label><input type="checkbox" v-model="calcInput.highrise"> 高层建筑(≥10层)</label></div>
+        </div>
+        <!-- 消防水池 -->
+        <div v-if="calcType==='water_tank'">
+          <div class="scale-field"><label>每层面积 (m²)</label><input type="number" v-model="calcInput.area" placeholder="例: 2000"></div>
+          <div class="scale-field"><label>楼层数</label><input type="number" v-model="calcInput.floors" placeholder="例: 6"></div>
+          <div class="scale-field"><label><input type="checkbox" v-model="calcInput.sprinkler" checked> 有喷淋系统</label></div>
+          <div class="scale-field"><label><input type="checkbox" v-model="calcInput.highrise"> 高层建筑</label></div>
+        </div>
+        <!-- 疏散宽度 -->
+        <div v-if="calcType==='evacuation'">
+          <div class="scale-field"><label>疏散人数</label><input type="number" v-model="calcInput.people" placeholder="例: 500"></div>
+          <div class="scale-field"><label>所在楼层</label><input type="number" v-model="calcInput.floor" placeholder="例: 3"></div>
+          <div class="scale-field"><label><input type="checkbox" v-model="calcInput.highrise"> 高层建筑</label></div>
+        </div>
+        <!-- 灭火器 -->
+        <div v-if="calcType==='extinguisher'">
+          <div class="scale-field"><label>保护面积 (m²)</label><input type="number" v-model="calcInput.area" placeholder="例: 500"></div>
+          <div class="scale-field"><label>危险等级</label><select v-model="calcInput.level"><option>轻危险级</option><option selected>中危险级</option><option>严重危险级</option></select></div>
+        </div>
+
+        <div v-if="calcResult" class="calc-output">
+          <div class="calc-result"><strong>{{ calcResult.result }}</strong></div>
+          <div v-if="calcResult.standard" class="calc-ref">📖 {{ calcResult.standard }}</div>
+          <div v-if="calcResult.value" class="calc-value">= <strong>{{ calcResult.value }} {{ calcResult.unit }}</strong></div>
+        </div>
+        <div class="scale-actions">
+          <button @click="showCalc=false">关闭</button>
+          <button class="btn-primary" @click="runCalc">计算</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 完成提示 -->
+    <div v-if="!currentItem && inspected" class="complete-card">
+      <div class="complete-icon">✅</div>
+      <h2>检查完毕!</h2>
+      <p class="complete-summary">共检查 <strong>{{ totalItems }}</strong> 项，发现 <strong class="fail-highlight">{{ failCount }}</strong> 项问题</p>
+      <div v-if="report" class="complete-score" :class="'risk-'+report.assessment.color">
+        <span class="score-num">{{ report.assessment.score }}分</span>
+        <span class="score-label">{{ report.assessment.color_label }}</span>
+      </div>
+      <button class="btn-report" @click="page='report'">📊 查看检查报告</button>
+      <button class="btn-generate" @click="generateReport">🔄 重新生成报告</button>
+      <button class="btn-owner" @click="viewOwnerReport">📨 致业主整改告知书</button>
+      <button class="btn-new" @click="newInspection">🆕 开始新检查</button>
+    </div>
+
+    <!-- P1-6: 问题清单浮动按钮 -->
+    <div v-if="issueList.length>0" style="position:fixed;right:8px;bottom:260px;z-index:99">
+      <button @click="showIssueList=!showIssueList" style="background:#f5222d;color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:13px;box-shadow:0 2px 8px rgba(245,34,45,.4);cursor:pointer">
+        📋 问题清单 ({{ issueList.length }})
+      </button>
+    </div>
+    <!-- P1-6: 问题清单半屏面板 -->
+    <div v-if="showIssueList" class="modal-overlay" @click.self="showIssueList=false">
+      <div class="jump-list" style="max-height:60vh;overflow-y:auto;background:#fff;border-radius:12px;padding:16px;margin:10% 12px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+        <h4 style="margin:0 0 12px">📋 问题清单 — {{ issueList.length }} 项不合格</h4>
+        <div v-for="item in issueList" :key="item.index" @click="goToItem(item.index); showIssueList=false" style="padding:10px;margin:6px 0;background:#fff1f0;border-left:3px solid #f5222d;border-radius:6px;cursor:pointer;font-size:13px">
+          <b>#{{ item.index+1 }}</b> {{ item.facility }}
+          <div v-if="item.note" style="color:#666;font-size:12px;margin-top:4px">{{ item.note.substring(0,80) }}</div>
+        </div>
+        <button @click="showIssueList=false" style="width:100%;margin-top:12px;padding:10px;background:#f0f0f0;border:none;border-radius:8px;cursor:pointer">关闭</button>
+      </div>
+    </div>
+    <!-- 底部完成按钮 (当所有项已判定但尚未触发完成时显示) -->
+    <div v-if="currentItem && judgedCount >= totalItems && !inspected" class="complete-float">
+      <button class="btn-finish-all" @click="completeInspection">✅ 全部判定完毕，生成检查报告</button>
+    </div>
+  </div>
+
+  <!-- 业主告知书页 -->
+  <div v-if="page==='ownerReport'" class="page report-page">
+    <div class="search-header"><button class="btn-back" @click="page='report'">← 返回报告</button><h2>📨 消防安全隐患整改告知书</h2></div>
+    <div v-if="ownerRpt" class="owner-report" id="owner-print-area">
+      <div class="or-header">
+        <h3>消防安全隐患整改告知书</h3>
+        <div class="or-meta">
+          <span>被检查单位: {{ ownerRpt.venue_name || '—' }}</span>
+          <span>检查日期: {{ ownerRpt.date || '—' }}</span>
+          <span>检查人: {{ ownerRpt.inspector || '—' }}</span>
+        </div>
+        <div class="or-score" :class="'risk-'+ownerRpt.color">
+          评估结果: {{ ownerRpt.color_label }} ({{ ownerRpt.score }}分) | 共发现{{ ownerRpt.total_fails }}项问题
+        </div>
+      </div>
+
+      <div v-if="ownerRpt.urgent_fixes?.length" class="or-section">
+        <h4>🔴 须立即整改 ({{ ownerRpt.urgent_fixes.length }}项)</h4>
+        <div v-for="(f,i) in ownerRpt.urgent_fixes" :key="'u'+i" class="or-item urgent">
+          <strong>{{ i+1 }}. {{ f.facility }}</strong>
+          <div>{{ f.check_point }}</div>
+          <div v-if="f.note" class="or-note">问题描述: {{ f.note }}</div>
+          <div v-if="f.source" class="or-src">依据: {{ f.source }}</div>
+        </div>
+      </div>
+
+      <div v-if="ownerRpt.deadline_fixes?.length" class="or-section">
+        <h4>🟠 须限期整改 ({{ ownerRpt.deadline_fixes.length }}项)</h4>
+        <div v-for="(f,i) in ownerRpt.deadline_fixes" :key="'d'+i" class="or-item deadline">
+          <strong>{{ i+1 }}. {{ f.facility }}</strong>
+          <div>{{ f.check_point }}</div>
+        </div>
+      </div>
+
+      <div v-if="ownerRpt.suggestions?.length" class="or-section">
+        <h4>🟡 建议改进 ({{ ownerRpt.suggestions.length }}项)</h4>
+        <div v-for="(f,i) in ownerRpt.suggestions" :key="'s'+i" class="or-item suggestion">
+          <strong>{{ i+1 }}. {{ f.facility }}</strong>
+          <div>{{ f.check_point }}</div>
+        </div>
+      </div>
+
+      <div v-if="ownerRpt.supervision_measures?.length" class="or-footer">
+        <strong>监管措施:</strong> {{ ownerRpt.supervision_measures.join('、') }}
+        <div v-if="ownerRpt.next_recheck_days">复查期限: {{ ownerRpt.next_recheck_days }}日内</div>
+      </div>
+
+      <div class="or-sign">
+        <div>检查人签字: ______________</div>
+        <div>业主签字: ______________</div>
+        <div>日期: ______________</div>
+      </div>
+
+      <button class="btn-report" @click="printOwnerReport" style="margin-top:12px;">🖨️ 打印告知书</button>
+    </div>
+  </div>
+
+  <!-- 视频弹窗 -->
+  <div v-if="showVideoModal" class="video-modal-overlay" @click.self="closeVideo">
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <h3>🎬 {{ currentVideoTitle }}</h3>
+        <button class="btn-video-close" @click="closeVideo">✕</button>
+      </div>
+      <div class="video-player-area">
+        <video v-if="currentVideoUrl" :src="currentVideoUrl" class="video-iframe" controls autoplay playsinline style="width:100%;max-height:70vh;border-radius:8px;">
+          您的浏览器不支持视频播放
+        </video>
+        <div class="video-fallback">
+          <p>如果视频无法加载，请点击下方按钮在新窗口打开</p>
+          <a :href="currentVideoUrl" target="_blank" class="btn-video-external">🔗 在新窗口打开视频</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 拍照弹窗 -->
+  <div v-if="showPhoto" class="photo-modal" @click.self="showPhoto=false">
+    <div class="photo-modal-content">
+      <h3>📷 拍照辅助判断</h3>
+      <p class="photo-hint">{{ currentItem?.facility }} — {{ currentItem?.check_point }}</p>
+      <div style="display:flex;gap:10px;margin:10px 0">
+        <label style="flex:1;padding:12px;background:#1677ff;color:#fff;border-radius:8px;text-align:center;cursor:pointer;font-size:14px">
+          📷 拍照
+          <input type="file" accept="image/*" capture="environment" @change="uploadPhoto" style="display:none">
+        </label>
+        <label style="flex:1;padding:12px;background:#f0f0f0;color:#333;border-radius:8px;text-align:center;cursor:pointer;font-size:14px;border:1px solid #d9d9d9">
+          📁 相册选择
+          <input type="file" accept="image/*" @change="uploadPhoto" style="display:none">
+        </label>
+      </div>
+      <div v-if="photoAnalyzing" class="photo-analyzing">AI 分析中...</div>
+      <div v-if="photoResult" class="photo-result">
+        <div :class="'photo-judgment '+(photoResult.violation?'violation':'compliant')">
+          {{ photoResult.violation ? '⚠️ 不合格' : (photoResult.violation===false ? '✅ 合格' : '🤔 无法判断') }}
+        </div>
+        <div v-if="photoResult.hazard_code" style="font-size:13px;font-weight:600;margin:4px 0">
+          🏷️ {{ photoResult.hazard_category }} / {{ photoResult.hazard_name }}
+          <span style="color:#999;font-size:11px">({{ photoResult.hazard_code }})</span>
+        </div>
+        <div v-if="photoResult.detail?.设备类型" style="font-size:14px;font-weight:600;margin:4px 0">📋 {{ photoResult.detail['设备类型'] }}</div>
+        <div class="photo-reason">{{ photoResult.reason }}</div>
+        <div v-if="photoResult.regulation && photoResult.regulation.length" style="font-size:12px;color:#1890ff;margin:4px 0">
+          📖 {{ photoResult.regulation.join('; ') }}
+        </div>
+        <div v-if="photoResult.rectification" style="font-size:13px;color:#e85d04;margin:4px 0">🔧 {{ photoResult.rectification }}</div>
+        <div v-if="photoResult.deadline && photoResult.deadline!=='无需'" style="font-size:12px;color:#d4380d">⏰ 整改期限: {{ photoResult.deadline }}</div>
+        <div class="photo-confidence">置信度: {{ ((photoResult.confidence||0.5)*100).toFixed(0) }}%</div>
+        <!-- 并排对比：典型隐患参考 -->
+        <div v-if="photoCompareHazard" style="background:#fff7e6;border:1px solid #ffd591;border-radius:8px;padding:10px;margin:10px 0;">
+          <div style="font-size:12px;color:#ad6800;font-weight:600;margin-bottom:6px;">🔍 典型隐患参考 — 与AI分析对比</div>
+          <div style="font-size:13px;color:#333;">{{ photoCompareHazard.desc }}</div>
+          <div v-if="photoCompareHazard.img" style="margin-top:6px;">
+            <img :src="photoCompareHazard.img" alt="典型隐患示例" style="max-width:100%;max-height:200px;border-radius:6px;border:1px solid #ffd591;">
+          </div>
+          <div v-if="photoResult.violation" style="margin-top:6px;font-size:12px;color:#52c41a;">
+            ✅ AI分析结果与典型隐患特征一致
+          </div>
+        </div>
+        <div v-if="photoResult.suggested_note" style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:8px;margin:8px 0;font-size:12px;color:#52c41a">
+          🤖 AI 已自动填写判定结果和问题描述，点击确认即可提交
+        </div>
+        <button class="btn-confirm" @click="confirmPhotoResult">确认结果 → 下一项</button>
+      </div>
+      <button class="btn-close-modal" @click="showPhoto=false">关闭</button>
+    </div>
+  </div>
+
+  <!-- 报告页 -->
+  <div v-if="page==='report'" class="page report-page">
+    <div v-if="report">
+      <div class="assessment-banner" :class="'risk-'+report.assessment.color">
+        <div class="assessment-score">{{ report.assessment.score }}</div>
+        <div class="assessment-label">{{ report.assessment.color_label }}</div>
+      </div>
+
+      <h2>{{ report.venue_name }} — 检查报告</h2>
+      <div class="report-meta">
+        <span>检查人: {{ report.inspector }}</span>
+        <span>日期: {{ report.date }}</span>
+        <span>模式: {{ report.mode==='recheck'?'复查':'首次检查' }}</span>
+      </div>
+
+      <div class="report-summary">
+        <div class="stat">总计 {{ report.summary.checked }} 项</div>
+        <div class="stat pass">合格 {{ report.summary.pass }}</div>
+        <div class="stat fail">不合格 {{ report.summary.fail }}</div>
+      </div>
+
+      <!-- 隐患清单 (强条优先) -->
+      <div v-if="report.findings_by_severity.mandatory?.length" class="finding-section">
+        <h3>🔴 强制性条文违犯 ({{ report.findings_by_severity.mandatory.length }})</h3>
+        <div v-for="f in report.findings_by_severity.mandatory" :key="f.item_index" class="finding-item finding-mandatory">
+          <strong>{{ f.facility }}</strong>: {{ f.check_point }}
+          <div v-if="f.note" class="finding-note">{{ f.note }}</div>
+        </div>
+      </div>
+
+      <div v-if="report.findings_by_severity.important?.length" class="finding-section">
+        <h3>🟠 重要事项 ({{ report.findings_by_severity.important.length }})</h3>
+        <div v-for="f in report.findings_by_severity.important" :key="f.item_index" class="finding-item finding-important">
+          <strong>{{ f.facility }}</strong>: {{ f.check_point }}
+          <div v-if="f.note" class="finding-note">{{ f.note }}</div>
+        </div>
+      </div>
+
+      <div v-if="report.findings_by_severity.normal?.length" class="finding-section">
+        <h3>🟡 一般事项 ({{ report.findings_by_severity.normal.length }})</h3>
+        <div v-for="f in report.findings_by_severity.normal" :key="f.item_index" class="finding-item finding-normal">
+          <strong>{{ f.facility }}</strong>: {{ f.check_point }}
+          <div v-if="f.note" class="finding-note">{{ f.note }}</div>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button @click="newInspection">🆕 新检查</button>
+        <button @click="page='home'">🏠 返回首页</button>
+        <button class="btn-print" @click="printReport">🖨️ 打印报告</button>
+        <a :href="API_BASE+'/'+inspectionId+'/report/export?format=html'" target="_blank" class="btn-export">📄 导出PDF</a>
+        <a :href="API_BASE+'/'+inspectionId+'/report/export?format=excel'" class="btn-export">📥 下载Excel</a>
+      </div>
+    </div>
+
+    <!-- 加载遮罩 -->
+    <div v-if="loading" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">{{ loadingText }}</div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div v-if="toast" :class="['toast', 'toast-'+toast.type]">{{ toast.msg }}</div>
+
+    <!-- 待复查列表页 -->
+    <div v-if="page==='rechecks'" class="page rechecks-page" style="padding:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="margin:0;">📋 待复查任务</h2>
+        <button @click="page='home'" style="padding:6px 14px;background:#f0f0f0;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;">← 返回首页</button>
+      </div>
+      <div v-if="!pendingRechecks || pendingRechecks.total===0" style="text-align:center;padding:40px;color:#999;">
+        ✅ 暂无待复查任务
+      </div>
+      <template v-for="t in (pendingRechecks || {}).tasks || []">
+        <div :key="t.inspection_id" class="recheck-task-card" @click="searchVenue=t.venue_name;mode='recheck';page='home';"
+             style="background:#fff;border-radius:10px;padding:14px;margin:10px 0;cursor:pointer;border-left:4px solid;" :style="{borderLeftColor:t.color==='red'?'#f5222d':t.color==='orange'?'#fa8c16':'#faad14'}">
+          <div style="display:flex;justify-content:space-between;">
+            <strong>{{ t.venue_name }}</strong>
+            <span style="font-size:12px;color:#999;">{{ t.inspection_date }}</span>
+          </div>
+          <div style="font-size:13px;color:#666;margin:4px 0;">📍 {{ t.location || '未记录位置' }} | 检查人: {{ t.inspector }}</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <span :style="{padding:'2px 8px',borderRadius:'4px',fontSize:'12px',fontWeight:600,background:t.color==='red'?'#fff1f0':t.color==='orange'?'#fff7e6':'#fffbe6',color:t.color==='red'?'#cf1322':t.color==='orange'?'#d46b08':'#d48806'}">
+              {{ t.color==='red'?'🔴 高风险':t.color==='orange'?'🟠 较高风险':'🟡 一般风险' }} | {{ t.score }}分
+            </span>
+            <span style="padding:2px 8px;border-radius:4px;font-size:12px;background:#f5f5f5;">❌ {{ t.fail_count }}项不合格</span>
+            <span v-if="t.overdue_days>0" style="padding:2px 8px;border-radius:4px;font-size:12px;background:#fff1f0;color:#cf1322;">⚠️ 已逾期{{ t.overdue_days }}天</span>
+            <span v-else style="padding:2px 8px;border-radius:4px;font-size:12px;background:#fff7e6;color:#d46b08;">⏰ 截止 {{ t.recheck_deadline }}</span>
+          </div>
+          <div style="font-size:12px;color:#999;margin-top:6px;">点击开始复查 →</div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<script src="app_v70.js"></script>
+</body>
 </html>

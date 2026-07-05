@@ -7,7 +7,7 @@ import random
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_BASE = ROOT / "retrieval_benchmark_v2.json"

@@ -2,7 +2,7 @@
 API 路由配置
 """
 from fastapi import APIRouter
-from app.api.v1 import agent, analysis, chat, memory, records, scene_guides
+from app.api.v1 import agent, analysis, chat, inspection, memory, records, scene_guides, speech
 
 # 创建主路由器
 api_router = APIRouter()
@@ -39,7 +39,19 @@ api_router.include_router(
 )
 
 api_router.include_router(
+    inspection.router,
+    prefix="/inspection",
+    tags=["inspection"]
+)
+
+api_router.include_router(
     memory.router,
     prefix="/memory",
     tags=["memory"]
+)
+
+api_router.include_router(
+    speech.router,
+    prefix="/speech",
+    tags=["speech"]
 )

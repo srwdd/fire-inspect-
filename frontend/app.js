@@ -23,92 +23,92 @@ const OPERATION_GUIDES = {
     question: '请现场测试室内消火栓的出水压力和启泵功能',
     steps: ['打开消火栓箱门（箱门开启角度≥160°）','检查箱内器材：水枪×1、水带×1（25m）、栓阀','展开水带，连接水枪和栓阀接口','逆时针旋转手轮全开栓阀','握紧水枪对准排水方向，观察充实水柱（一般≥10m，高层≥13m）','按下消火栓箱内启泵按钮','到消防控制室确认：控制器收到启泵反馈信号，水泵30秒内启动'],
     passCriteria: '水压充足、充实水柱达标、启泵按钮有效、控制室收到信号',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E7%81%AB%E6%A0%93%E7%B3%BB%E7%BB%9F.mp4',
+    video: 'https://v.1190119.com/snxhs/',
   },
   '火灾自动报警系统': {
     question: '请测试火灾自动报警系统的探测器报警和控制器响应功能',
     steps: ['在消防控制室查看控制器面板：确认无故障灯/屏蔽灯常亮','抽查2个感烟探测器：使用专用烟感测试器加烟','观察控制器：30秒内收到报警信号，显示正确地址编码和部位','按下1个手动报警按钮','观察控制器：3秒内收到信号，启动声光报警器和应急广播','检查控制器主备电切换：断开主电源，备电应自动投入'],
     passCriteria: '探测器30s内报警、地址正确、手报3s内响应、主备电切换正常',
-    video: '/inspect/api/v1/inspection/videos/%E7%81%AB%E7%81%BE%E8%87%AA%E5%8A%A8%E6%8A%A5%E8%AD%A6%E7%B3%BB%E7%BB%9F.mp4',
+    video: 'https://v.1190119.com/',
   },
   '自动喷水灭火系统': {
     question: '请测试自动喷水灭火系统末端试水装置',
     steps: ['找到系统最不利点的末端试水装置','打开末端试水阀','观察压力表读数：应≥0.05MPa','观察水流指示器：应动作并反馈信号至控制室','等待5分钟内压力开关动作并直接启动喷淋泵','到控制室确认：收到水流指示器、压力开关、喷淋泵启动信号','关闭试水阀，系统恢复'],
     passCriteria: '压力≥0.05MPa、水流指示器动作、压力开关启泵、控制室信号齐全',
-    video: '/inspect/api/v1/inspection/videos/%E8%87%AA%E5%8A%A8%E5%96%B7%E6%B0%B4%E7%81%AD%E7%81%AB%E7%B3%BB%E7%BB%9F.mp4',
+    video: 'https://v.1190119.com/zdfsmhxt/',
   },
   '防排烟系统': {
     question: '请测试防排烟风机的启动和联动功能',
     steps: ['在消防控制室远程手动启动排烟风机→确认风机运转、收到反馈','现场手动启动送风机→确认运转方向正确','触发2个火灾探测器（联动测试）：风机自动启动','观察送风口/排烟口自动开启','排烟风机入口处的排烟防火阀：手动测试关闭→排烟风机应连锁停止','确认消防控制室显示所有风机、风口、防火阀状态'],
     passCriteria: '三种启动方式均正常、风口正确开启、防火阀连锁关闭有效',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E6%8E%92%E7%83%9F%E7%B3%BB%E7%BB%9F.mp4',
+    video: 'https://v.1190119.com/',
   },
   '防火门': {
     question: '请检查防火门的闭门器、顺序器和联动关闭功能',
     steps: ['常闭防火门：手动开启后释放→应自动关闭严密','双扇防火门：开启后释放→顺序器控制关闭顺序正确','检查闭门器：无漏油、弹簧有效','测量门扇与门框缝隙：≥2mm不合格','常开防火门：触发火灾报警→应联动自动关闭','消防控制室：确认收到防火门关闭反馈信号'],
     passCriteria: '自闭严密、顺序正确、闭门器完好、常开门联动关闭有效',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E7%81%AB%E9%97%A8%E5%92%8C%E9%98%B2%E7%81%AB%E5%8D%B7%E5%B8%98.mp4',
+    video: 'https://v.1190119.com/fhm/',
   },
   '防火卷帘': {
     question: '请测试防火卷帘的手动和联动降落功能',
     steps: ['外观检查：帘板无锈蚀、导轨无卡阻、下方0.3m黄色警示线内无物品','操作两侧手动按钮：上升↓下降↓停止 均正常','操作手动速放链条：卷帘应能靠自重下降','疏散通道处：触发1个感烟探测器→卷帘降至距地1.8m','触发感温探测器→卷帘降到底','非疏散通道处：触发2个探测器→一步降到底','消防控制室：确认收到卷帘动作反馈信号'],
     passCriteria: '手动/联动升降正常、一步降/两步降正确、控制室反馈到位',
-    video: '/inspect/api/v1/inspection/videos/%E9%98%B2%E7%81%AB%E9%97%A8%E5%92%8C%E9%98%B2%E7%81%AB%E5%8D%B7%E5%B8%98.mp4',
+    video: 'https://v.1190119.com/fhm/',
   },
   '灭火器配置': {
     question: '请检查灭火器的配置、压力和有效期',
     steps: ['抽查3个配置点的灭火器','查看压力表：指针必须在绿区','查看生产日期和维修标签：在有效期内（干粉5年、CO₂ 3年）','检查筒体：无锈蚀、变形','检查喷射软管和保险销：完好','核对灭火器类型是否与场所火灾类别匹配','核对配置数量是否符合GB 50140要求'],
     passCriteria: '压力绿区、有效期内、筒体完好、类型匹配、数量足够',
-    video: '/inspect/api/v1/inspection/videos/%E7%81%AD%E7%81%AB%E5%99%A8%E9%85%8D%E7%BD%AE.mp4',
+    video: 'https://v.1190119.com/',
   },
   '消防应急照明和疏散指示标志': {
     question: '请测试应急照明灯的切换和持续时间',
     steps: ['抽查任一疏散路线上的3处应急照明灯','切断主电源→灯具应在5s内自动切换至应急状态','使用照度计测量地面最低水平照度：疏散走道≥1.0lx、人员密集场所≥3.0lx','记录应急照明持续时间→应≥90分钟','核查疏散指示标志的方向→应指向最近安全出口','确认标志安装高度和间距符合要求'],
     passCriteria: '5s内切换、照度达标、持续时间≥90分钟、方向正确',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E5%BA%94%E6%80%A5%E7%85%A7%E6%98%8E.mp4',
+    video: 'https://v.1190119.com/',
   },
   '电气线路安全': {
     question: '请检查电气线路的敷设和保护措施',
     steps: ['查看吊顶内、墙体内的电气线路敷设方式','有可燃物的吊顶/墙体：线路应穿金属导管或封闭金属槽盒保护','查看电热设备：靠近可燃物时应有隔热散热措施','检查是否设有电气火灾监控系统（按规范需要时）','检查配电箱：箱门完好、无裸露导线、接地线完好'],
     passCriteria: '穿管保护到位、隔热措施完善、配电箱完好、接地可靠',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
   '消防电梯': {
     question: '请测试消防电梯的迫降和运行功能',
     steps: ['现场检查消防电梯前室面积和防火分隔','触发火灾报警→消防电梯应自动迫降至首层','检查消防电梯轿厢内：应设消防电话分机','手动操作消防电梯：从首层到顶层运行时间≤60s','测试消防电梯的消防员操作功能','消防控制室：确认显示消防电梯运行状态'],
     passCriteria: '自动迫降有效、运行时间≤60s、消防电话可用、设防水措施',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E7%94%B5%E6%A2%AF.mp4',
+    video: 'https://v.1190119.com/',
   },
   '消防控制室值班': {
     question: '请测试消防控制室值班人员的设备操作能力',
     steps: ['确认值班人员持证上岗、每班≥2人','要求值班员操作火灾报警控制器：消音→查看信息→复位','要求值班员使用消防电话总机呼叫水泵房分机','要求值班员启动应急广播进行全楼广播','查看值班记录：完整、至少保存1年','确认控制器处于自动状态（非手动）'],
     passCriteria: '持证上岗、双人值班、操作熟练、记录完整、控制器自动状态',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E6%8E%A7%E5%88%B6%E5%AE%A4%E5%80%BC%E7%8F%AD.mp4',
+    video: 'https://v.1190119.com/',
   },
   '消防水泵接合器': {
     question: '请检查消防水泵接合器的状态和标识',
     steps: ['现场查看水泵接合器外观完整性','检查是否被埋压、圈占、遮挡','查看永久性标志铭牌：标明供水系统类型和供水范围','确认距建筑外墙边缘≥5m','检查接口密封盖完好'],
     passCriteria: '无埋压遮挡、标识清晰、距外墙≥5m、接口完好',
-    video: '/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E6%B0%B4%E6%B3%B5%E6%8E%A5%E5%90%88%E5%99%A8.mp4',
+    video: 'https://v.1190119.com/shuibengjieheqi/',
   },
   '消防供电': {
     question: '请测试消防供电和备用电源切换功能',
     steps: ['确认消防用电设备采用专用供电回路','在消防控制室断开主电源→备用电源应自动投入','记录切换时间：≤15s','检查柴油发电机房（如有）：储油量≤1m³、防火分隔完好','测试发电机自启动：市电中断后15s内启动、30s内供电','检查配电柜：双电源转换开关（ATS）正常'],
     passCriteria: '专用回路、备电自动投入、切换≤15s、发电机正常启动',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
 	  
   '气体灭火系统': {
     question: '请检查气体灭火系统的储瓶和防护区',
     steps: ['检查储瓶间压力表在绿区（CO2称重≤5%）','电磁阀与瓶头阀连接牢固','启动管路无堵塞','抽查1个防护区门窗能自动关闭','泄压口位置正确、放气指示灯完好'],
     passCriteria: '储瓶压力正常、防护区密闭、放气指示灯完好',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
   '泡沫灭火系统': {
     question: '请检查泡沫灭火系统的泡沫液和比例混合器',
     steps: ['检查泡沫液有效期内（≤3年）','储罐无锈蚀泄漏','比例混合器未堵塞','泡沫产生器过滤网清洁、吸气口通畅'],
     passCriteria: '泡沫液有效、储罐完好、混合比达标',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
   '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
 	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
@@ -127,13 +127,13 @@ const OPERATION_GUIDES = {
     question: '请检查气体灭火系统的储瓶和防护区',
     steps: ['检查储瓶间压力表在绿区（CO2称重≤5%）','电磁阀与瓶头阀连接牢固','启动管路无堵塞','抽查1个防护区门窗能自动关闭','泄压口位置正确、放气指示灯完好'],
     passCriteria: '储瓶压力正常、防护区密闭、放气指示灯完好',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
   '泡沫灭火系统': {
     question: '请检查泡沫灭火系统的泡沫液和比例混合器',
     steps: ['检查泡沫液有效期内（≤3年）','储罐无锈蚀泄漏','比例混合器未堵塞','泡沫产生器过滤网清洁、吸气口通畅'],
     passCriteria: '泡沫液有效、储罐完好、混合比达标',
-    video: '',
+    video: 'https://v.1190119.com/',
   },
   '消火栓': { question: '请测试消火栓的操作、水压和启泵功能', steps: ['打开消火栓箱门（开启角度≥160°）','检查箱内器材齐全','逆时针全开栓阀放水','充实水柱一般≥10m/高层≥13m','按下启泵按钮→30s内水泵启动','最不利点静压: 多层≥0.07MPa/高层≥0.15MPa'], passCriteria: '器材齐全、水压达标、启泵有效' },
 	  '火灾报警': { question: '请测试火灾报警系统各组件', steps: ['控制器: 无故障灯/屏蔽灯、主备电切换正常','感烟探测器: 加烟→30s内报警→地址一致','感温探测器: 加温→响应时间合格','手动报警按钮: 按下→3s内信号至控制器','声光报警器: 声压级≥75dB、闪光清晰','联动控制: 断电/迫降/卷帘动作正确'], passCriteria: '30s报警、3s响应、地址正确' },
@@ -256,7 +256,6 @@ createApp({
       showPhoto: false,
       photoAnalyzing: false,
       photoResult: null,
-      photoCompareHazard: null,
       // 报告
       report: null,
       // 搜索
@@ -265,14 +264,6 @@ createApp({
       searchResult: '',
       isRecording: false,
       recognition: null,
-      // 语音判决
-      isVoiceJudging: false,
-      voiceJudgeText: '',
-      // 复查提醒
-      pendingRechecks: null,
-      // 设备历史
-      facilityHistory: null,
-      showFacilityHistory: false,
       // 规模参数 + 子类型
       showScaleInput: false,
       showSubTypePicker: false,
@@ -310,17 +301,6 @@ createApp({
     progressPct() {
       if (!this.totalItems) return 0;
       return Math.min(100, Math.round((this.judgedCount / this.totalItems) * 100));
-    },
-  },
-
-  mounted() {
-    this.fetchPendingRechecks();
-  },
-
-  watch: {
-    page(newPage) {
-      if (newPage === 'rechecks') this.fetchPendingRechecks();
-      if (newPage === 'home') this.fetchPendingRechecks();
     },
   },
 
@@ -417,20 +397,6 @@ createApp({
         this.searched = true;
       } catch (e) { console.error(e); }
     },
-    async lookupFacilityHistory(facility) {
-      try {
-        const r = await axios.get(API_BASE + '/facility-history', { params: { facility } });
-        this.facilityHistory = r.data.data;
-        this.showFacilityHistory = true;
-      } catch (e) { this.facilityHistory = null; }
-    },
-
-    async fetchPendingRechecks() {
-      try {
-        const r = await axios.get(API_BASE + '/pending-rechecks');
-        this.pendingRechecks = r.data.data;
-      } catch (e) { this.pendingRechecks = { total: 0, urgent: 0, upcoming: 0, tasks: [] }; }
-    },
 
     // === 开始检查 ===
     startInspection(scene) {
@@ -513,29 +479,14 @@ createApp({
       return item?.step || 0;
     },
 
-    async getGps() {
-      if (this._gpsCached) return this._gpsCached;
-      try {
-        const pos = await new Promise((resolve, reject) => {
-          if (!navigator.geolocation) return reject(new Error('no geolocation'));
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, maximumAge: 60000 });
-        });
-        this._gpsCached = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        return this._gpsCached;
-      } catch (e) { return null; }
-    },
-
-    async judge(result, prefillNote, prefillRectification) {
+    async judge(result) {
       const wasJudged = this.judgments[this.currentIndex] !== undefined;
       const wasFail = wasJudged && this.judgments[this.currentIndex].result === 'fail';
       const wasNA = wasJudged && this.judgments[this.currentIndex].result === 'na';
 
-      let note = prefillNote || '';
-      if (!note && result === 'fail') {
+      let note = '';
+      if (result === 'fail') {
         note = prompt('请填写问题描述:', this.judgments[this.currentIndex]?.note || '') || '';
-        this.diagnosis = this.getDiagnosis(this.currentItem);
-        this.showDiagnosis = true;
-      } else if (result === 'fail') {
         this.diagnosis = this.getDiagnosis(this.currentItem);
         this.showDiagnosis = true;
       } else if (result === 'na') {
@@ -584,12 +535,7 @@ createApp({
       }
 
       try {
-        const judgePayload = { item_index: this.currentIndex, result, note, judge_source: 'manual' };
-        if (prefillRectification) judgePayload.rectification_status = prefillRectification;
-        const gps = await this.getGps();
-        if (gps) { judgePayload.lat = gps.lat; judgePayload.lng = gps.lng; }
-        const r = await API.post(`/${this.inspectionId}/judge`, judgePayload);
-        if (r.data?.data?.gps_warning) alert(r.data.data.gps_warning);
+        await API.post(`/${this.inspectionId}/judge`, { item_index: this.currentIndex, result, note, judge_source: 'manual' });
       } catch (e) { console.error(e); }
 
       // 更新本地记录

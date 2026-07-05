@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>消防监督驾驶舱</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f0f2f5; color:#333; }
+.header { background:linear-gradient(135deg,#1a365d,#2b6cb0); color:#fff; padding:20px 24px; }
+.header h1 { font-size:22px; }
+.header p { font-size:13px; opacity:0.8; margin-top:4px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; padding:16px; }
+.card { background:#fff; border-radius:10px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.card h3 { font-size:12px; color:#8c8c8c; margin-bottom:8px; text-transform:uppercase; }
+.card .value { font-size:28px; font-weight:700; }
+.card .sub { font-size:12px; color:#8c8c8c; margin-top:4px; }
+.trend-up { color:#52c41a; }
+.trend-down { color:#f5222d; }
+.charts { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:0 16px 16px; }
+@media(max-width:768px) { .charts { grid-template-columns:1fr; } }
+.chart-card { background:#fff; border-radius:10px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.chart-card h3 { font-size:14px; margin-bottom:12px; color:#555; }
+canvas { max-height:280px; }
+.table-card { background:#fff; border-radius:10px; padding:16px; margin:0 16px 16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.table-card h3 { font-size:14px; margin-bottom:12px; color:#555; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th,td { padding:8px 12px; text-align:left; border-bottom:1px solid #f0f0f0; }
+th { color:#8c8c8c; font-weight:500; }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+.badge-red { background:#fff1f0; color:#cf1322; }
+.badge-orange { background:#fff7e6; color:#d46b08; }
+.badge-yellow { background:#fffbe6; color:#d48806; }
+.badge-green { background:#f6ffed; color:#389e0d; }
+.loading { text-align:center; padding:60px; color:#8c8c8c; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📊 消防监督驾驶舱</h1>
+  <p id="updateTime">加载中...</p>
+</div>
+
+<div id="loading" class="loading">⏳ 加载统计数据...</div>
+
+<div id="content" style="display:none;">
+  <div class="grid" id="overview"></div>
+  <div class="charts">
+    <div class="chart-card"><h3>🔴 风险等级分布</h3><canvas id="riskChart"></canvas></div>
+    <div class="chart-card"><h3>🏢 场所类型分布</h3><canvas id="venueChart"></canvas></div>
+  </div>
+  <div class="charts">
+    <div class="chart-card"><h3>⚠️ 高频隐患 Top10</h3><canvas id="hazardChart"></canvas></div>
+    <div class="chart-card"><h3>👤 监督员效率</h3><canvas id="inspectorChart"></canvas></div>
+  </div>
+  <div class="table-card">
+    <h3>⚠️ 高频隐患详情</h3>
+    <table id="hazardTable"><thead><tr><th>排名</th><th>检查部位</th><th>次数</th><th>占比</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
+
+async function init() {
+  try {
+    const r = await fetch(API_BASE + '/dashboard-stats');
+    const d = (await r.json()).data;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('updateTime').textContent = `数据更新: ${new Date().toLocaleString()}`;
+    renderOverview(d);
+    renderRiskChart(d);
+    renderVenueChart(d);
+    renderHazardChart(d);
+    renderInspectorChart(d);
+    renderHazardTable(d);
+  } catch(e) {
+    document.getElementById('loading').textContent = '加载失败: ' + e.message;
+  }
+}
+
+function renderOverview(d) {
+  const o = d.overview;
+  const trend = o.trend === 'up' ? '<span class="trend-up">↑ 增长</span>' : '<span class="trend-down">↓ 下降</span>';
+  document.getElementById('overview').innerHTML =
+    `<div class="card"><h3>总检查</h3><div class="value">${o.total_inspections}</div><div class="sub">本月 ${o.this_month} ${trend}</div></div>` +
+    `<div class="card"><h3>总发现</h3><div class="value">${o.total_findings}</div><div class="sub">不合格率 ${(o.fail_rate*100).toFixed(1)}%</div></div>` +
+    `<div class="card"><h3>总隐患</h3><div class="value" style="color:#f5222d;">${o.total_fails}</div><div class="sub">整改率 ${(o.rectification_rate*100).toFixed(0)}%</div></div>` +
+    `<div class="card"><h3>本月检查</h3><div class="value">${d.monthly.this_month.inspections}</div><div class="sub">发现 ${d.monthly.this_month.fails} 项隐患</div></div>`;
+}
+
+function renderRiskChart(d) {
+  const rd = d.risk_distribution;
+  new Chart(document.getElementById('riskChart'), {
+    type:'doughnut',
+    data:{
+      labels:['高风险','较高风险','一般风险','低风险'],
+      datasets:[{data:[rd.red,rd.orange,rd.yellow,rd.green],
+        backgroundColor:['#f5222d','#fa8c16','#faad14','#52c41a']}]
+    },
+    options:{plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+function renderVenueChart(d) {
+  const vt = d.venue_types.slice(0,8);
+  new Chart(document.getElementById('venueChart'), {
+    type:'bar',
+    data:{
+      labels:vt.map(v=>v.type),
+      datasets:[{label:'检查次数',data:vt.map(v=>v.count),backgroundColor:'#2b6cb0'}]
+    },
+    options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+}
+
+function renderHazardChart(d) {
+  const hz = d.top_hazards.slice(0,10);
+  new Chart(document.getElementById('hazardChart'), {
+    type:'bar',
+    data:{
+      labels:hz.map(h=>h.facility.length>8 ? h.facility.slice(0,8)+'...' : h.facility),
+      datasets:[{label:'隐患次数',data:hz.map(h=>h.count),backgroundColor:'#f5222d'}]
+    },
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+}
+
+function renderInspectorChart(d) {
+  const ie = d.inspector_efficiency.slice(0,8);
+  new Chart(document.getElementById('inspectorChart'), {
+    type:'bar',
+    data:{
+      labels:ie.map(i=>i.inspector),
+      datasets:[
+        {label:'本月检查',data:ie.map(i=>i.this_month),backgroundColor:'#2b6cb0'},
+        {label:'隐患发现',data:ie.map(i=>i.monthly_fails),backgroundColor:'#f5222d'}
+      ]
+    },
+    options:{plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+}
+
+function renderHazardTable(d) {
+  const rows = d.top_hazards.map((h,i) =>
+    `<tr><td>${i+1}</td><td>${h.facility}</td><td>${h.count}</td><td>${h.pct}%</td></tr>`
+  ).join('');
+  document.querySelector('#hazardTable tbody').innerHTML = rows;
+}
+
+init();
+</script>
+</body>
+</html>

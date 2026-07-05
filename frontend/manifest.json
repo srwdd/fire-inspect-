@@ -1,0 +1,24 @@
+{
+  "name": "消防监督检查智能辅助系统",
+  "short_name": "消防检查助手",
+  "description": "面向消防监督员的移动端智能检查辅助工具，覆盖12类场所的消防监督检查全流程",
+  "start_url": "/inspect/web/",
+  "scope": "/inspect/web/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#d4380d",
+  "background_color": "#f5f5f5",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

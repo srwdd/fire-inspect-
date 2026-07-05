@@ -109,7 +109,7 @@ class ShortTermMemoryService:
             record = current_record_context.get("record") or {}
             summary = self._safe_text(record.get("summary"), 120)
             if summary:
-                topics.append(f"Current record summary: {summary}")
+                topics.append(f"当前记录摘要: {summary}")
 
         user_messages = [
             self._safe_text(item.get("content"), 80)

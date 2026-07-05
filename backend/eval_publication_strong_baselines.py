@@ -215,7 +215,7 @@ def evaluate_profile(name: str, profile: Dict[str, Any], cases: List[Dict[str, A
                 t0 = perf_counter()
                 try:
                     results = rule_retriever.retrieve(c["query"], scene=c["scene"], top_k=profile["RAG_TOP_K"])
-                except Exception as e:
+                except Exception:
                     results = []
                 lat_ms = (perf_counter() - t0) * 1000.0
                 latencies.append(lat_ms)
