@@ -893,3 +893,5 @@ body.light-mode .subtype-grid button.active { background: var(--accent-blue); co
 .theme-toggle:active { transform: scale(.9); }
 body.light-mode .theme-toggle { background: rgba(255,255,255,.2); }
 .photo-judgment.unclear{background:#f0f0f0;color:#666;border:1px solid #ddd}
+
+.voice-wave{display:flex;align-items:flex-end;gap:3px;height:24px;justify-content:center;margin:4px 0}.wave-bar{width:4px;background:#448aff;border-radius:2px;animation:wave-bounce .5s ease-in-out infinite alternate}@keyframes wave-bounce{from{height:30%}to{height:100%}}
