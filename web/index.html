@@ -8,7 +8,6 @@
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d4380d">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="消防检查助手">
@@ -19,13 +18,13 @@
 <script src="axios.min.js"></script>
 <script>window.axios||document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"><\/script>')</script>
 <link rel="stylesheet" href="styles_v3.css">
-<script src="app-extras.js?v=3"></script>
+<script src="app-extras.js?v=1783231372"></script>
 
 <!-- Service Worker (自动更新) -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/inspect/web/sw.js?v=19').then(reg => {
+    navigator.serviceWorker.register('/inspect/web/sw.js?v=9').then(reg => {
       // 检测新版本，自动刷新
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;
@@ -45,20 +44,12 @@ if ('serviceWorker' in navigator) {
 <div id="app">
   <!-- 顶部导航 -->
   <header class="app-header">
-    <h1>🧯 消防检查助手<span v-if="!isOnline" style="font-size:11px;background:#f5222d;color:#fff;padding:2px 6px;border-radius:4px;margin-left:8px;vertical-align:middle">🔴 离线</span></h1>
-    <span class="version">v0.1</span>
+    <h1>🧯 消防检查助手</h1>
+    <button class="theme-toggle" @click="toggleTheme" :title="theme==='light'?'切换到深色':'切换到浅色'">{{ theme==='light' ? '☀️' : '🌙' }}</button><span class="version">v0.1</span>
   </header>
 
   <!-- 首页: 场景选择 + 检查模式 -->
   <div v-if="page==='home'" class="page home-page">
-    <!-- 复查提醒角标 -->
-    <div v-if="pendingRechecks && pendingRechecks.urgent > 0" class="recheck-alert" @click="page='rechecks'">
-      ⚠️ {{ pendingRechecks.urgent }} 个场所复查已逾期，请尽快安排复查 →
-    </div>
-    <div v-else-if="pendingRechecks && pendingRechecks.upcoming > 0" class="recheck-notice" @click="page='rechecks'">
-      📅 {{ pendingRechecks.upcoming }} 个场所7天内到期复查
-    </div>
-
     <!-- 检查类型切换 -->
     <div class="mode-tabs">
       <button :class="{active:inspectType==='preopen'}" @click="inspectType='preopen'">🏢 开业前检查</button>
@@ -218,10 +209,6 @@ if ('serviceWorker' in navigator) {
       <span class="section-sub">{{ currentStepName }}</span>
     </div>
 
-    <!-- P0-1: 撤销 Toast -->
-    <div v-if="undoToast" class="undo-toast">
-      ✅ 已判定 · <a @click="undoJudgment(undoToast.index)" style="color:#d4380d;cursor:pointer;font-weight:600">撤销</a>
-    </div>
     <!-- 检查项卡片 -->
     <div v-if="currentItem" class="check-card" :class="'cat-'+currentItem.category">
       <!-- 标签行 -->
@@ -264,17 +251,12 @@ if ('serviceWorker' in navigator) {
       </div>
 
       <!-- 检查内容 -->
-      <div class="check-facility">
-        📍 {{ currentItem.facility }}
-        <button @click="lookupFacilityHistory(currentItem.facility)" title="查看该设备在以往检查中的结果记录" style="font-size:11px;padding:2px 8px;border:1px solid #91d5ff;background:#e6f7ff;color:#1890ff;border-radius:4px;cursor:pointer;">📋 历史记录</button>
-      </div>
+      <div class="check-facility">📍 {{ currentItem.facility }}</div>
       <div class="check-point">🔍 {{ currentItem.check_point }}</div>
       <div class="check-method">📋 {{ currentItem.check_method }}</div>
 
-      <!-- P1-4: 详情折叠按钮 -->
-      <button @click="showDetail=!showDetail" style="width:100%;padding:6px;margin:8px 0;background:#fafafa;border:1px dashed #d9d9d9;border-radius:6px;font-size:12px;color:#666;cursor:pointer">
-        {{ showDetail ? '🫣 收起详情' : '📋 展开详情（法规/隐患/指南）' }}
-      </button>
+      <!-- 详情折叠 -->
+      <button @click="showDetail=!showDetail" class="detail-toggle" style="width:100%;padding:6px;margin:8px 0;background:var(--bg-surface);border:1px dashed var(--border);border-radius:6px;font-size:12px;color:var(--text-muted);cursor:pointer">{{ showDetail ? '收起详情' : '展开详情（法规/隐患/指南）' }}</button>
       <div v-if="showDetail">
       <!-- 操作测试指南 (设施类) -->
       <div v-if="getOperationGuide(currentItem.facility)" class="op-guide-section">
@@ -314,6 +296,7 @@ if ('serviceWorker' in navigator) {
         </div>
       </div>
 
+      </div><!-- end showDetail -->
       <!-- 管理类 Q&A (考问/操作测试模式) -->
       <div v-if="currentItem.qa_config" class="qa-section">
         <div class="qa-question">❓ {{ currentItem.qa_config.question }}</div>
@@ -334,42 +317,17 @@ if ('serviceWorker' in navigator) {
         </div>
       </div>
 
-      </div><!-- end showDetail -->
+      <div v-if="judgments[currentIndex]" :class="'status-indicator status-'+(judgments[currentIndex].result==='pass'?'pass':judgments[currentIndex].result==='fail'?'fail':'na')" style="margin:10px 12px;padding:12px 16px;border-radius:var(--radius-md);font-size:14px;font-weight:700;text-align:center;letter-spacing:1px">{{ judgments[currentIndex].result==='pass'?'● 合格':judgments[currentIndex].result==='fail'?'● 不合格 — '+(judgments[currentIndex].note||''):'● 不涉及' }}</div>
+      <div v-else class="status-indicator status-pending" style="margin:10px 12px;padding:12px 16px;border-radius:var(--radius-md);font-size:14px;font-weight:700;text-align:center;letter-spacing:1px;background:rgba(68,138,255,.08);color:#448aff;border:1px solid rgba(68,138,255,.15)">● 待判定</div>
       <!-- 操作按钮 -->
       <div class="check-actions">
         <button class="btn-pass" @click="judge('pass')">✅ 合格</button>
         <button class="btn-fail" @click="judge('fail')">❌ 不合格</button>
         <button class="btn-na" @click="judge('na')">⊘ 不涉及</button>
         <button class="btn-photo" @click="showPhoto=true">📷 拍照</button>
-        <button
-          class="btn-voice"
-          :class="{ recording: isVoiceJudging }"
-          @pointerdown.prevent="startVoiceJudge()"
-          @pointerup.prevent="stopVoiceJudge()"
-           
-           
-        >{{ isVoiceJudging ? '🎤 松开提交 ' + voiceTimer : '🎤 按住说话' }}</button>
-      <div v-if="isVoiceJudging" class="voice-wave"><div class="wave-bar" v-for="i in 5" :key="i" :style="{animationDelay:i*0.1+'s'}"></div></div>
+        <button class="btn-voice" :class="{recording:isVoiceJudging}" @click="startVoiceJudge()"  >{{ isVoiceJudging ? '🔴 停止录音' : '🎤 语音判定' }}</button>
       </div>
-      <div v-if="voiceJudgeText" class="voice-judge-text">{{ voiceJudgeText }}</div>
-
-      <!-- 设备历史弹窗 -->
-      <div v-if="showFacilityHistory && facilityHistory" class="facility-history-popup">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>📋 {{ facilityHistory.facility }} — 历史记录</strong>
-          <button @click="showFacilityHistory=false" style="border:none;background:none;font-size:18px;cursor:pointer;">✕</button>
-        </div>
-        <div style="font-size:12px;color:#666;margin:4px 0;">{{ facilityHistory.summary }}</div>
-        <div v-for="h in facilityHistory.history" :key="h.inspection_id" style="border-bottom:1px solid #f0f0f0;padding:8px 0;font-size:13px;">
-          <div style="display:flex;justify-content:space-between;">
-            <strong>{{ h.venue }}</strong>
-            <span style="color:#999;">{{ h.date }}</span>
-          </div>
-          <div>{{ h.check_point }}</div>
-          <span :style="{color:h.result==='fail'?'#f5222d':'#52c41a',fontWeight:'bold'}">{{ h.result==='fail'?'❌ 不合格':'✅ 合格' }}</span>
-          <span v-if="h.note" style="color:#666;margin-left:8px;">{{ h.note }}</span>
-        </div>
-      </div>
+      <div v-if="voiceJudgeText" style="text-align:center;padding:6px 12px;font-size:14px;color:#448aff">{{ voiceJudgeText }}</div>
 
       <!-- 前后导航 -->
       <div class="nav-arrows">
@@ -383,14 +341,6 @@ if ('serviceWorker' in navigator) {
       <div v-if="showJumpMenu" class="jump-menu" @click.self="showJumpMenu=false">
         <div class="jump-list">
           <h4>快速跳转</h4>
-          <!-- P0-2: 关键词搜索 -->
-          <input v-model="jumpKeyword" @input="jumpSearch(jumpKeyword)" placeholder="搜索检查项..." style="width:100%;padding:8px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;margin:6px 0;box-sizing:border-box">
-          <div v-if="jumpFiltered" style="max-height:260px;overflow-y:auto">
-            <div v-if="jumpFiltered.length===0" style="color:#999;font-size:12px;padding:8px">未找到匹配项</div>
-            <div v-for="r in jumpFiltered" class="jump-item" @click="goToItem(r.index); showJumpMenu=false; jumpFiltered=null; jumpKeyword=''" style="font-size:12px;padding:6px 8px;border-bottom:1px solid #f0f0f0;cursor:pointer">
-              <b>#{{ r.index+1 }}</b> {{ r.facility }} — {{ (r.check_point||'').substring(0,40) }}
-            </div>
-          </div>
           <div v-for="(info, name) in sectionIndex" :key="name" class="jump-item"
                :class="{current: currentIndex >= info.start && currentIndex <= info.end}"
                @click="goToItem(info.start); showJumpMenu=false">
@@ -476,23 +426,6 @@ if ('serviceWorker' in navigator) {
       <button class="btn-new" @click="newInspection">🆕 开始新检查</button>
     </div>
 
-    <!-- P1-6: 问题清单浮动按钮 -->
-    <div v-if="issueList.length>0" style="position:fixed;right:8px;bottom:260px;z-index:99">
-      <button @click="showIssueList=!showIssueList" style="background:#f5222d;color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:13px;box-shadow:0 2px 8px rgba(245,34,45,.4);cursor:pointer">
-        📋 问题清单 ({{ issueList.length }})
-      </button>
-    </div>
-    <!-- P1-6: 问题清单半屏面板 -->
-    <div v-if="showIssueList" class="modal-overlay" @click.self="showIssueList=false">
-      <div class="jump-list" style="max-height:60vh;overflow-y:auto;background:#fff;border-radius:12px;padding:16px;margin:10% 12px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
-        <h4 style="margin:0 0 12px">📋 问题清单 — {{ issueList.length }} 项不合格</h4>
-        <div v-for="item in issueList" :key="item.index" @click="goToItem(item.index); showIssueList=false" style="padding:10px;margin:6px 0;background:#fff1f0;border-left:3px solid #f5222d;border-radius:6px;cursor:pointer;font-size:13px">
-          <b>#{{ item.index+1 }}</b> {{ item.facility }}
-          <div v-if="item.note" style="color:#666;font-size:12px;margin-top:4px">{{ item.note.substring(0,80) }}</div>
-        </div>
-        <button @click="showIssueList=false" style="width:100%;margin-top:12px;padding:10px;background:#f0f0f0;border:none;border-radius:8px;cursor:pointer">关闭</button>
-      </div>
-    </div>
     <!-- 底部完成按钮 (当所有项已判定但尚未触发完成时显示) -->
     <div v-if="currentItem && judgedCount >= totalItems && !inspected" class="complete-float">
       <button class="btn-finish-all" @click="completeInspection">✅ 全部判定完毕，生成检查报告</button>
@@ -564,9 +497,7 @@ if ('serviceWorker' in navigator) {
         <button class="btn-video-close" @click="closeVideo">✕</button>
       </div>
       <div class="video-player-area">
-        <video v-if="currentVideoUrl" :src="currentVideoUrl" class="video-iframe" controls autoplay playsinline style="width:100%;max-height:70vh;border-radius:8px;">
-          您的浏览器不支持视频播放
-        </video>
+        <video v-if="currentVideoUrl" :src="currentVideoUrl" class="video-iframe" controls autoplay playsinline style="width:100%;max-height:70vh;border-radius:8px;">您的浏览器不支持视频播放</video>
         <div class="video-fallback">
           <p>如果视频无法加载，请点击下方按钮在新窗口打开</p>
           <a :href="currentVideoUrl" target="_blank" class="btn-video-external">🔗 在新窗口打开视频</a>
@@ -592,35 +523,15 @@ if ('serviceWorker' in navigator) {
       </div>
       <div v-if="photoAnalyzing" class="photo-analyzing">AI 分析中...</div>
       <div v-if="photoResult" class="photo-result">
-        <div :class="'photo-judgment '+(photoResult.violation?'violation':'compliant')">
+        <div :class="'photo-judgment '+(photoResult.violation?'violation':(photoResult.violation===false?'compliant':'unclear'))">
           {{ photoResult.violation ? '⚠️ 不合格' : (photoResult.violation===false ? '✅ 合格' : '🤔 无法判断') }}
         </div>
-        <div v-if="photoResult.hazard_code" style="font-size:13px;font-weight:600;margin:4px 0">
-          🏷️ {{ photoResult.hazard_category }} / {{ photoResult.hazard_name }}
-          <span style="color:#999;font-size:11px">({{ photoResult.hazard_code }})</span>
-        </div>
-        <div v-if="photoResult.detail?.设备类型" style="font-size:14px;font-weight:600;margin:4px 0">📋 {{ photoResult.detail['设备类型'] }}</div>
-        <div class="photo-reason">{{ photoResult.reason }}</div>
-        <div v-if="photoResult.regulation && photoResult.regulation.length" style="font-size:12px;color:#1890ff;margin:4px 0">
-          📖 {{ photoResult.regulation.join('; ') }}
-        </div>
+        <div v-if="photoResult.detail && photoResult.detail['设备类型']" style="font-size:14px;font-weight:600;margin:4px 0">📋 {{ photoResult.detail['设备类型'] }}</div>
+        <div class="photo-reason">{{ photoResult.reason || photoResult.detail?.['隐患描述'] }}</div>
+        <div v-if="photoResult.regulation && photoResult.regulation.length" style="font-size:12px;color:#1890ff;margin:4px 0">📖 {{ photoResult.regulation.join('; ') }}</div>
         <div v-if="photoResult.rectification" style="font-size:13px;color:#e85d04;margin:4px 0">🔧 {{ photoResult.rectification }}</div>
         <div v-if="photoResult.deadline && photoResult.deadline!=='无需'" style="font-size:12px;color:#d4380d">⏰ 整改期限: {{ photoResult.deadline }}</div>
         <div class="photo-confidence">置信度: {{ ((photoResult.confidence||0.5)*100).toFixed(0) }}%</div>
-        <!-- 并排对比：典型隐患参考 -->
-        <div v-if="photoCompareHazard" style="background:#fff7e6;border:1px solid #ffd591;border-radius:8px;padding:10px;margin:10px 0;">
-          <div style="font-size:12px;color:#ad6800;font-weight:600;margin-bottom:6px;">🔍 典型隐患参考 — 与AI分析对比</div>
-          <div style="font-size:13px;color:#333;">{{ photoCompareHazard.desc }}</div>
-          <div v-if="photoCompareHazard.img" style="margin-top:6px;">
-            <img :src="photoCompareHazard.img" alt="典型隐患示例" style="max-width:100%;max-height:200px;border-radius:6px;border:1px solid #ffd591;">
-          </div>
-          <div v-if="photoResult.violation" style="margin-top:6px;font-size:12px;color:#52c41a;">
-            ✅ AI分析结果与典型隐患特征一致
-          </div>
-        </div>
-        <div v-if="photoResult.suggested_note" style="background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:8px;margin:8px 0;font-size:12px;color:#52c41a">
-          🤖 AI 已自动填写判定结果和问题描述，点击确认即可提交
-        </div>
         <button class="btn-confirm" @click="confirmPhotoResult">确认结果 → 下一项</button>
       </div>
       <button class="btn-close-modal" @click="showPhoto=false">关闭</button>
@@ -677,8 +588,6 @@ if ('serviceWorker' in navigator) {
         <button @click="newInspection">🆕 新检查</button>
         <button @click="page='home'">🏠 返回首页</button>
         <button class="btn-print" @click="printReport">🖨️ 打印报告</button>
-        <a :href="API_BASE+'/'+inspectionId+'/report/export?format=html'" target="_blank" class="btn-export">📄 导出PDF</a>
-        <a :href="API_BASE+'/'+inspectionId+'/report/export?format=excel'" class="btn-export">📥 下载Excel</a>
       </div>
     </div>
 
@@ -690,39 +599,9 @@ if ('serviceWorker' in navigator) {
 
     <!-- Toast 提示 -->
     <div v-if="toast" :class="['toast', 'toast-'+toast.type]">{{ toast.msg }}</div>
-
-    <!-- 待复查列表页 -->
-    <div v-if="page==='rechecks'" class="page rechecks-page" style="padding:16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <h2 style="margin:0;">📋 待复查任务</h2>
-        <button @click="page='home'" style="padding:6px 14px;background:#f0f0f0;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;">← 返回首页</button>
-      </div>
-      <div v-if="!pendingRechecks || pendingRechecks.total===0" style="text-align:center;padding:40px;color:#999;">
-        ✅ 暂无待复查任务
-      </div>
-      <template v-for="t in (pendingRechecks || {}).tasks || []">
-        <div :key="t.inspection_id" class="recheck-task-card" @click="searchVenue=t.venue_name;mode='recheck';page='home';"
-             style="background:#fff;border-radius:10px;padding:14px;margin:10px 0;cursor:pointer;border-left:4px solid;" :style="{borderLeftColor:t.color==='red'?'#f5222d':t.color==='orange'?'#fa8c16':'#faad14'}">
-          <div style="display:flex;justify-content:space-between;">
-            <strong>{{ t.venue_name }}</strong>
-            <span style="font-size:12px;color:#999;">{{ t.inspection_date }}</span>
-          </div>
-          <div style="font-size:13px;color:#666;margin:4px 0;">📍 {{ t.location || '未记录位置' }} | 检查人: {{ t.inspector }}</div>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-            <span :style="{padding:'2px 8px',borderRadius:'4px',fontSize:'12px',fontWeight:600,background:t.color==='red'?'#fff1f0':t.color==='orange'?'#fff7e6':'#fffbe6',color:t.color==='red'?'#cf1322':t.color==='orange'?'#d46b08':'#d48806'}">
-              {{ t.color==='red'?'🔴 高风险':t.color==='orange'?'🟠 较高风险':'🟡 一般风险' }} | {{ t.score }}分
-            </span>
-            <span style="padding:2px 8px;border-radius:4px;font-size:12px;background:#f5f5f5;">❌ {{ t.fail_count }}项不合格</span>
-            <span v-if="t.overdue_days>0" style="padding:2px 8px;border-radius:4px;font-size:12px;background:#fff1f0;color:#cf1322;">⚠️ 已逾期{{ t.overdue_days }}天</span>
-            <span v-else style="padding:2px 8px;border-radius:4px;font-size:12px;background:#fff7e6;color:#d46b08;">⏰ 截止 {{ t.recheck_deadline }}</span>
-          </div>
-          <div style="font-size:12px;color:#999;margin-top:6px;">点击开始复查 →</div>
-        </div>
-      </template>
-    </div>
   </div>
 </div>
 
-<script src="app_v70.js"></script>
+<script src="app_v73.js"></script>
 </body>
 </html>

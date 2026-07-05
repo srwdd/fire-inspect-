@@ -3,18 +3,18 @@ const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v
 const API = axios.create({ baseURL: API_BASE });
 
 const SCENES = [
-  { key: 'hotel', name: '宾馆/酒店', icon: '🏨', preopen: true, total_items: 97 },
-  { key: 'mall', name: '商场/市场', icon: '🏬', preopen: true, total_items: 97 },
-  { key: 'entertainment', name: '公共娱乐场所', icon: '🎤', preopen: true, total_items: 97 },
-  { key: 'school', name: '学校/幼儿园', icon: '🏫', preopen: false, total_items: 76 },
-  { key: 'hospital', name: '医院', icon: '🏥', preopen: false, total_items: 76 },
-  { key: 'elderly', name: '养老机构', icon: '🧓', preopen: false, total_items: 76 },
-  { key: 'restaurant', name: '餐饮场所', icon: '🍽️', preopen: true, total_items: 97 },
-  { key: 'highrise', name: '高层建筑', icon: '🏢', preopen: false, total_items: 76 },
-  { key: 'mixed_use', name: '多业态混合', icon: '🏗️', preopen: false, total_items: 76 },
-  { key: 'factory', name: '厂房/仓库', icon: '🏭', preopen: false, total_items: 76 },
-  { key: 'crowded', name: '人员密集场所', icon: '👥', preopen: false, total_items: 76 },
-  { key: 'nine_small', name: '九小场所', icon: '🏪', preopen: false, total_items: 12 },
+  { key: 'hotel', name: '宾馆/酒店', icon: '🏨', preopen: true },
+  { key: 'mall', name: '商场/市场', icon: '🏬', preopen: true },
+  { key: 'entertainment', name: '公共娱乐场所', icon: '🎤', preopen: true },
+  { key: 'school', name: '学校/幼儿园', icon: '🏫', preopen: false },
+  { key: 'hospital', name: '医院', icon: '🏥', preopen: false },
+  { key: 'elderly', name: '养老机构', icon: '🧓', preopen: false },
+  { key: 'restaurant', name: '餐饮场所', icon: '🍽️', preopen: true },
+  { key: 'highrise', name: '高层建筑', icon: '🏢', preopen: false },
+  { key: 'mixed_use', name: '多业态混合', icon: '🏗️', preopen: false },
+  { key: 'factory', name: '厂房/仓库', icon: '🏭', preopen: false },
+  { key: 'crowded', name: '人员密集场所', icon: '👥', preopen: false },
+  { key: 'nine_small', name: '九小场所', icon: '🏪', preopen: false },
 ];
 
 // 设施操作测试指南（现场测试用）
@@ -217,7 +217,6 @@ createApp({
   data() {
     return {
       page: 'home',
-      theme: localStorage.getItem('fire_theme') || 'dark',
       inspectType: 'preopen',  // preopen | daily
       mode: 'first',
       scenes: SCENES,
@@ -246,6 +245,8 @@ createApp({
       searching: false,
       searchResult: '',
       isRecording: false,
+      isVoiceJudging: false,
+      voiceJudgeText: "",
       recognition: null,
       // 规模参数 + 子类型
       showScaleInput: false,
@@ -257,7 +258,6 @@ createApp({
       selectedBrand: '',
       showQaAnswer: false,
       showOpGuide: false,
-      showDetail: false,
       recheckPhoto: null, recheckPreviewData: null,
       loading: false, loadingText: '', toast: null,
       // 计算器 + 智能诊断
@@ -268,7 +268,6 @@ createApp({
       showDiagnosis: false,
       diagnosis: null,
       ownerRpt: null,
-      pendingRechecks: null,
       showJumpMenu: false,
       sectionIndex: {},
       nineSmallSubTypes: [
@@ -301,33 +300,10 @@ createApp({
     },
   },
 
-  watch: {
-    page(newPage) {
-      if (newPage === 'rechecks') this.fetchPendingRechecks();
-      if (newPage === 'home') this.fetchPendingRechecks();
-    },
-  },
-
-  mounted() {
-    document.body.classList.toggle('light-mode', this.theme === 'light');
-    this.fetchPendingRechecks();
-  },
-
   methods: {
-    async fetchPendingRechecks() {
-      try {
-        const r = await axios.get(API_BASE + '/pending-rechecks');
-        this.pendingRechecks = r.data.data;
-      } catch (e) { this.pendingRechecks = { total: 0, urgent: 0, upcoming: 0, tasks: [] }; }
-    },
     showToast(msg, type='info') {
       this.toast = { msg, type };
       setTimeout(() => { this.toast = null; }, 3000);
-    },
-    toggleTheme() {
-      this.theme = this.theme === 'light' ? 'dark' : 'light';
-      document.body.classList.toggle('light-mode', this.theme === 'light');
-      localStorage.setItem('fire_theme', this.theme);
     },
     confirmBackToHome() {
       if (this.judgedCount > 0 && !confirm('已判断 ' + this.judgedCount + ' 项，将丢失进度。确定返回？')) return;
@@ -747,7 +723,60 @@ createApp({
     voiceUnavailableReason() { return APP_EXTRAS.voiceUnavailableReason(); },
     startVoice() { return APP_EXTRAS.startVoice.call(this); },
     stopVoice() { APP_EXTRAS.stopVoice.call(this); },
-    startVoiceJudge() { return APP_EXTRAS.startVoiceJudge.call(this); },
-    stopVoiceJudge() { APP_EXTRAS.stopVoiceJudge.call(this); },
+     
+    async startVoiceJudge() {
+      if (this.isVoiceJudging) { this.stopVoiceJudge(); return; }
+      this.voiceJudgeText = '🎤 正在启动...';
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        this._voiceStream = stream;
+        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+        const recorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+        recorder.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+        recorder.onstart = () => { this.isVoiceJudging = true; this.voiceJudgeText = '🎤 正在聆听...'; };
+        recorder.onstop = async () => {
+          this.isVoiceJudging = false; this.voiceJudgeText = '';
+          stream.getTracks().forEach(function(t) { t.stop(); });
+          if (chunks.length === 0) { this.voiceJudgeText = '⚠️ 未录制到音频，请重试'; return; }
+          const blob = new Blob(chunks, { type: mimeType });
+          this.voiceJudgeText = '🎧 识别中...';
+          try {
+            const form = new FormData();
+            form.append('file', blob, 'judge.' + (mimeType.includes('mp4') ? 'mp4' : 'webm'));
+            const speechAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/speech') });
+            const r = await speechAPI.post('/transcribe', form);
+            const text = r.data?.text || r.data?.transcript || '';
+            if (text.trim()) { this._parseVoiceJudgment(text); }
+            else { this.voiceJudgeText = '⚠️ 未识别到语音内容，请重试'; }
+          } catch (e) { this.voiceJudgeText = '⚠️ 识别失败: ' + (e.message || '网络错误'); }
+        };
+        this._voiceRecorder = recorder;
+        recorder.start();
+        setTimeout(() => { if (this.isVoiceJudging) this.stopVoiceJudge(); }, 15000);
+      } catch (e) {
+        this.isVoiceJudging = false;
+        if (e.name === 'NotAllowedError') { this.voiceJudgeText = '⚠️ 麦克风权限未开启'; }
+        else if (e.name === 'NotFoundError') { this.voiceJudgeText = '⚠️ 未找到麦克风设备'; }
+        else { this.voiceJudgeText = '⚠️ 录音失败: ' + (e.message || ''); }
+      }
+    },
+    stopVoiceJudge() {
+      if (this._voiceRecorder && this._voiceRecorder.state === 'recording') this._voiceRecorder.stop();
+      if (this._voiceStream) this._voiceStream.getTracks().forEach(function(t) { t.stop(); });
+      this.isVoiceJudging = false;
+    },
+    _parseVoiceJudgment(text) {
+      var t = text.trim();
+      var result, note = '';
+      if (/合格|没问题|正常|符合|通过|合规/.test(t) && !/不/.test(t)) { result = 'pass'; note = t; }
+      else if (/不合格|有问题|不行|隐患|过期|损坏|缺失|堵塞|故障|失效/.test(t)) { result = 'fail'; note = t.replace(/不合格[，。,.\s]*/, '').replace(/有问题[，。,.\s]*/, ''); if (!note.trim()) note = t; }
+      else if (/跳过|不涉及|N\/?A/.test(t)) { result = 'na'; note = '不涉及'; }
+      else if (/拍照|拍个照/.test(t)) { this.voiceJudgeText = '📸 请拍照'; setTimeout(() => { this.showPhoto = true; this.voiceJudgeText = ''; }, 500); return; }
+      else { this.voiceJudgeText = '🤔 无法识别: "' + t + '"'; return; }
+      this.voiceJudgeText = '';
+      this.judge(result, note);
+    },
+
   },
 }).mount('#app');

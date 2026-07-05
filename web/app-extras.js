@@ -152,7 +152,8 @@ const APP_EXTRAS = {
   // ═══ 语音判决（Phase 2.1）═════
   async startVoiceJudge() {
     if (this.isVoiceJudging) { this.stopVoiceJudge(); return; }
-    if (!this.voiceAvailable()) { alert(this.voiceUnavailableReason()); return; }
+    if (!this.voiceAvailable()) { this.voiceJudgeText = '⚠️ ' + (this.voiceUnavailableReason() || '录音功能不可用，请使用Chrome浏览器'); return; }
+    this.voiceJudgeText = '🎤 正在启动麦克风...';
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this._voiceJudgeStream = stream;
@@ -182,7 +183,8 @@ const APP_EXTRAS = {
       this._voiceJudgeRecorder = recorder; recorder.start();
     } catch (e) {
       this.isVoiceJudging = false;
-      if (e.name !== 'NotAllowedError') console.error('[VoiceJudge]', e);
+      this.voiceJudgeText = '⚠️ 麦克风权限未开启，请在浏览器设置中允许访问麦克风';
+      if (e.name !== 'NotAllowedError') { this.voiceJudgeText = '⚠️ 录音失败: ' + (e.message || ''); console.error('[VoiceJudge]', e); }
     }
   },
   stopVoiceJudge() {
