@@ -107,6 +107,7 @@ if ('serviceWorker' in navigator) {
     <div v-if="showScaleInput" class="modal-overlay" @click.self="showScaleInput=false">
       <div class="scale-dialog">
         <h3>📐 场所规模参数</h3>
+        <div class="scale-field"><label>🏢 单位名称</label><input type="text" v-model="scaleForm.venueName" placeholder="例: XX酒店/XX学校" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:14px"></div>
         <p class="dialog-hint">填写后系统将按 GB46034 规则计算抽查比例</p>
         <div class="scale-field"><label>🏢 场所面积 (m²)</label><input type="number" v-model="scaleForm.area" placeholder="例: 3000" min="0"></div>
         <div class="scale-field"><label>👥 员工人数</label><input type="number" v-model="scaleForm.staff" placeholder="例: 50" min="0"></div>
@@ -134,8 +135,15 @@ if ('serviceWorker' in navigator) {
       </div>
     </div>
 
-    <div v-if="report || lastReportId" style="margin:8px 12px;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;cursor:pointer;text-align:center;font-size:15px;font-weight:600;color:var(--accent-blue)" @click="report ? (page='report') : viewLastReport()">
-      📊 {{ report ? report.venue_name + " — " + report.assessment.score + "分" : "上次检查报告" }} · 点击查看 →
+    <div v-if="inspectionHistory.length" style="margin:8px 12px">
+      <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:4px">📋 最近检查记录</div>
+      <div v-for="h in inspectionHistory" :key="h.id" @click="inspectionId=h.id; viewLastReport()" style="padding:10px;margin:4px 0;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:14px;font-weight:600">{{ h.name }}</div>
+          <div style="font-size:11px;color:var(--text-muted)">{{ h.date }} · {{ h.total }}项 · ❌{{ h.fail }}</div>
+        </div>
+        <div style="font-size:18px;font-weight:900" :style="{color:h.color==='green'?'#00c853':h.color==='red'?'#ff1744':'#ff9100'}">{{ h.score }}分</div>
+      </div>
     </div>
     <div class="search-entry">
       <button @click="startSearch()" class="btn-search-entry">🔍 法规检索 · 语音查询</button>
@@ -430,6 +438,10 @@ if ('serviceWorker' in navigator) {
         <span class="score-num">{{ report.assessment.score }}分</span>
         <span class="score-label">{{ report.assessment.color_label }}</span>
       </div>
+      <div style="margin:12px 0;padding:14px;background:var(--bg-card);border-radius:10px;text-align:center">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">📱 扫码分享报告</div>
+        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent('https://ai-bang.top/inspect/api/v1/inspection/'+inspectionId+'/report/export?format=html')" style="width:150px;height:150px;border-radius:8px">
+      </div>
       <button class="btn-report" @click="page='report'">📊 查看检查报告</button>
       <button class="btn-generate" @click="generateReport">🔄 重新生成报告</button>
       <button class="btn-owner" @click="viewOwnerReport">📨 致业主整改告知书</button>
@@ -611,7 +623,12 @@ if ('serviceWorker' in navigator) {
       </div>
 
       <div class="action-bar">
-        <button @click="newInspection">🆕 新检查</button>
+        <div v-if="report" style="margin:16px 0;padding:16px;background:var(--bg-card);border-radius:10px;text-align:center">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">📱 微信扫码查看报告</div>
+        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent('https://ai-bang.top/inspect/api/v1/inspection/'+inspectionId+'/report/export?format=html')" style="width:180px;height:180px;border-radius:8px" crossorigin="anonymous">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px">企业可扫码下载检查报告和整改建议</div>
+      </div>
+      <button @click="newInspection">🆕 新检查</button>
         <button @click="goHomeFromReport()">🏠 返回首页</button>
         <button class="btn-print" @click="printReport">🖨️ 打印报告</button>
       </div>
@@ -628,6 +645,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v78.js"></script>
+<script src="app_v81.js"></script>
 </body>
 </html>
