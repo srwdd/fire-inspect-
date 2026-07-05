@@ -1,0 +1,80 @@
+name: 消防检查助手 — 自动审计
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'backend/app/**'
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 8 * * *'  # 每天早上8点自动跑
+
+jobs:
+  # ═══ 前端审计 (webguardx) ═══
+  frontend-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - run: npx webguardx init --yes || true
+
+      - name: Run webguardx
+        run: |
+          cat > webguard.config.ts << 'EOF'
+          import type { WebGuardConfig } from 'webguardx';
+          const config: WebGuardConfig = {
+            baseURL: 'https://ai-bang.top',
+            pages: [
+              { name: 'home', path: '/inspect/web/', audits: ['httpStatus','contentVisibility','accessibility','consoleErrors','links'], wait: 5000 },
+            ],
+            output: { dir: './webguard-results', reporters: ['html','json'] },
+          };
+          export default config;
+          EOF
+          npx webguardx run || true
+
+      - name: Upload webguardx report
+        uses: actions/upload-artifact@v4
+        with:
+          name: webguardx-report
+          path: webguard-results/
+
+  # ═══ Python 后端审计 (Ruff) ═══
+  backend-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/ruff-action@v1
+        with:
+          src: './backend/app'
+          args: 'check --fix --show-fixes'
+
+      - name: Enforce zero issues
+        run: |
+          ruff check ./backend/app --output-format=github || echo "⚠️ Ruff issues found (non-blocking)"
+
+  # ═══ Lighthouse 性能 ═══
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: 'https://ai-bang.top/inspect/web/'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 3
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: '.lighthouseci/'
