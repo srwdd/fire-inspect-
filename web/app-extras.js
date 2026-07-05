@@ -60,7 +60,7 @@ const APP_EXTRAS = {
       this.page = 'report';
     } catch (e) { alert('获取报告失败: ' + e.message); }
   },
-  newInspection() { this.page = 'home'; this.report = null; this.ownerRpt = null; },
+  newInspection() { this.page = 'home'; this.ownerRpt = null; },
   async viewOwnerReport() {
     try {
       const r = await API.get(`/${this.inspectionId}/owner-report`);
