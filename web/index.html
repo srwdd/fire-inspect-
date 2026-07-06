@@ -46,7 +46,7 @@ if ('serviceWorker' in navigator) {
   <!-- 顶部导航 -->
   <header class="app-header">
     <h1>🚒 消防检查助手</h1>
-    <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><span class="version">v0.1</span>
+    <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><button class="theme-toggle" @click="toggleTheme" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;margin-right:6px">{{ theme==='light'?'☀️':'🌙' }}</button><span class="version">v0.1</span>
   </header>
 
   <!-- 首页: 场景选择 + 检查模式 -->
@@ -586,6 +586,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v106.js"></script>
+<script src="app_v107.js"></script>
 </body>
 </html>
