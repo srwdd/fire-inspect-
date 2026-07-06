@@ -50,3 +50,4 @@ Thumbs.db
 
 # Local analysis cache
 cache/
+seed_real_users.py
