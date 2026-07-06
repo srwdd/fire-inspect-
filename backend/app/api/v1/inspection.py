@@ -53,7 +53,7 @@ class StartRequest(BaseModel):
     sub_type: str = ""
     org_id: int = 0
     lead_id: int = 0
-    venue_addr: str = "
+    venue_addr: str = ""
 
 class RecheckRequest(BaseModel):
     previous_inspection_id: str
