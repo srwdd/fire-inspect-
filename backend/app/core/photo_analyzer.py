@@ -79,13 +79,13 @@ async def analyze_photo(image_bytes, item_context, api_key,
 
     return {
         'violation': None,
-        'reason': 'AI analysis temporarily unavailable, please inspect manually: ' + facility,
+        'reason': '图片分析暂不可用，请人工检查: ' + facility,
         'confidence': 0.0,
         'hazard_code': None, 'hazard_category': None,
         'regulation': [], 'rectification': '', 'deadline': '',
         'detail': {
             'judgment': 'unable', 'hazard_code': 'NONE',
-            'device': facility, 'description': 'Please check manually: ' + check_point,
+            'device': facility, 'description': '请人工检查: ' + check_point,
             'severity': 'none', 'confidence': 'low'
         },
         'raw': '',
@@ -126,12 +126,12 @@ async def _call_vision_api(img_b64, facility, check_point, reg_source, reg_text,
 async def _call_text_fallback(facility, check_point, reg_source, reg_text, api_key, base_url, model, error_msg):
     prompt = (
         'You are a fire safety assistant.\n'
-        'User uploaded a photo of "' + facility + '" but image analysis is unavailable.\n'
+        'User uploaded a photo of "' + facility + '" 但图片分析不可用.\n'
         'Based on the check item, give the most common hazard reminders.\n\n'
         'Facility: ' + facility + '\nCheck Point: ' + check_point + '\n'
         'Regulation: ' + reg_source + ' ' + reg_text + '\n\n'
         'Return JSON: {"judgment":"unclear","hazard_code":"NONE","device":"' + facility + '",'
-        '"description":"Photo AI unavailable. Please inspect: ' + facility + ' - ' + check_point + '",'
+        '"description":"图片AI暂不可用，请人工检查: ' + facility + ' - ' + check_point + '",'
         '"severity":"minor","confidence":"low"}'
     )
 
