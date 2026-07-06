@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>消防检查助手 — 登录</title>
+<script src="vue.min.js"></script>
+<script>window.Vue||document.write('<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"><\/script>')</script>
+<script src="axios.min.js"></script>
+<script>window.axios||document.write('<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"><\/script>')</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1b2a;color:#e8edf2;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{width:340px;padding:40px 30px;text-align:center}
+.badge{width:64px;height:64px;margin:0 auto 12px;background:linear-gradient(135deg,#c41e3a,#8b1a1a);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(196,30,58,.4)}
+.badge span{color:#ffd700;font-size:32px;font-weight:900}
+.subtitle{font-size:13px;color:#8899aa;margin-bottom:8px;letter-spacing:6px}
+h1{font-size:20px;font-weight:700;margin-bottom:28px;color:#e8edf2}
+input{width:100%;padding:14px;margin:8px 0;background:#1b2838;border:1px solid #263040;border-radius:8px;color:#e8edf2;font-size:15px}
+input::placeholder{color:#5c6e80}
+input:focus{outline:none;border-color:#448aff}
+.error{color:#ff1744;font-size:13px;margin:8px 0;min-height:20px}
+.btn{width:100%;padding:14px;margin-top:8px;background:#c41e3a;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+.btn:active{transform:scale(.97);opacity:.9}
+.hint{margin-top:24px;font-size:11px;color:#5c6e80;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="login-box">
+  <div class="badge"><span>★</span></div>
+  <div class="subtitle">消防救援</div>
+  <h1>消防监督检查智能辅助系统</h1>
+  <input v-model="username" @keyup.enter="login" placeholder="用户名" autocomplete="username">
+  <input v-model="password" @keyup.enter="login" type="password" placeholder="密码" autocomplete="current-password">
+  <div class="error">{{ error }}</div>
+  <button class="btn" @click="login">登 录</button>
+  <div class="hint">广丰区: wangdongdong@gf · luochong@gf · zhangjian@gf<br>zhoujiawei@gf · liuhuixiang@gf · zhangli@gf · weiwangzheng@gf<br>支队: test · 管理员: admin<br>默认密码: 123456</div>
+</div>
+</div>
+<script>
+const { createApp } = Vue;
+const AUTH = axios.create({ baseURL: '/inspect/api/v1/auth' });
+createApp({
+  data(){ return { username:'', password:'', error:'' }; },
+  methods: {
+    async login(){
+      this.error = '';
+      if(!this.username || !this.password){ this.error = '请输入用户名和密码'; return; }
+      try {
+        const r = await AUTH.post('/login', { username: this.username, password: this.password });
+        const d = r.data.data;
+        localStorage.setItem('fire_token', d.token);
+        localStorage.setItem('fire_user', JSON.stringify(d.user));
+        window.location.href = '/inspect/web/';
+      } catch(e) {
+        this.error = e.response?.data?.detail || '登录失败，请检查用户名密码';
+      }
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

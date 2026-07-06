@@ -1,6 +1,7 @@
 const { createApp } = Vue;
 const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
 const API = axios.create({ baseURL: API_BASE });
+API.interceptors.request.use(function(c){ var t=localStorage.getItem("fire_token"); if(t) c.headers.Authorization="Bearer "+t; return c; });
 // Auto-attach JWT token
 API.interceptors.request.use(function(config) {
   var token = localStorage.getItem('fire_token');
