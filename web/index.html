@@ -46,10 +46,31 @@ if ('serviceWorker' in navigator) {
   <!-- 顶部导航 -->
   <header class="app-header">
     <h1>🚒 消防检查助手</h1>
-    <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><button class="theme-toggle" @click="toggleTheme" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;margin-right:6px">{{ theme==='light'?'☀️':'🌙' }}</button><span class="version">v0.1</span>
+    <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><button class="theme-toggle" @click="toggleTheme" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;margin-right:6px">{{ theme==='light'?'☀️':'🌙' }}</button><button v-if="currentUser && currentUser.role==='admin'" @click="openAdmin()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">⚙ 管理</button><span class="version">v0.1</span>
   </header>
 
   <!-- 首页: 场景选择 + 检查模式 -->
+  <div v-if="page==='admin'" class="page" style="padding:12px">
+    <button @click="page='home'" style="padding:6px 14px;background:#f0f0f0;border:1px solid #d9d9d9;border-radius:6px;font-size:14px;cursor:pointer;margin-bottom:12px">← 返回</button>
+    <h2 style="margin-bottom:16px">⚙ 用户管理</h2>
+    <div style="margin-bottom:20px;padding:14px;background:#f6f8fa;border-radius:8px">
+      <h4 style="margin:0 0 10px">新建用户</h4>
+      <input v-model="newUser.username" placeholder="用户名" style="width:100%;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px">
+      <input v-model="newUser.password" type="password" placeholder="密码" style="width:100%;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px">
+      <input v-model="newUser.display_name" placeholder="姓名" style="width:100%;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px">
+      <select v-model="newUser.role" style="width:100%;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px"><option value="chief">大队长</option><option value="lead">监督员</option><option value="assist">协办</option></select>
+      <select v-model="newUser.org_id" style="width:100%;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:6px;font-size:13px"><option :value="0">-- 选择大队 --</option><option v-for="o in allOrgs" :value="o.id" :key="o.id">{{ o.name }}</option></select>
+      <button @click="createUser" style="width:100%;padding:10px;margin-top:8px;background:#1677ff;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">创建用户</button>
+      <div v-if="adminMsg" style="margin-top:8px;font-size:13px;color:#52c41a">{{ adminMsg }}</div>
+    </div>
+    <div>
+      <h4 style="margin-bottom:8px">现有用户</h4>
+      <div v-for="u in allUsers" :key="u.id" style="padding:8px;margin:4px 0;background:#fff;border:1px solid #eee;border-radius:6px;font-size:13px;display:flex;justify-content:space-between">
+        <span><b>{{ u.display_name }}</b> ({{ u.username }}) — {{ {chief:"大队长",lead:"监督员",assist:"协办"}[u.role] }}</span>
+        <span style="color:#999">{{ u.org_name || "" }}</span>
+      </div>
+    </div>
+  </div>
   <div v-if="page==='home'" class="page home-page">
     <!-- 检查类型切换 -->
     <div class="mode-tabs">
@@ -608,6 +629,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v110.js"></script>
+<script src="app_v111.js"></script>
 </body>
 </html>

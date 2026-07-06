@@ -103,5 +103,14 @@ def list_users(org_id: int = 0):
     if org_id: rows = conn.execute('SELECT * FROM users WHERE active = 1 AND org_id = ?', (org_id,)).fetchall()
     else: rows = conn.execute('SELECT * FROM users WHERE active = 1').fetchall()
     conn.close()
-    return {'code': 0, 'data': [{'id': r['id'], 'username': r['username'], 'role': r['role'],
-            'display_name': r['display_name'], 'org_id': r['org_id'] or 0} for r in rows]}
+    result = []
+    for r in rows:
+        org_name = ''
+        if r['org_id']:
+            c2 = _db()
+            o = c2.execute('SELECT name FROM organizations WHERE id = ?', (r['org_id'],)).fetchone()
+            c2.close()
+            if o: org_name = o['name']
+        result.append({'id': r['id'], 'username': r['username'], 'role': r['role'],
+            'display_name': r['display_name'], 'org_id': r['org_id'] or 0, 'org_name': org_name})
+    return {'code': 0, 'data': result}
