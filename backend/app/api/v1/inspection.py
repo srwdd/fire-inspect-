@@ -166,10 +166,13 @@ def start_inspection(req: StartRequest, user: dict = Depends(get_current_user)):
 def search_inspections(
     venue_name: str = Query(""),
     date_from: str = Query(""),
+    user: dict = Depends(get_current_user),
 ):
     states = storage_search(venue_name)
     results = []
+    user_org = user.get("oid", 0)
     for state in states:
+        if user_org and user_org != int(state.get("org_id") or 0): continue
         findings = get_findings(state["inspection_id"])
         fail_items = [f for f in findings if f.get("result") == "fail"]
         important_fails = [f for f in fail_items if f.get("severity") == "important"]
@@ -230,10 +233,13 @@ def start_recheck(req: RecheckRequest, user: dict = Depends(get_current_user)):
 # ── 4. 复查到期提醒 ─────────────────────────────────
 
 @router.get("/pending-rechecks")
-def get_pending_rechecks():
+def get_pending_rechecks(user: dict = Depends(get_current_user)):
     """返回所有到期/即将到期的复查任务"""
     from app.services.reminder import get_pending_rechecks as fetch_pending
     tasks = fetch_pending()
+    user_org = user.get("oid", 0)
+    if user_org:
+        tasks = [t for t in tasks if int(t.get("org_id", 0) or 0) == user_org]
     urgent = [t for t in tasks if t["urgency"] == "urgent"]
     upcoming = [t for t in tasks if t["urgency"] == "upcoming"]
     return {"code": 0, "data": {
