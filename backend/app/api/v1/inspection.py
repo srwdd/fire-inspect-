@@ -49,6 +49,11 @@ class StartRequest(BaseModel):
     staff_count: int = 0
     floor_count: int = 0
     area_sqm: int = 0
+    building_count: int = 1
+    sub_type: str = ""
+    org_id: int = 0
+    lead_id: int = 0
+    venue_addr: str = "
 
 class RecheckRequest(BaseModel):
     previous_inspection_id: str
@@ -137,6 +142,7 @@ def start_inspection(req: StartRequest):
         "location": req.location, "inspector": req.inspector,
         "staff_count": req.staff_count, "floor_count": req.floor_count, "area_sqm": req.area_sqm,
         "staff_sample": staff_sample, "floor_sample": floor_sample,
+        "org_id": req.org_id, "lead_id": req.lead_id, "venue_addr": req.venue_addr,
         "total_items": len(items), "mandatory_count": mandatory_count,
         "sample_count": len(items) - mandatory_count,
         "current_index": 0, "items": items,
