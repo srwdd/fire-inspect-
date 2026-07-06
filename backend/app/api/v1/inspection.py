@@ -256,6 +256,10 @@ def get_item(inspection_id: str, item_index: int):
 
     response_item = {
         "item_index": item_index, "total_items": len(items),
+        "preopen_section": item.get("preopen_section", 0),
+        "preopen_sub": item.get("preopen_sub", 0),
+        "preopen_order": item.get("preopen_order", 0),
+        "step": item.get("step", 5),
         "facility": item["facility"], "check_point": item["check_point"],
         "check_method": item.get("check_method", ""),
         "category": item.get("category", "技术条件"),
