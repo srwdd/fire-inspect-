@@ -58,7 +58,7 @@ if ('serviceWorker' in navigator) {
       <input v-model="loginPassword" @keyup.enter="doLogin" type="password" placeholder="密码" style="width:100%;padding:14px;margin:8px 0;border:1px solid #ddd;border-radius:8px;font-size:16px;background:#fff">
       <div v-if="loginError" style="color:#ff1744;font-size:13px;margin:8px 0">{{ loginError }}</div>
       <button @click="doLogin" style="width:100%;padding:14px;margin-top:12px;background:#d4380d;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer">登 录</button>
-      <div style="margin-top:20px;font-size:11px;color:#999;line-height:1.8">admin/admin123 · chief1/123456<br>lead1/123456 · assist1/123456</div>
+      <div style="margin-top:20px;font-size:11px;color:#999;line-height:1.8">广丰区: chief1/王冬冬 · zhangjian/张建 · zhoujiawei/周嘉伟 · liuhuixiang/刘辉翔 · zhangli/张利<br>支队: test/Test · 管理员: admin/admin123<br>密码均为 123456</div>
     </div>
   </div>
   <div v-if="page==='home'" class="page home-page">
@@ -640,6 +640,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v100.js"></script>
+<script src="app_v101.js"></script>
 </body>
 </html>
