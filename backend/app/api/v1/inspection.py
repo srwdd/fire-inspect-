@@ -53,6 +53,7 @@ class StartRequest(BaseModel):
     sub_type: str = ""
     org_id: int = 0
     lead_id: int = 0
+    assist_id: int = 0
     venue_addr: str = ""
 
 class RecheckRequest(BaseModel):
@@ -142,7 +143,7 @@ def start_inspection(req: StartRequest, user: dict = Depends(get_current_user)):
         "location": req.location, "inspector": req.inspector,
         "staff_count": req.staff_count, "floor_count": req.floor_count, "area_sqm": req.area_sqm,
         "staff_sample": staff_sample, "floor_sample": floor_sample,
-        "org_id": req.org_id, "lead_id": req.lead_id, "venue_addr": req.venue_addr,
+        "org_id": req.org_id, "lead_id": req.lead_id, "assist_id": req.assist_id, "venue_addr": req.venue_addr,
         "total_items": len(items), "mandatory_count": mandatory_count,
         "sample_count": len(items) - mandatory_count,
         "current_index": 0, "items": items,

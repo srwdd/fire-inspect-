@@ -108,6 +108,8 @@ if ('serviceWorker' in navigator) {
     <div v-if="showScaleInput" class="modal-overlay" @click.self="showScaleInput=false">
       <div class="scale-dialog">
         <h3>📐 场所规模参数</h3>
+        <div class="scale-field"><label>👤 主办</label><select v-model="selectedLeadId" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"><option :value="0">-- 选择主办 --</option><option v-for="u in orgUsers" :value="u.id" :key="u.id">{{ u.display_name }}（{{ {chief:"大队长",lead:"主办",assist:"协办"}[u.role] }}）</option></select></div>
+        <div class="scale-field"><label>👥 协办</label><select v-model="selectedAssistId" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"><option :value="0">-- 选择协办 --</option><option v-for="u in orgUsers" :value="u.id" :key="u.id">{{ u.display_name }}（{{ {chief:"大队长",lead:"主办",assist:"协办"}[u.role] }}）</option></select></div>
         <div class="scale-field"><label>🏢 单位名称</label><input type="text" v-model="scaleForm.venueName" placeholder="例: XX酒店" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"></div>
         <div class="scale-field"><label>📍 单位地址</label><input type="text" v-model="scaleForm.venueAddress" placeholder="例: XX路XX号" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"></div>
         <p class="dialog-hint">填写后系统将按 GB46034 规则计算抽查比例</p>
@@ -606,6 +608,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v109.js"></script>
+<script src="app_v110.js"></script>
 </body>
 </html>
