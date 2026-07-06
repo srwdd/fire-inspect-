@@ -214,7 +214,7 @@ function getOperationGuide(facility) {
 createApp({
   data() {
     return {
-      page: (localStorage.getItem('fire_token') && localStorage.getItem('fire_user')) ? 'home' : 'login',
+      page: 'home',
       theme: localStorage.getItem('fire_theme') || 'dark',
       token: localStorage.getItem('fire_token') || '',
       currentUser: JSON.parse(localStorage.getItem('fire_user') || 'null'),
