@@ -44,7 +44,7 @@ if ('serviceWorker' in navigator) {
 <div id="app">
   <!-- 顶部导航 -->
   <header class="app-header">
-    <h1>🚒 消防检查助手<span v-if="currentUser" style="font-size:11px;margin-left:8px;color:#999">{{ currentUser.display_name }}（{{ {admin:"管理员",chief:"大队长",lead:"主办",assist:"协办"}[currentUser.role] }}）</span></h1>
+    <h1>🚒 消防检查助手<span v-if="currentUser" style="font-size:11px;margin-left:8px;color:#999">{{ currentUser.org_name || currentUser.display_name }} · {{ currentUser.display_name }}（{{ {admin:"管理员",chief:"大队长",lead:"主办",assist:"协办"}[currentUser.role] }}）</span></h1>
     <button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;cursor:pointer;margin-right:6px">退出</button><button class="theme-toggle" @click="toggleTheme" :title="theme==='light'?'切深色':'切浅色'">{{ theme==='light' ? '☀️' : '🌙' }}</button><span class="version">v0.1</span>
   </header>
 
@@ -640,6 +640,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v99.js"></script>
+<script src="app_v100.js"></script>
 </body>
 </html>
