@@ -342,6 +342,7 @@ if ('serviceWorker' in navigator) {
       <div v-if="judgments[currentIndex]" :class="'status-'+(judgments[currentIndex].result==='pass'?'pass':judgments[currentIndex].result==='fail'?'fail':'na')" style="margin:10px 12px;padding:12px 16px;border-radius:8px;font-size:15px;font-weight:700;text-align:center">{{ judgments[currentIndex].result==='pass'?'● 合格':judgments[currentIndex].result==='fail'?'● 不合格':'● 不涉及' }}</div>
       </div>
       <div v-else style="margin:10px 12px;padding:12px 16px;border-radius:8px;font-size:15px;font-weight:700;text-align:center;background:rgba(68,138,255,.08);color:#448aff;border:1px solid rgba(68,138,255,.15)">● 待判定</div>
+      </div>
       <!-- 操作按钮 -->
       <div class="check-actions">
         <button class="btn-pass" @click="judge('pass')">✅ 合格</button>
