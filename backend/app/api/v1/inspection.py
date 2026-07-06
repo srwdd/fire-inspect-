@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Q
 from pydantic import BaseModel
 
 from app.core.checklist_engine import checklist_engine
-from app.dependencies import verify_api_key
+from app.dependencies import verify_api_key, get_current_user
 
 # ── 加载 .env 文件 ────────────────────────────────────
 _ENV_FILE = Path(__file__).resolve().parent.parent.parent.parent / ".env"
@@ -123,7 +123,7 @@ def _require_state(inspection_id: str) -> Dict[str, Any]:
 # ── 1. 首次检查 — 开始 ──────────────────────────────
 
 @router.post("/start", response_model=StartResponse)
-def start_inspection(req: StartRequest):
+def start_inspection(req: StartRequest, user: dict = Depends(get_current_user)):
     PREOPEN_VENUES = {"hotel", "mall", "entertainment", "restaurant"}
     if req.inspection_type == "preopen" and req.venue_type not in PREOPEN_VENUES:
         raise HTTPException(400, detail="该场所不属于公众聚集场所，不适用开业前检查，请选择日常检查")
@@ -196,7 +196,7 @@ def search_inspections(
 # ── 3. 复查 — 开始 ──────────────────────────────────
 
 @router.post("/recheck", response_model=RecheckResponse)
-def start_recheck(req: RecheckRequest):
+def start_recheck(req: RecheckRequest, user: dict = Depends(get_current_user)):
     prev_state = _require_state(req.previous_inspection_id)
     prev_findings = get_findings(req.previous_inspection_id)
     prev_fail_ids = [f["rule_id"] for f in prev_findings if f.get("result") == "fail"]
@@ -295,7 +295,7 @@ def get_item(inspection_id: str, item_index: int):
 # ── 4b. 获取下一检查项 ──────────────────────────────
 
 @router.get("/{inspection_id}/items")
-def get_all_items(inspection_id: str):
+def get_all_items(inspection_id: str, user: dict = Depends(get_current_user)):
     """获取检查单全部项目 — 供前端快速跳转预加载"""
     state = _require_state(inspection_id)
     items = state.get("items", [])
@@ -348,7 +348,7 @@ def get_next_item(inspection_id: str):
 # ── 5. 提交判断 ─────────────────────────────────────
 
 @router.post("/{inspection_id}/judge", response_model=JudgeResponse)
-def submit_judge(inspection_id: str, req: JudgeRequest):
+def submit_judge(inspection_id: str, req: JudgeRequest, user: dict = Depends(get_current_user)):
     state = _require_state(inspection_id)
     items = state["items"]
     if req.item_index >= len(items):
@@ -411,6 +411,7 @@ async def photo_analyze(
     inspection_id: str,
     item_index: int = Form(...),
     file: UploadFile = File(...),
+    user: dict = Depends(get_current_user),
 ):
     state = _require_state(inspection_id)
     items = state["items"]
@@ -589,7 +590,7 @@ def _nav_hint(item: dict) -> str:
 # ── 7. 生成报告 ─────────────────────────────────────
 
 @router.get("/{inspection_id}/report")
-def generate_report(inspection_id: str):
+def generate_report(inspection_id: str, user: dict = Depends(get_current_user)):
     state = _require_state(inspection_id)
     findings = get_findings(inspection_id)
     fail_items = [f for f in findings if f.get("result") == "fail"]
