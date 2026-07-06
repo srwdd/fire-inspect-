@@ -22,7 +22,7 @@ else:
 
 # 广丰区用户
 gxf_users = [
-    ('chief1', '123456', 'chief', '王冬冬', gxf_id),
+    ('wangdongdong@gf', '123456', 'chief', '王冬冬', gxf_id),
     ('luochong', '123456', 'chief', '罗翀', gxf_id),
     ('zhangjian', '123456', 'lead', '张建', gxf_id),
     ('zhoujiawei', '123456', 'lead', '周嘉伟', gxf_id),
