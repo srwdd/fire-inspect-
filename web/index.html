@@ -120,6 +120,7 @@ if ('serviceWorker' in navigator) {
       <div class="scale-dialog">
         <h3>📐 场所规模参数</h3>
         <div class="scale-field"><label>🏢 单位名称</label><input type="text" v-model="scaleForm.venueName" placeholder="例: XX酒店" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"></div>
+        <div class="scale-field"><label>📍 单位地址</label><input type="text" v-model="scaleForm.venueAddress" placeholder="例: XX路XX号" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px"></div>
         <p class="dialog-hint">填写后系统将按 GB46034 规则计算抽查比例</p>
         <div class="scale-field"><label>🏢 场所面积 (m²)</label><input type="number" v-model="scaleForm.area" placeholder="例: 3000" min="0"></div>
         <div class="scale-field"><label>👥 员工人数</label><input type="number" v-model="scaleForm.staff" placeholder="例: 50" min="0"></div>
@@ -274,7 +275,7 @@ if ('serviceWorker' in navigator) {
       </div>
 
       <!-- 检查内容 -->
-      <div class="check-facility">📍 {{ currentItem.facility }}</div>
+      <div class="check-facility">📍 {{ currentItem.facility }} <button @click="lookupFacilityHistory(currentItem.facility)" style="font-size:11px;padding:2px 8px;border:1px solid #91d5ff;background:#e6f7ff;color:#1890ff;border-radius:4px;cursor:pointer;margin-left:8px">📋 历史记录</button></div>
       <div class="check-point">🔍 {{ currentItem.check_point }}</div>
       <div class="check-method">📋 {{ currentItem.check_method }}</div>
 
@@ -639,6 +640,6 @@ if ('serviceWorker' in navigator) {
   </div>
 </div>
 
-<script src="app_v98.js"></script>
+<script src="app_v99.js"></script>
 </body>
 </html>
