@@ -203,9 +203,9 @@ if ('serviceWorker' in navigator) {
             <div style="font-size:11px;color:var(--text-muted)">{{ s.venue_type }} · {{ (s.created_at||'').substring?.(0,10) || '' }}</div>
           </div>
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:10px;padding:2px 6px;border-radius:10px" :style="{background:s.status=='submitted'?'#fff7e6':'#e8f5e9',color:s.status=='submitted'?'#d48806':'#16a34a'}">{{ s.status==='submitted'?'待审核':'已审核' }}</span>
+            <span style="font-size:10px;padding:2px 6px;border-radius:10px" :style="{background:s.status==='draft'?'#f0f0f0':s.status==='submitted'?'#fff7e6':s.status==='returned'?'#fff1f0':'#e8f5e9',color:s.status==='draft'?'#999':s.status==='submitted'?'#d48806':s.status==='returned'?'#cf1322':'#16a34a'}">{{ s.status==='draft'?'草稿':s.status==='submitted'?'待审核':s.status==='returned'?'已退回':'已审核' }}</span>
             <a :href="'/inspect/web/owner.html?code='+s.code" target="_blank" style="font-size:11px;color:var(--accent-blue);text-decoration:none">查看</a>
-            <span v-if="s.status==='submitted'||s.status==='returned'" @click="reviewOwner(s.code)" style="font-size:11px;color:#16a34a;cursor:pointer">审核</span>
+            <span v-if="s.status==='draft'||s.status==='submitted'||s.status==='returned'" @click="reviewOwner(s.code)" style="font-size:11px;color:#16a34a;cursor:pointer">审核</span>
             <span @click="deleteOwnerSubmission(s.code)" style="font-size:10px;color:#999;cursor:pointer;margin-left:4px" title="删除">🗑</span>
           </div>
         </div>
@@ -771,6 +771,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v146.js"></script>
+<script src="app_v147.js"></script>
 </body>
 </html>
