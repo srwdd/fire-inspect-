@@ -409,11 +409,11 @@ createApp({
   mounted() {
     var self = this;
     this.$nextTick(function() {
-      if (self.page === 'home') self.loadActiveInspections();
+      if (self.page === 'home') { self.loadActiveInspections(); self.loadOwnerSubmissions(); }
     });
   },
   watch: {
-    page(val) { if (val === 'home') { var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'); if (hist.length) { var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); }); if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned)); } this.loadActiveInspections(); } }
+    page(val) { if (val === 'home') { var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'); if (hist.length) { var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); }); if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned)); } this.loadActiveInspections(); this.loadOwnerSubmissions(); } }
   },
   created() {
     if ('serviceWorker' in navigator) {
