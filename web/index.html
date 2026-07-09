@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<script>if(!localStorage.getItem("fire_token")){location.href="/inspect/web/login.html"}</script>
+<script>var tk = sessionStorage.getItem("fire_token") || localStorage.getItem("fire_token"); if(!tk){location.href="/inspect/web/login.html"}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>消防监督检查智能辅助系统</title>
 
 <!-- PWA -->
@@ -25,7 +25,7 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/inspect/web/sw.js?v=9').then(reg => {
+    navigator.serviceWorker.register('/inspect/web/sw.js?v=13').then(reg => {
       // 检测新版本，自动刷新
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;
@@ -46,6 +46,7 @@ if ('serviceWorker' in navigator) {
   <!-- 顶部导航 -->
   <header class="app-header">
     <h1>🚒 消防检查助手</h1>
+    <button v-if="currentUser" @click="openDashboard" title="数据看板" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:13px;padding:4px 10px;border-radius:4px;cursor:pointer;margin-right:6px">📊</button>
     <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><button class="theme-toggle" @click="toggleTheme" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;margin-right:6px">{{ theme==='light'?'☀️':'🌙' }}</button><button v-if="currentUser && currentUser.role==='admin'" @click="openAdmin()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">⚙ 管理</button><span class="version">v0.1</span>
   </header>
 
@@ -71,7 +72,7 @@ if ('serviceWorker' in navigator) {
       </div>
     </div>
   </div>
-  <div v-if="page==='home'" class="page home-page">
+  <div role="main" v-if="page==='home'" class="page home-page">
     <!-- 检查类型切换 -->
     <div class="mode-tabs">
       <button :class="{active:inspectType==='preopen'}" @click="inspectType='preopen'">🏢 开业前检查</button>
@@ -113,16 +114,16 @@ if ('serviceWorker' in navigator) {
       <div v-for="s in scenes" :key="s.key" class="scene-card" @click="startInspection(s)">
         <div class="scene-icon">{{ s.icon }}</div>
         <div class="scene-name">{{ s.name }}</div>
-        <div class="scene-count">{{ s.total_items }}项</div>
+        <div class="scene-count">{{ inspectType==="daily" ? (s.daily_items || s.total_items) : s.total_items }}项</div>
       </div>
     </div>
 
     <!-- 监督检查示范片入口 -->
-    <div style="margin:8px 12px;padding:10px 14px;background:#fff7e6;border:1px solid #ffd591;border-radius:8px;font-size:13px;text-align:center">
-      🎬 <a href="/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E9%AA%8C%E6%94%B6%E6%9F%A5%E9%AA%8C.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">消防验收查验示范片</a>
+    <div style="margin:8px 12px;padding:10px 14px;background:#fff7e6;border:1px solid #ffd591;border-radius:8px;font-size:13px;text-align:center;color:#1a1a1a">
+      🎬 <a href="/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E9%AA%8C%E6%94%B6%E6%9F%A5%E9%AA%8C.mp4" target="_blank" style="color:#b45309;text-decoration:underline">消防验收查验示范片</a>
       &nbsp;·&nbsp;
-      <a href="/inspect/api/v1/inspection/videos/%E7%9B%91%E7%9D%A3%E6%A3%80%E6%9F%A5%E7%A4%BA%E8%8C%83.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">监督检查示范片</a>
-      <div style="color:#999;font-size:11px;margin-top:4px">10类场所消防监督检查标准</div>
+      <a href="/inspect/api/v1/inspection/videos/%E7%9B%91%E7%9D%A3%E6%A3%80%E6%9F%A5%E7%A4%BA%E8%8C%83.mp4" target="_blank" style="color:#b45309;text-decoration:underline">监督检查示范片</a>
+      <div style="color:#666;font-size:11px;margin-top:4px">10类场所消防监督检查标准</div>
     </div>
 
     <!-- 规模参数弹窗 -->
@@ -161,9 +162,73 @@ if ('serviceWorker' in navigator) {
     </div>
 
     <div v-if="inspectionHistory.length" style="margin:8px 12px"><div style="font-size:13px;font-weight:600;color:#666;margin-bottom:4px">📋 最近检查记录</div>
-      <div v-for="h in inspectionHistory" :key="h.id" @click="inspectionId=h.id; viewLastReport()" style="padding:10px;margin:4px 0;background:#fff;border:1px solid #e8e8e8;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:600">{{ h.name }}</div><div style="font-size:11px;color:#999">{{ h.date }} · {{ h.total }}项 · ❌{{ h.fail }}</div></div><div style="font-size:18px;font-weight:900" :style="{color:h.color==='green'?'#00c853':h.color==='red'?'#ff1744':'#ff9100'}">{{ h.score }}分</div></div></div>
+      <div v-for="h in inspectionHistory" :key="h.id" @click.stop="inspectionId=h.id; viewLastReport()" style="padding:10px;margin:4px 0;background:#fff;border:1px solid #e8e8e8;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:600">{{ h.name }}</div><div style="font-size:11px;color:#999">{{ h.date }} · {{ h.total }}项 · ❌{{ h.fail }}</div></div><div style="font-size:18px;font-weight:900" :style="{color:h.color==='green'?'#00c853':h.color==='red'?'#ff1744':'#ff9100'}">{{ h.score }}分</div></div></div>
     <div class="search-entry">
-      <button @click="startSearch()" class="btn-search-entry">🔍 法规检索 · 语音查询</button>
+          <!-- 业主自查管理 -->
+    <div v-if="showOwnerCard" style="margin:16px 0;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:700;color:var(--text)">📋 业主自查管理</div>
+        <span style="font-size:11px;color:var(--text-muted);cursor:pointer" @click="loadOwnerSubmissions">🔄 刷新</span>
+      </div>
+
+      <!-- 创建链接 -->
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <select v-model="ownerNewLink.venue_type" style="flex:1;min-width:100px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text)">
+          <option value="hotel">宾馆/酒店</option><option value="mall">商场/市场</option>
+          <option value="entertainment">娱乐场所</option><option value="school">学校/幼儿园</option>
+          <option value="hospital">医院</option><option value="elderly">养老机构</option>
+          <option value="restaurant">餐饮场所</option><option value="highrise">高层建筑</option>
+        </select>
+        <input v-model="ownerNewLink.venue_name" placeholder="场所名称" style="flex:2;min-width:120px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text)">
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <input v-model="ownerNewLink.venue_address" placeholder="场所地址（选填）" style="flex:1;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text)">
+        <button @click="createOwnerLink" style="padding:8px 16px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">🔗 生成</button>
+      </div>
+      <div v-if="ownerNewCode" style="padding:8px 10px;margin-bottom:10px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.3);border-radius:6px;font-size:11px;color:#16a34a;word-break:break-all">
+        ✅ <a :href="ownerNewLinkUrl" target="_blank" style="color:#16a34a">{{ ownerNewLinkUrl }}</a>
+        <div style="margin-top:8px;text-align:center">
+          <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent(ownerNewLinkUrl)" style="width:120px;height:120px;border-radius:8px;border:1px solid #ddd">
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px">微信扫码即可自查</div>
+        </div>
+        <button @click="copyOwnerLink" style="margin-left:8px;padding:2px 8px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:10px">复制</button>
+      </div>
+
+      <!-- 提交列表 -->
+      <div v-if="ownerSubmissions.length > 0">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">📥 业主提交</div>
+        <div v-for="s in ownerSubmissions.slice(0,5)" :key="s.code" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin:3px 0;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600">{{ s.venue_name }}</div>
+            <div style="font-size:11px;color:var(--text-muted)">{{ s.venue_type }} · {{ (s.created_at||'').substring?.(0,10) || '' }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10px;padding:2px 6px;border-radius:10px" :style="{background:s.status=='submitted'?'#fff7e6':'#e8f5e9',color:s.status=='submitted'?'#d48806':'#16a34a'}">{{ s.status==='submitted'?'待审核':'已审核' }}</span>
+            <a :href="'/inspect/web/owner.html?code='+s.code" target="_blank" style="font-size:11px;color:var(--accent-blue);text-decoration:none">查看</a>
+            <span v-if="s.status==='submitted'||s.status==='returned'" @click="reviewOwner(s.code)" style="font-size:11px;color:#16a34a;cursor:pointer">审核</span>
+            <span @click="deleteOwnerSubmission(s.code)" style="font-size:10px;color:#999;cursor:pointer;margin-left:4px" title="删除">🗑</span>
+          </div>
+        </div>
+      </div>
+      <div v-if="ownerSubmissions.length===0 && ownerNewCode" style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">暂无业主提交</div>
+    </div>
+
+    <!-- 进行中的检查 -->
+    <div v-if="activeInspections.length > 0" style="margin:16px 0;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">📋 进行中的检查</div>
+      <div v-for="insp in activeInspections" :key="insp.inspection_id" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin:4px 0;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">{{ insp.venue_name || '(未命名)' }}</div>
+          <div style="font-size:11px;color:var(--text-muted)">{{ insp.venue_type }} · {{ insp.date }} · 第{{ insp.current_index + 1 }}/{{ insp.total_items }}项</div>
+        </div>
+        <button @click="joinInspection(insp)" style="padding:6px 14px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;margin-left:8px">
+          {{ insp.role === 'lead' ? '继续' : '加入' }}
+        <span @click.stop="deleteInspection(insp.inspection_id)" style="font-size:10px;color:#999;cursor:pointer;margin-left:6px" title="删除">🗑</span>
+        </button>
+      </div>
+    </div>
+
+              <button @click="startSearch()" class="btn-search-entry">🔍 法规检索 · 语音查询</button>
     </div>
   </div>
 
@@ -272,7 +337,7 @@ if ('serviceWorker' in navigator) {
           <div style="margin-top:6px">
             <label class="btn-photo-recheck" style="display:inline-block;padding:8px 16px;background:#fff7e6;border:1px solid #faad14;border-radius:6px;color:#d48806;cursor:pointer;font-size:14px">
               📸 拍复查照对比
-              <input type="file" accept="image/*" capture="environment" style="display:none" @change="uploadRecheckPhoto">
+              <input type="file" accept="image/*" capture="environment" multiple style="display:none" @change="uploadRecheckPhoto">
             </label>
           </div>
         </div>
@@ -319,7 +384,7 @@ if ('serviceWorker' in navigator) {
           ⚖️ 违法条文: {{ currentItem.legal_basis }}
         </div>
         <div v-if="currentItem.province_regulations?.length" class="reg-province">
-          📖 省规补充: {{ currentItem.province_regulations.map(p=>p.source).join(', ') }}
+          📖 省规补充: {{ currentItem.province_regulations.map(p=>p.source + (p.article ? " " + p.article : "")).join(', ') }}
         </div>
       </div>
 
@@ -464,7 +529,13 @@ if ('serviceWorker' in navigator) {
         <button @click="showIssueList=false" style="width:100%;margin-top:12px;padding:10px;background:#f0f0f0;border:none;border-radius:8px;cursor:pointer">关闭</button></div></div>
     <!-- 底部完成按钮 (当所有项已判定但尚未触发完成时显示) -->
     <div v-if="currentItem && judgedCount >= totalItems && !inspected" class="complete-float">
-      <button class="btn-finish-all" @click="completeInspection">✅ 全部判定完毕，生成检查报告</button>
+      <button v-if="!hasAssistant || !wsConnected" class="btn-finish-all" @click="completeInspection">✅ 全部判定完毕，生成检查报告</button>
+      <button v-if="hasAssistant && wsConnected && !pendingConfirm" class="btn-finish-all" @click="completeInspection" style="background:#fa8c16">📋 提请协办确认</button>
+      <div v-if="pendingConfirm && hasAssistant" style="margin:12px 0;padding:12px;background:#e8f4fd;border:1px solid #91caff;border-radius:10px;text-align:center;color:#0958d9;font-size:13px">⏳ 等待协办确认中...</div>
+      <div v-if="pendingConfirm && !hasAssistant" style="margin:12px 0;padding:14px;background:#fff7e6;border:2px solid #faad14;border-radius:10px;text-align:center">
+        <div style="font-weight:700;margin-bottom:8px;font-size:15px">📋 主办提请完成检查</div>
+        <button @click="assistantConfirm" style="padding:10px 30px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer">✅ 确认完成</button>
+      </div>
     </div>
   </div>
 
@@ -547,7 +618,13 @@ if ('serviceWorker' in navigator) {
     <div class="photo-modal-content">
       <h3>📷 拍照辅助判断</h3>
       <p class="photo-hint">{{ currentItem?.facility }} — {{ currentItem?.check_point }}</p>
-      <div style="display:flex;gap:10px;margin:10px 0"><label style="flex:1;padding:12px;background:#1677ff;color:#fff;border-radius:8px;text-align:center;cursor:pointer;font-size:13px">📷 拍照<input type="file" accept="image/*" capture="environment" @change="uploadPhoto" style="display:none"></label><label style="flex:1;padding:12px;background:#f0f0f0;color:#333;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;border:1px solid #d9d9d9">📁 相册<input type="file" accept="image/*" @change="uploadPhoto" style="display:none"></label></div>
+      <div style="display:flex;gap:10px;margin:10px 0"><label style="flex:1;padding:12px;background:#1677ff;color:#fff;border-radius:8px;text-align:center;cursor:pointer;font-size:13px">📷 拍照<input type="file" accept="image/*" capture="environment" multiple @change="uploadPhoto" style="display:none"></label><label style="flex:1;padding:12px;background:#f0f0f0;color:#333;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;border:1px solid #d9d9d9">📁 相册<input type="file" accept="image/*" @change="uploadPhoto" style="display:none"></label></div>
+      <div v-if="photoLowConfidence" style="margin:12px 0;padding:10px;background:#fff7e6;border:1px solid #faad14;border-radius:8px;">
+        <div style="font-size:13px;color:#d48806;margin-bottom:4px;font-weight:600">⚠️ AI置信度较低({{ typeof photoResult.confidence==='number'?photoResult.confidence.toFixed(2):photoResult.confidence }})</div>
+        <div style="font-size:12px;color:#8c6d00;margin-bottom:8px">{{ getPhotoGuide(currentItem?.facility) }}</div>
+        <button @click="retakePhoto" style="padding:8px 16px;background:#fa8c16;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px">📷 再拍一张</button>
+        <button @click="discardRetake" style="padding:8px 16px;background:#f5f5f5;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;cursor:pointer">就这样判定</button>
+      </div>
       <div v-if="photoAnalyzing" class="photo-analyzing">AI 分析中...</div>
       <div v-if="photoResult" class="photo-result">
         <div :class="'photo-judgment '+(photoResult['判定']=='不合格'?'violation':'compliant')">
@@ -565,7 +642,67 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
 
-  <!-- 报告页 -->
+  <!-- 数据看板页 -->
+  <div v-if="page==='dashboard'" class="page report-page">
+    <div class="search-header">
+      <button class="btn-back" @click="page='home'">← 返回首页</button>
+      <h2>📊 数据看板</h2>
+    </div>
+    <div v-if="dashboard" style="padding:12px">
+      <!-- 总览卡片 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:700;color:var(--text)">{{ dashboard.total }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">检查总数</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:700" :style="{color:dashboard.pass_rate>=80?'#16a34a':'#dc2626'}">{{ dashboard.pass_rate }}%</div>
+          <div style="font-size:12px;color:var(--text-muted)">合格率</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:700;color:#16a34a">{{ dashboard.total_pass }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">合格项</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:28px;font-weight:700;color:#dc2626">{{ dashboard.total_fail }}</div>
+          <div style="font-size:12px;color:var(--text-muted)">不合格项</div>
+        </div>
+      </div>
+
+      <!-- 状态分布 -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:18px;font-weight:700;color:#fa8c16">{{ dashboard.in_progress }}</div>
+          <div style="font-size:11px;color:var(--text-muted)">进行中</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg-card);border-radius:8px;border:1px solid var(--border)">
+          <div style="font-size:18px;font-weight:700;color:#16a34a">{{ dashboard.completed }}</div>
+          <div style="font-size:11px;color:var(--text-muted)">已完成</div>
+        </div>
+      </div>
+
+      <!-- 隐患排行 -->
+      <div v-if="dashboard.hazard_ranking?.length" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px">⚠️ 高频隐患 Top 5</div>
+        <div v-for="(h,i) in dashboard.hazard_ranking" :key="i" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:13px">{{ h.facility }}</span>
+          <span style="background:#fff2f0;color:#dc2626;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600">{{ h.count }}次</span>
+        </div>
+      </div>
+
+      <!-- 近期检查 -->
+      <div v-if="dashboard.recent?.length" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px">📋 近期检查</div>
+        <div v-for="r in dashboard.recent" :key="r.inspection_id" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <span>{{ r.venue_name }} <span style="color:var(--text-muted)">{{ r.date }}</span></span>
+          <span :style="{color:r.status==='in_progress'?'#fa8c16':'#16a34a'}">{{ r.status==='in_progress'?'进行中':'已完成' }}</span>
+        </div>
+      </div>
+    </div>
+    <div v-else style="text-align:center;padding:40px;color:var(--text-muted)">加载中...</div>
+  </div>
+
+    <!-- 报告页 -->
   <div v-if="page==='report'" class="page report-page">
     <div v-if="report">
       <div class="assessment-banner" :class="'risk-'+report.assessment.color">
@@ -574,6 +711,10 @@ if ('serviceWorker' in navigator) {
       </div>
 
       <h2>{{ report.venue_name }} — 检查报告</h2>
+      <div style="display:flex;gap:8px;margin:8px 0">
+        <button @click="downloadPDF" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📥 下载 PDF</button>
+        <button @click="printReport" style="padding:8px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">🖨️ 打印报告</button>
+      </div>
       <div class="report-meta">
         <span>检查人: {{ report.inspector }}</span>
         <span>日期: {{ report.date }}</span>
@@ -627,8 +768,9 @@ if ('serviceWorker' in navigator) {
     <!-- Toast 提示 -->
     <div v-if="toast" :class="['toast', 'toast-'+toast.type]">{{ toast.msg }}</div>
   </div>
-</div>
 
-<script src="app_v112.js"></script>
+    </div>
+
+<script src="app_v146.js"></script>
 </body>
 </html>

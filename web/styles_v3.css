@@ -10,16 +10,16 @@
   --bg-surface: #243447;
   --text-primary: #e8edf2;
   --text-secondary: #8899aa;
-  --text-muted: #5c6e80;
+  --text-muted: #95a6b7;
   --border: #263040;
-  --border-active: #448aff;
+  --border-active: #1d6ae0;
   --pass-green: #00c853;
   --pass-bg: rgba(0,200,83,.12);
   --fail-red: #ff1744;
   --fail-bg: rgba(255,23,68,.12);
-  --na-gray: #5c6e80;
+  --na-gray: #95a6b7;
   --na-bg: rgba(92,110,128,.10);
-  --accent-blue: #448aff;
+  --accent-blue: #1d6ae0;
   --accent-orange: #ff9100;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -56,7 +56,7 @@ body {
   z-index: 100;
 }
 .app-header h1 { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-.version { font-size: 10px; color: var(--text-muted); background: var(--bg-surface); padding: 2px 8px; border-radius: 10px; }
+.version { font-size: 10px; color: #95a6b7; background: var(--bg-surface); padding: 2px 8px; border-radius: 10px; }
 
 /* ── Home Page ──────────────────────────────── */
 .home-page { padding: 12px; }
@@ -579,7 +579,7 @@ body {
 .search-input { flex: 1; padding: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 15px; }
 .search-input::placeholder { color: var(--text-muted); }
 .btn-search-go { padding: 12px 20px; background: var(--accent-blue); color: #fff; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; }
-.btn-search-entry { width: 100%; padding: 14px; background: var(--bg-card); border: 1px solid var(--border); color: var(--accent-blue); border-radius: var(--radius-md); font-size: 15px; cursor: pointer; margin-top: 12px; }
+.btn-search-entry { width: 100%; padding: 14px; background: var(--bg-card); border: 1px solid var(--border); color: #5c9cff; border-radius: var(--radius-md); font-size: 15px; cursor: pointer; margin-top: 12px; }
 .search-result { margin: 12px 0; }
 .search-answer { padding: 14px; background: var(--bg-card); border-radius: var(--radius-sm); font-size: 14px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; border: 1px solid var(--border); }
 .search-loading { text-align: center; color: var(--accent-blue); padding: 20px; }

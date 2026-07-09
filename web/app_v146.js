@@ -1,6 +1,63 @@
 const { createApp } = Vue;
 const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
 const API = axios.create({ baseURL: API_BASE });
+
+// ── 移动端固定操作栏 CSS ──
+(function() {
+  var style = document.createElement('style');
+  style.id = 'sticky-action-bar-css';
+  style.textContent = [
+    '.sticky-action-bar {',
+    '  position: fixed; bottom: 0; left: 0; right: 0;',
+    '  background: #fff; border-top: 1px solid #e5e5e5;',
+    '  box-shadow: 0 -2px 12px rgba(0,0,0,.08);',
+    '  z-index: 999; padding: 8px 10px;',
+    '  display: flex; gap: 6px; align-items: center;',
+    '  justify-content: center; flex-wrap: wrap;',
+    '  padding-bottom: max(8px, env(safe-area-inset-bottom));',
+    '}',
+    '.sticky-action-bar button {',
+    '  padding: 10px 14px; border-radius: 8px;',
+    '  font-size: 14px; font-weight: 700; border: 1px solid #d9d9d9;',
+    '  background: #fff; cursor: pointer; white-space: nowrap;',
+    '  min-width: 52px; transition: all .15s;',
+    '}',
+    '.sticky-action-bar button.btn-pass {',
+    '  background: #16a34a; color: #fff; border-color: #16a34a;',
+    '}',
+    '.sticky-action-bar button.btn-pass.active {',
+    '  background: #15803d; box-shadow: 0 0 0 3px rgba(22,163,74,.3);',
+    '}',
+    '.sticky-action-bar button.btn-fail {',
+    '  background: #dc2626; color: #fff; border-color: #dc2626;',
+    '}',
+    '.sticky-action-bar button.btn-fail.active {',
+    '  background: #b91c1c; box-shadow: 0 0 0 3px rgba(220,38,38,.3);',
+    '}',
+    '.sticky-action-bar button.btn-na {',
+    '  background: #f5f5f5; color: #999;',
+    '}',
+    '.sticky-action-bar button.btn-na.active {',
+    '  background: #e5e5e5;',
+    '}',
+    '.sticky-action-bar button.btn-nav {',
+    '  background: #1a1a2e; color: #fff; border-color: #1a1a2e;',
+    '  padding: 10px 20px;',
+    '}',
+    '.sticky-action-bar .nav-info {',
+    '  font-size: 12px; color: #8899aa; text-align: center;',
+    '  min-width: 80px;',
+    '}',
+    '.inspect-page .check-card {',
+    '  margin-bottom: 80px !important;',
+    '}',
+    '.inspect-page .nav-arrows {',
+    '  opacity: 0.4;',
+    '}',
+  ].join('\n');
+  document.head.appendChild(style);
+})();
+API.interceptors.request.use(function(c){ var t=localStorage.getItem("fire_token"); if(t) c.headers.Authorization="Bearer "+t; return c; });
 // Auto-attach JWT token
 API.interceptors.request.use(function(config) {
   var token = localStorage.getItem('fire_token');
@@ -9,18 +66,18 @@ API.interceptors.request.use(function(config) {
 });
 
 const SCENES = [
-  { key: 'hotel', total_items: 97, name: '宾馆/酒店', icon: '🏨', preopen: true },
-  { key: 'mall', total_items: 97, name: '商场/市场', icon: '🏬', preopen: true },
-  { key: 'entertainment', total_items: 97, name: '公共娱乐场所', icon: '🎤', preopen: true },
-  { key: 'school', total_items: 76, name: '学校/幼儿园', icon: '🏫', preopen: false },
-  { key: 'hospital', total_items: 76, name: '医院', icon: '🏥', preopen: false },
-  { key: 'elderly', total_items: 76, name: '养老机构', icon: '🧓', preopen: false },
-  { key: 'restaurant', total_items: 97, name: '餐饮场所', icon: '🍽️', preopen: true },
-  { key: 'highrise', total_items: 76, name: '高层建筑', icon: '🏢', preopen: false },
-  { key: 'mixed_use', total_items: 76, name: '多业态混合', icon: '🏗️', preopen: false },
-  { key: 'factory', total_items: 76, name: '厂房/仓库', icon: '🏭', preopen: false },
+  { key: 'hotel', total_items: 63, daily_items: 70, name: '宾馆/酒店', icon: '🏨', preopen: true },
+  { key: 'mall', total_items: 63, daily_items: 70, name: '商场/市场', icon: '🏬', preopen: true },
+  { key: 'entertainment', total_items: 63, daily_items: 70, name: '公共娱乐场所', icon: '🎤', preopen: true },
+  { key: 'school', total_items: 36, daily_items: 68, name: '学校/幼儿园', icon: '🏫', preopen: false },
+  { key: 'hospital', total_items: 37, daily_items: 69, name: '医院', icon: '🏥', preopen: false },
+  { key: 'elderly', total_items: 38, daily_items: 69, name: '养老机构', icon: '🧓', preopen: false },
+  { key: 'restaurant', total_items: 63, daily_items: 67, name: '餐饮场所', icon: '🍽️', preopen: true },
+  { key: 'highrise', total_items: 36, daily_items: 69, name: '高层建筑', icon: '🏢', preopen: false },
+  { key: 'mixed_use', total_items: 71, name: '多业态混合', icon: '🏗️', preopen: false },
+  { key: 'factory', total_items: 75, name: '厂房/仓库', icon: '🏭', preopen: false },
   { key: 'crowded', total_items: 76, name: '人员密集场所', icon: '👥', preopen: false },
-  { key: 'nine_small', total_items: 12, name: '九小场所', icon: '🏪', preopen: false },
+  { key: 'nine_small', total_items: 59, name: '九小场所', icon: '🏪', preopen: false },
 ];
 
 // 设施操作测试指南（现场测试用）
@@ -214,10 +271,17 @@ function getOperationGuide(facility) {
 createApp({
   data() {
     return {
-      page: localStorage.getItem('fire_token') ? 'home' : 'login',
+      page: ((sessionStorage.getItem('fire_token') || localStorage.getItem('fire_token')) && (sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user'))) ? 'home' : 'login',
       theme: localStorage.getItem('fire_theme') || 'dark',
-      token: localStorage.getItem('fire_token') || '',
-      currentUser: JSON.parse(localStorage.getItem('fire_user') || 'null'),
+      currentUser: JSON.parse(sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user') || 'null'),
+      token: sessionStorage.getItem('fire_token') || localStorage.getItem('fire_token') || '',
+      fuzzyAPI: axios.create({ baseURL: API_BASE.replace('/inspection', '/speech') }),
+      currentUser: JSON.parse(sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user') || 'null'),
+      loginUsername: '',
+      loginPassword: '',
+      loginError: '',
+      token: sessionStorage.getItem('fire_token') || localStorage.getItem('fire_token') || '',
+      currentUser: JSON.parse(sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user') || 'null'),
       loginUsername: '',
       loginPassword: '',
       loginError: '',
@@ -254,8 +318,15 @@ createApp({
       recognition: null,
       // 规模参数 + 子类型
       showScaleInput: false,
+      allOrgs: [],
+      allUsers: [],
+      newUser: { username: '', password: '', display_name: '', role: 'lead', org_id: 0 },
+      adminMsg: '',
+      orgUsers: [],
+      selectedLeadId: 0,
+      selectedAssistId: 0,
       showSubTypePicker: false,
-      scaleForm: { area: '', staff: '', floors: '', buildings: '1', venueName: '' },
+      scaleForm: { area: '', staff: '', floors: '', buildings: '1', venueName: '', venueAddress: '' },
       selectedSubType: '',
       pendingScene: null,
       samplingInfo: null,
@@ -278,8 +349,23 @@ createApp({
       sectionIndex: {},
       lastReportId: localStorage.getItem('fire_last_inspection_id') || '',
       inspectionHistory: JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'),
+      activeInspections: [],
+      showOwnerCard: true,
+      showOwnerMgr: false,
+      ownerSubmissions: [],
+      ownerNewLink: {venue_type:'hotel',venue_name:'',venue_address:''},
+      ownerNewCode: '',
+      dashboard: null, // 数据看板
       jumpKeyword: '',
       jumpFiltered: null,
+      updateReady: false,
+      // WebSocket 协办
+      ws: null,
+      wsConnected: false,
+      wsReconnectTimer: null,
+      wsReconnectDelay: 1000,
+      hasAssistant: false,       // 选了协办才启用 WS
+      pendingConfirm: false,     // 等待协办确认中
       nineSmallSubTypes: [
         '小商店/小超市', '小餐饮/小吃店', '小旅馆/民宿', '小娱乐/网吧',
         '小诊所/卫生室', '小培训机构/托育', '小加工/小仓储', '其他小场所'
@@ -321,6 +407,23 @@ createApp({
     },
   },
 
+  mounted() {
+    var self = this;
+    this.$nextTick(function() {
+      if (self.page === 'home') self.loadActiveInspections();
+    });
+  },
+  watch: {
+    page(val) { if (val === 'home') { var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'); if (hist.length) { var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); }); if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned)); } this.loadActiveInspections(); } }
+  },
+  created() {
+    if ('serviceWorker' in navigator) {
+      var self = this;
+      navigator.serviceWorker.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'UPDATE_AVAILABLE') self.updateReady = true;
+      });
+    }
+  },
   methods: {
     toggleTheme() {
       this.theme = this.theme === 'light' ? 'dark' : 'light';
@@ -338,34 +441,135 @@ createApp({
         this.currentUser = d.user;
         localStorage.setItem('fire_token', d.token);
         localStorage.setItem('fire_user', JSON.stringify(d.user));
+        sessionStorage.setItem('fire_token', d.token);
+        sessionStorage.setItem('fire_user', JSON.stringify(d.user));
         this.loginPassword = '';
-        this.page = 'home';
+        this._removeStickyActionBar();
+      this.page = 'home';
+        // 清理过期的本地检查记录 (0项/100分的脏数据)
+      var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+      if (hist.length) {
+        var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); });
+        if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned));
+      }
+      this.loadActiveInspections(); var self = this; setTimeout(function() { self.loadActiveInspections(); }, 500);
       } catch (e) {
         this.loginError = e.response?.data?.detail || '登录失败，请检查用户名密码';
       }
     },
-    doLogout() {
-      this.token = ''; this.currentUser = null; this.page = 'login';
-      localStorage.removeItem('fire_token'); localStorage.removeItem('fire_user');
-      localStorage.removeItem('fire_inspection_history');
+    _errMsg(e, defaultMsg) {
+      var d = (e && e.response && e.response.data) || {};
+      if (typeof d.detail === 'string') return d.detail;
+      if (Array.isArray(d.detail) && d.detail.length > 0) {
+        return d.detail.map(function(x) { return x.msg || ''; }).filter(Boolean).join('; ');
+      }
+      if (typeof d.detail === 'object' && d.detail !== null) {
+        try { return JSON.stringify(d.detail); } catch(_) {}
+      }
+      if (e && e.message && typeof e.message === 'string') return e.message;
+      return defaultMsg || '未知错误';
     },
+    async createUser() {
+      var u = this.newUser;
+      if (!u.username || !u.password || !u.display_name) { this.adminMsg = '请填写完整信息'; return; }
+      try {
+        var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+        await authAPI.post('/users', u);
+        this.adminMsg = '创建成功: ' + u.display_name;
+        this.newUser = { username: '', password: '', display_name: '', role: 'lead', org_id: 0 };
+        var r = await authAPI.get('/users'); this.allUsers = r.data.data || [];
+      } catch(e) { this.adminMsg = '创建失败: ' + (e.response?.data?.detail || e.message); }
+    },
+    async doLogin() {
+      this.loginError = '';
+      try {
+        var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+        var r = await authAPI.post('/login', { username: this.loginUsername, password: this.loginPassword });
+        var d = r.data.data;
+        this.token = d.token;
+        this.currentUser = d.user;
+        localStorage.setItem('fire_token', d.token);
+        localStorage.setItem('fire_user', JSON.stringify(d.user));
+        sessionStorage.setItem('fire_token', d.token);
+        sessionStorage.setItem('fire_user', JSON.stringify(d.user));
+        this.loginPassword = '';
+        this._removeStickyActionBar();
+      this.page = 'home';
+        // 清理过期的本地检查记录 (0项/100分的脏数据)
+      var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+      if (hist.length) {
+        var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); });
+        if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned));
+      }
+      this.loadActiveInspections(); var self = this; setTimeout(function() { self.loadActiveInspections(); }, 500);
+      } catch (e) {
+        this.loginError = this._errMsg(e, '登录失败');
+      }
+    },
+    async createUser() {
+      var u = this.newUser;
+      if (!u.username || !u.password || !u.display_name) { this.adminMsg = '请填写完整信息'; return; }
+      try {
+        var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+        await authAPI.post('/users', u);
+        this.adminMsg = '创建成功: ' + u.display_name;
+        this.newUser = { username: '', password: '', display_name: '', role: 'lead', org_id: 0 };
+        var r = await authAPI.get('/users'); this.allUsers = r.data.data || [];
+      } catch(e) { this.adminMsg = '创建失败: ' + (e.response?.data?.detail || e.message); }
+    },
+    // 回到首页时加载活跃检查
+    goHome() {
+      this._removeStickyActionBar();
+      this.page = 'home'; var self = this; setTimeout(function() { self.loadActiveInspections(); }, 500);
+      // 清理过期的本地检查记录 (0项/100分的脏数据)
+      var hist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+      if (hist.length) {
+        var cleaned = hist.filter(function(h) { return h.total > 0 && !(h.total === 0 && h.score === 100); });
+        if (cleaned.length !== hist.length) localStorage.setItem('fire_inspection_history', JSON.stringify(cleaned));
+      }
+      this.loadActiveInspections();
+    },
+    openAdmin() {
+      this.page = 'admin';
+      var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+      authAPI.get('/organizations').then(r => { this.allOrgs = r.data.data || []; });
+      authAPI.get('/users').then(r => { this.allUsers = r.data.data || []; });
+    },
+    async createUser() {
+      var u = this.newUser;
+      if (!u.username || !u.password || !u.display_name) { this.adminMsg = '请填写完整信息'; return; }
+      if (u.password.length < 4) { this.adminMsg = '密码至少需要4位'; return; }
+      try {
+        var authAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/auth') });
+        await authAPI.post('/users', u);
+        this.adminMsg = '创建成功: ' + u.display_name;
+        this.newUser = { username: '', password: '', display_name: '', role: 'lead', org_id: 0 };
+        var r = await authAPI.get('/users'); this.allUsers = r.data.data || [];
+      } catch(e) { this.adminMsg = '创建失败: ' + this._errMsg(e, '请检查填写信息'); }
+    },
+    doLogout() { localStorage.removeItem('fire_token'); localStorage.removeItem('fire_user'); sessionStorage.removeItem('fire_token'); sessionStorage.removeItem('fire_user'); window.location.href = '/inspect/web/login.html'; },
     showToast(msg, type='info') {
       this.toast = { msg, type };
       setTimeout(() => { this.toast = null; }, 3000);
     },
     confirmBackToHome() {
       if (this.judgedCount > 0 && !confirm('已判断 ' + this.judgedCount + ' 项，将丢失进度。确定返回？')) return;
-      this.page = 'home'; this.inspectionId = ''; this.currentItem = null; this.judgments = {}; this.judgedCount = 0;
+      this.wsDisconnect();
+      this._removeStickyActionBar();
+      this.page = 'home'; var self = this; setTimeout(function() { self.loadActiveInspections(); }, 500); this.inspectionId = ''; this.currentItem = null; this.judgments = {}; this.judgedCount = 0; this.failCount = 0; this.pendingConfirm = false;
     },
     goHomeFromReport() {
-      this.page = 'home';
+      this.wsDisconnect();
+      this._removeStickyActionBar();
+      this.page = 'home'; var self = this; setTimeout(function() { self.loadActiveInspections(); }, 500);
     },
     async viewLastReport() {
-      var lastId = localStorage.getItem('fire_last_inspection_id');
-      if (!lastId) return;
+      var id = this.inspectionId || localStorage.getItem('fire_last_inspection_id');
+      if (!id) return;
       try {
-        this.inspectionId = lastId;
+        this.inspectionId = id;
         await this.generateReport();
+        this.page = 'report';
       } catch(e) { this.showToast('报告加载失败', 'error'); }
     },
     categoryLabel(cat) {
@@ -376,6 +580,24 @@ createApp({
       if (h.important_fail_count >= 3) return 'red';
       if (h.important_fail_count >= 1) return 'orange';
       return 'yellow';
+    },
+    getPhotoGuide(facility) {
+      var guides = {
+        '防火门': '📸 建议拍摄: ①门扇侧面铭牌(确认甲/乙/丙级) ②闭门器特写 ③门扇全貌+密封条',
+        '灭火器': '📸 建议拍摄: ①压力表特写(看指针绿区) ②瓶体铭牌(看有效期) ③整体照片',
+        '消火栓': '📸 建议拍摄: ①箱内全景(水带水枪) ②阀门接口特写 ③检查记录卡',
+        '疏散通道': '📸 建议拍摄: ①通道全景(看是否畅通) ②宽度标识 ③应急灯+疏散标志',
+        '安全出口': '📸 建议拍摄: ①出口门全景 ②门锁状态 ③指示灯状态',
+        '应急照明': '📸 建议拍摄: ①灯具全景 ②测试按钮特写 ③电源线状态',
+        '喷淋': '📸 建议拍摄: ①喷头正面(看是否遮挡) ②喷头细节(看损坏) ③管道全景',
+        '火灾报警': '📸 建议拍摄: ①控制器面板特写 ②探测器外观 ③接线状态',
+        '电气线路': '📸 建议拍摄: ①线路全景 ②接头/开关特写 ③穿墙处防火封堵',
+        '消防控制室': '📸 建议拍摄: ①控制室全景 ②设备运行状态 ③值班记录表',
+      };
+      for (var k in guides) {
+        if (facility && facility.indexOf(k) >= 0) return guides[k];
+      }
+      return '📸 建议从不同角度再拍一张补充细节';
     },
     getTypicalHazard(facility) {
       return getTypicalHazard(facility);
@@ -399,6 +621,7 @@ createApp({
       } catch(e) { console.error('preload failed:', e); }
     },
     async goToItem(index) {
+      this._updateStickyActionBar();
       if (index < 0) return;
       if (index >= this.totalItems) {
         if (this.judgedCount >= this.totalItems) { this.completeInspection(); }
@@ -418,14 +641,9 @@ createApp({
       this.currentIndex = index;
       // Section header
       const secName = this.getSectionName(this.currentItem) || '';
-      if (secName !== this._lastSectionName) {
-        this.currentSectionName = secName;
-        this.currentStepName = this.currentItem.step_name || '';
-        this._lastSectionName = secName;
-      } else {
-        this.currentSectionName = '';
-        this.currentStepName = '';
-      }
+      this.currentSectionName = secName;
+      this.currentStepName = this.currentItem.step_name || '';
+      this._lastSectionName = secName;
       this.showDetail = false;
       this.showQaAnswer = false;
       this.selectedBrand = '';
@@ -470,6 +688,11 @@ createApp({
       } else {
         this.showSubTypePicker = false;
         this.showScaleInput = true;
+      this.selectedLeadId = (this.currentUser && this.currentUser.id) || 0;
+      this.selectedAssistId = 0;
+      if (this.currentUser && this.currentUser.org_id) {
+        axios.get(API_BASE.replace("/inspection", "/auth") + "/users?org_id=" + this.currentUser.org_id).then(r => { this.orgUsers = r.data.data || []; }).catch(() => {});
+      }
         this.selectedSubType = '';
         this.scaleForm = { area: '', staff: '', floors: '', buildings: '1' };
       }
@@ -480,7 +703,12 @@ createApp({
       const params = {
         venue_type: scene.key,
         inspection_type: this.inspectType,
-        location: this.scaleForm.venueName || '',
+        location: this.scaleForm.venueName || '', venue_address: this.scaleForm.venueAddress || '',
+        org_id: (this.currentUser && this.currentUser.org_id) || 0,
+        lead_id: this.selectedLeadId || (this.currentUser && this.currentUser.id) || 0,
+        assist_id: this.selectedAssistId || 0,
+        lead_id: this.selectedLeadId || (this.currentUser && this.currentUser.id) || 0,
+        assist_id: this.selectedAssistId || 0,
         inspector: '消防员',
         staff_count: parseInt(s.staff) || 0,
         floor_count: parseInt(s.floors) || 0,
@@ -496,10 +724,16 @@ createApp({
         this.inspectionId = d.inspection_id;
         this.totalItems = d.total_items;
         this.currentIndex = 0;
+        this.$nextTick(function() { this._renderStickyActionBar(); });
         this.inspected = false;
         this.failCount = 0;
         this.judgedCount = 0;
         this.judgments = {};
+        this.hasAssistant = !!(this.selectedAssistId && this.selectedAssistId > 0);
+        if (this.hasAssistant) {
+          var self = this;
+          setTimeout(function() { self.wsConnect(); }, 500);
+        }
         this.samplingInfo = { staff: d.staff_sample, floor: d.floor_sample };
         this.showScaleInput = false;
         this.showSubTypePicker = false;
@@ -511,8 +745,9 @@ createApp({
     },
 
     async previewRecheck(h) {
-      this.recheckPreviewData = h;
-      this.page = 'recheckPreview';
+      // 直接启动复查（跳过无模板的 recheckPreview）
+      if (!confirm('确定基于「' + (h.venue_name || h.location) + '」的检查结果启动复查？\n\n将仅检查上次不合格项')) return;
+      await this.startRecheck({ inspection_id: h.inspection_id || h.id });
     },
     async startRecheck(history) {
       try {
@@ -521,6 +756,7 @@ createApp({
         this.inspectionId = d.inspection_id;
         this.totalItems = d.total_items;
         this.currentIndex = 0;
+        this.$nextTick(function() { this._renderStickyActionBar(); });
         this.inspected = false;
         this.failCount = 0;
         this.judgedCount = 0;
@@ -532,14 +768,20 @@ createApp({
     },
 
     // === 提交判断（可覆盖之前的结果） ===
-    async judge(result) {
+    async judge(result, note, rectificationStatus) {
       const wasJudged = this.judgments[this.currentIndex] !== undefined;
       const wasFail = wasJudged && this.judgments[this.currentIndex].result === 'fail';
       const wasNA = wasJudged && this.judgments[this.currentIndex].result === 'na';
 
-      let note = '';
+
       if (result === 'fail') {
-        note = prompt('请填写问题描述:', this.judgments[this.currentIndex]?.note || '') || '';
+        // AI或其他来源已提供note→直接使用; 否则弹窗填写
+        if (note && note.trim()) {
+          // note already provided, use as-is
+        } else {
+          var existingNote = this.judgments[this.currentIndex]?.note || '';
+          note = prompt('请填写问题描述:', existingNote) || '';
+        }
         this.diagnosis = this.getDiagnosis(this.currentItem);
         this.showDiagnosis = true;
       } else if (result === 'na') {
@@ -598,10 +840,13 @@ createApp({
 
       try {
         await API.post(`/${this.inspectionId}/judge`, { item_index: this.currentIndex, result, note, judge_source: 'manual' });
+        // WS: 通知协办端
+        this.wsSend({ type: 'judgment', item_index: this.currentIndex, result: result, note: note, from_role: this.currentUser?.role || 'lead' });
       } catch (e) { console.error(e); }
 
       // 更新本地记录
       if (!wasJudged) this.judgedCount++;
+      this._updateStickyActionBar();
       if (wasFail && result !== 'fail') this.failCount = Math.max(0, this.failCount - 1);
       if (!wasFail && result === 'fail') this.failCount++;
       if (wasNA && result !== 'na' && !wasFail) this.failCount = Math.max(0, this.failCount);
@@ -641,6 +886,11 @@ createApp({
 
     // === 检查完成 ===
     completeInspection() {
+      // 有协办且未确认 → 提请协办确认
+      if (this.hasAssistant && this.wsConnected && !this.pendingConfirm) {
+        this.requestConfirm();
+        return;
+      }
       this.inspected = true;
       this.currentItem = null;
       this.currentSectionName = '';
@@ -689,7 +939,37 @@ createApp({
         }
         if (results.length >= 30) break;
       }
-      this.jumpFiltered = results;
+
+      // 如果本地精确匹配结果少于3条，用模糊API补充
+      if (results.length < 3) {
+        var self = this;
+        self.jumpFiltered = results.length > 0 ? results : null;
+        var scene = (self._currentSceneKey || 'hotel');
+        this.fuzzyAPI.post('/fuzzy-search?text=' + encodeURIComponent(kw) + '&scene=' + scene).then(function(r) {
+          var d = r.data;
+          if (d.success && d.results && d.results.length > 0) {
+            // 合并本地精确结果和API模糊结果，去重
+            var seen = {};
+            results.forEach(function(x) { seen[x.index] = true; });
+            var merged = results.slice();
+            d.results.forEach(function(x) {
+              if (!seen[x.index] && merged.length < 30) {
+                seen[x.index] = true;
+                merged.push(x);
+              }
+            });
+            // 按分数排序（API结果有score，本地结果默认1.0）
+            merged.sort(function(a, b) { return (b.score || 1.0) - (a.score || 1.0); });
+            self.jumpFiltered = merged;
+          } else if (results.length === 0) {
+            self.jumpFiltered = d.results || [];
+          }
+        }).catch(function() {
+          // API失败时保留本地结果
+        });
+      } else {
+        this.jumpFiltered = results;
+      }
     },
     buildSectionIndex() {
       // 从缓存读取（preloadItems 已一次加载全部），不再逐项请求 API
@@ -747,6 +1027,460 @@ createApp({
                         14:'14、灭火器',15:'15、消防电梯',16:'16、消防控制室',17:'17、其他消防设施'};
       if (sub > 0 && subNames[sub]) return secNames[sec] + ' › ' + subNames[sub];
       return secNames[sec] || '';
+    },
+    // 加载进行中的检查列表
+    async loadActiveInspections() {
+      try {
+        var r = await API.get('/active?include_completed=1');
+        var all = r.data.data || [];
+        // active = 仅进行中的
+        this.activeInspections = all.filter(function(i) { return i.status === 'in_progress'; });
+        // 合并完成的到 inspectionHistory（API + localStorage）
+        var completed = all.filter(function(i) { return i.status === 'completed'; });
+        var localHist = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');
+        var merged = {};
+        // API 数据优先，覆盖 localStorage 旧值
+        completed.forEach(function(c) {
+          merged[c.inspection_id] = {
+            id: c.inspection_id, name: c.venue_name,
+            date: c.date, score: c.score || 0,
+            total: c.total_items, fail: c.fail_count || 0
+          };
+        });
+        // 补充 localStorage 中有但 API 里没有的数据
+        localHist.forEach(function(h) {
+          if (!merged[h.id]) merged[h.id] = h;
+        });
+        var hist = Object.values(merged);
+        hist.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        if (hist.length > 5) hist = hist.slice(0, 5);
+        this.inspectionHistory = hist;
+        localStorage.setItem('fire_inspection_history', JSON.stringify(hist));
+      } catch(e) { this.activeInspections = []; }
+    },
+    // 协办加入检查
+    async joinInspection(insp) {
+      try {
+        // 加载该检查的信息
+        var r = await API.get('/' + insp.inspection_id + '/report');
+        var data = r.data.data;
+        this.inspectionId = insp.inspection_id;
+        this.totalItems = insp.total_items || data.summary.total || 0;
+        this.currentIndex = insp.current_index || 0;
+        this.judgments = {};
+        this.judgedCount = 0;
+        this.failCount = 0;
+        this.hasAssistant = true;
+        this.page = 'inspect';
+        await this.goToItem(this.currentIndex);
+        this.preloadItems();
+        // 连接 WS
+        var self = this;
+        setTimeout(function() { self.wsConnect(); }, 500);
+      } catch(e) {
+        this.showToast('加入检查失败: ' + e.message, 'error');
+      }
+    },
+
+    // === WebSocket 协办 ===
+    wsConnect() {
+      if (!this.inspectionId || !this.token) return;
+      var self = this;
+      var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      var wsUrl = protocol + '//' + location.host + '/inspect/api/v1/ws/' + this.inspectionId + '?token=' + this.token;
+      try {
+        var ws = new WebSocket(wsUrl);
+        ws.onopen = function() {
+          self.wsConnected = true;
+          self.wsReconnectDelay = 1000;
+          console.log('[WS] Connected to', self.inspectionId);
+        };
+        ws.onmessage = function(e) {
+          try {
+            var msg = JSON.parse(e.data);
+            self._handleWsMessage(msg);
+          } catch(ex) {}
+        };
+        ws.onclose = function(e) {
+          self.wsConnected = false;
+          self.ws = null;
+          if (e.code !== 1000 && e.code !== 4001 && e.code !== 4003 && e.code !== 4004) {
+            // 异常断开，自动重连
+            console.log('[WS] Disconnected, reconnecting in', self.wsReconnectDelay + 'ms');
+            self.wsReconnectTimer = setTimeout(function() {
+              self.wsReconnectDelay = Math.min(self.wsReconnectDelay * 2, 30000);
+              self.wsConnect();
+            }, self.wsReconnectDelay);
+          }
+        };
+        ws.onerror = function() { /* onclose 会处理 */ };
+        self.ws = ws;
+      } catch(e) {}
+    },
+    wsDisconnect() {
+      if (this.wsReconnectTimer) { clearTimeout(this.wsReconnectTimer); this.wsReconnectTimer = null; }
+      if (this.ws) {
+        try { this.ws.close(1000); } catch(e) {}
+        this.ws = null;
+      }
+      this.wsConnected = false;
+    },
+    wsSend(msg) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        try { this.ws.send(JSON.stringify(msg)); } catch(e) {}
+      }
+    },
+    _handleWsMessage(msg) {
+      var type = msg.type;
+      if (type === 'judgment') {
+        // 协办端接收主办判定
+        if (!this.judgments[msg.item_index]) {
+          this.judgedCount++;
+      this._updateStickyActionBar();
+        }
+        this.judgments[msg.item_index] = { result: msg.result, note: msg.note || '' };
+        var labels = {pass: '✅ 合格', fail: '❌ 不合格', na: '⊘ 不涉及'};
+        var label = labels[msg.result] || msg.result;
+        this.showToast((msg.from_role === 'lead' ? '主办' : '协办') + '判定: ' + label + ' (第' + (msg.item_index+1) + '项)', 'info');
+      } else if (type === 'photo') {
+        this.showToast('📸 ' + (msg.from_role === 'lead' ? '主办' : '协办') + '上传了照片', 'info');
+      } else if (type === 'jump') {
+        this.goToItem(msg.target_index);
+      } else if (type === 'request_confirm') {
+        // 协办端：主办提请完成，弹出确认提示
+        this.pendingConfirm = true;
+        this.showToast('📋 主办已完成检查，请确认', 'info');
+      } else if (type === 'confirmed') {
+        // 主办端：协办已确认
+        this.showToast('✅ 协办已确认', 'info');
+        this.completeInspection();
+      } else if (type === 'user_joined') {
+        this.showToast('👤 ' + msg.display + ' 已加入', 'info');
+      } else if (type === 'pong') {
+        // 心跳响应
+      }
+    },
+    // 主办提请协办确认
+    requestConfirm() {
+      this.pendingConfirm = true;
+      this.wsSend({
+        type: 'request_confirm',
+        total_items: this.totalItems,
+        judged_count: this.judgedCount,
+        fail_count: this.failCount
+      });
+      this.showToast('已发送确认请求，等待协办确认...', 'info');
+    },
+    // 协办确认完成
+    assistantConfirm() {
+      this.pendingConfirm = false;
+      this.wsSend({ type: 'confirm' });
+      this.completeInspection();
+    },
+
+    refreshApp() { window.location.reload(true); },
+    _renderStickyActionBar() {
+      var self = this;
+      var existing = document.getElementById('stickyActionBar');
+      if (existing) existing.remove();
+      if (!this.currentIndex && this.currentIndex !== 0) return;
+
+      var bar = document.createElement('div');
+      bar.id = 'stickyActionBar';
+      bar.className = 'sticky-action-bar';
+
+      // Pass button
+      var passBtn = document.createElement('button');
+      passBtn.className = 'btn-pass' + (this.judgments[this.currentIndex]?.result === 'pass' ? ' active' : '');
+      passBtn.textContent = '✅ 合格';
+      passBtn.addEventListener('click', function() { self.judge('pass'); });
+
+      // Fail button
+      var failBtn = document.createElement('button');
+      failBtn.className = 'btn-fail' + (this.judgments[this.currentIndex]?.result === 'fail' ? ' active' : '');
+      failBtn.textContent = '❌ 不合格';
+      failBtn.addEventListener('click', function() { self.judge('fail'); });
+
+      // NA button
+      var naBtn = document.createElement('button');
+      naBtn.className = 'btn-na' + (this.judgments[this.currentIndex]?.result === 'na' ? ' active' : '');
+      naBtn.textContent = '⊘ 不涉及';
+      naBtn.addEventListener('click', function() { self.judge('na'); });
+
+      // Photo button
+      var photoBtn = document.createElement('button');
+      photoBtn.textContent = '📷';
+      photoBtn.style.cssText = 'min-width:44px;background:#1a1a2e;color:#fff;border-color:#1a1a2e';
+      photoBtn.addEventListener('click', function() { var orig = document.querySelector('.btn-photo'); if (orig) orig.click(); });
+
+      // Nav info
+      var navInfo = document.createElement('span');
+      navInfo.className = 'nav-info';
+      navInfo.textContent = (this.currentIndex + 1) + '/' + this.totalItems;
+
+      // Prev button
+      var prevBtn = document.createElement('button');
+      prevBtn.className = 'btn-nav';
+      prevBtn.textContent = '◀';
+      prevBtn.style.cssText = 'min-width:44px;padding:10px 12px';
+      if (this.currentIndex === 0) { prevBtn.disabled = true; prevBtn.style.opacity = '0.4'; }
+      prevBtn.addEventListener('click', function() { self.goPrev(); });
+
+      // Next button
+      var nextBtn = document.createElement('button');
+      nextBtn.className = 'btn-nav';
+      nextBtn.textContent = '▶';
+      nextBtn.style.cssText = 'min-width:44px;padding:10px 12px';
+      if (this.currentIndex >= this.totalItems - 1) { nextBtn.disabled = true; nextBtn.style.opacity = '0.4'; }
+      nextBtn.addEventListener('click', function() { self.goNext(); });
+
+      bar.appendChild(prevBtn);
+      bar.appendChild(passBtn);
+      bar.appendChild(failBtn);
+      bar.appendChild(naBtn);
+      bar.appendChild(photoBtn);
+      bar.appendChild(navInfo);
+      // ▶ removed: judge() auto-advances, double-click would skip items
+      // bar.appendChild(nextBtn);
+
+      document.body.appendChild(bar);
+    },
+    _updateStickyActionBar() {
+      var bar = document.getElementById('stickyActionBar');
+      if (!bar || !this.currentIndex && this.currentIndex !== 0) return;
+
+      // Update pass/fail/na active states
+      var buttons = bar.querySelectorAll('button');
+      var result = this.judgments[this.currentIndex]?.result || '';
+      for (var i = 0; i < buttons.length; i++) {
+        var btn = buttons[i];
+        var text = btn.textContent;
+        if (text.includes('合格')) {
+          btn.className = 'btn-pass' + (result === 'pass' ? ' active' : '');
+        } else if (text.includes('不合格')) {
+          btn.className = 'btn-fail' + (result === 'fail' ? ' active' : '');
+        } else if (text.includes('不涉及')) {
+          btn.className = 'btn-na' + (result === 'na' ? ' active' : '');
+        }
+      }
+
+      // Update nav info
+      var navInfo = bar.querySelector('.nav-info');
+      if (navInfo) navInfo.textContent = (this.currentIndex + 1) + '/' + this.totalItems;
+
+      // Update prev/next disabled states
+      var navBtns = bar.querySelectorAll('.btn-nav');
+      if (navBtns[0]) { navBtns[0].disabled = this.currentIndex === 0; navBtns[0].style.opacity = this.currentIndex === 0 ? '0.4' : '1'; }
+    },
+    _removeStickyActionBar() {
+      var bar = document.getElementById('stickyActionBar');
+      if (bar) bar.remove();
+    },
+    _renderOwnerReviewModal() {
+      var self = this;
+      var existing = document.getElementById('ownerReviewModal');
+      if (existing) existing.remove();
+      if (!this.ownerReviewDetail || !this.ownerReviewDetail.checklist) return;
+
+      var detail = this.ownerReviewDetail;
+      var modal = document.createElement('div');
+      modal.id = 'ownerReviewModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center;font-family:-apple-system,PingFang SC,Microsoft YaHei,sans-serif';
+      modal.addEventListener('click', function(e) { if (e.target === modal) self._hideOwnerReviewModal(); });
+
+      var inner = document.createElement('div');
+      inner.style.cssText = 'width:100%;max-width:600px;max-height:85vh;background:#f0f2f5;border-radius:16px 16px 0 0;overflow:hidden;display:flex;flex-direction:column';
+
+      // Header
+      var header = document.createElement('div');
+      header.style.cssText = 'background:#1a1a2e;color:#fff;padding:16px;text-align:center;flex-shrink:0';
+      header.innerHTML = '<div style=\'font-size:16px;font-weight:700\'>' + (detail.submission?.venue_name || '') + '</div><div style=\'font-size:11px;opacity:.7\'>' + (detail.submission?.venue_type || '') + ' · ' + ((detail.submission?.created_at || '').substring?.(0,10) || '') + '</div>';
+      inner.appendChild(header);
+
+      // Scrollable list
+      var list = document.createElement('div');
+      list.style.cssText = 'overflow-y:auto;flex:1;padding:8px 0';
+
+      var checklist = detail.checklist || [];
+      var ownerItems = detail.owner_items || [];
+      for (var i = 0; i < checklist.length; i++) {
+        var item = checklist[i];
+        var oi = ownerItems[i] || {};
+        if (!oi.result) continue; // Skip unchecked items
+
+        var card = document.createElement('div');
+        card.style.cssText = 'margin:6px 12px;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:8px;font-size:13px';
+
+        var resultEmoji = oi.result === 'pass' ? '✅' : oi.result === 'fail' ? '❌' : '⬜';
+        var resultColor = oi.result === 'pass' ? '#16a34a' : oi.result === 'fail' ? '#dc2626' : '#999';
+
+        var html = '<div style=\'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px\'>' +
+          '<div style=\'flex:1;min-width:0\'>' +
+            '<div style=\'font-weight:600;margin-bottom:2px\'>' + (item.facility || item.title || '') + '</div>' +
+            '<div style=\'font-size:11px;color:#8899aa\'>' + (item.check_point || '') + '</div>' +
+          '</div>' +
+          '<span style=\'font-size:11px;padding:2px 8px;border-radius:10px;background:' + (oi.result === 'pass' ? '#e8f5e9' : '#ffebee') + ';color:' + resultColor + ';white-space:nowrap;margin-left:8px\'>' + resultEmoji + ' ' + (oi.result === 'pass' ? '合格' : '不合格') + '</span>' +
+        '</div>';
+
+        if (oi.note) {
+          html += '<div style=\'font-size:11px;color:#666;margin-top:4px;padding:4px 8px;background:rgba(0,0,0,.03);border-radius:4px\'>📝 ' + oi.note + '</div>';
+        }
+
+        if (oi.photos && oi.photos.length) {
+          html += '<div style=\'display:flex;gap:6px;margin-top:6px;flex-wrap:wrap\'>';
+          for (var j = 0; j < oi.photos.length; j++) {
+            var p = oi.photos[j];
+            html += '<img src=\'data:' + p.type + ';base64,' + p.data + '\' style=\'width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid #ddd;cursor:pointer\' onclick=\'window.open(this.src)\'>';
+          }
+          html += '</div>';
+        }
+
+        card.innerHTML = html;
+        list.appendChild(card);
+      }
+
+      // Show summary if no items checked
+      if (list.children.length === 0) {
+        var empty = document.createElement('div');
+        empty.style.cssText = 'text-align:center;padding:40px;color:#999;font-size:14px';
+        empty.textContent = '📭 该业主尚未自查任何项目';
+        list.appendChild(empty);
+      }
+
+      inner.appendChild(list);
+
+      // Bottom buttons
+      var bottom = document.createElement('div');
+      bottom.style.cssText = 'padding:12px 16px;background:#fff;border-top:1px solid #e5e5e5;display:flex;gap:10px;flex-shrink:0';
+
+      var returnBtn = document.createElement('button');
+      returnBtn.style.cssText = 'flex:1;padding:12px;background:#fff;color:#e65100;border:1px solid #e65100;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer';
+      returnBtn.textContent = '↩ 退回修改';
+      returnBtn.addEventListener('click', function() { self.returnOwnerSubmission(detail.submission.code); });
+
+      var approveBtn = document.createElement('button');
+      approveBtn.style.cssText = 'flex:1;padding:12px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer';
+      approveBtn.textContent = '✅ 审核通过';
+      approveBtn.addEventListener('click', function() { self.approveOwnerSubmission(detail.submission.code); });
+
+      bottom.appendChild(returnBtn);
+      bottom.appendChild(approveBtn);
+      inner.appendChild(bottom);
+
+      modal.appendChild(inner);
+      document.body.appendChild(modal);
+    },
+    _hideOwnerReviewModal() {
+      var existing = document.getElementById('ownerReviewModal');
+      if (existing) existing.remove();
+      this.showOwnerReview = false;
+    },
+    async deleteInspection(inspId) {
+      if (!confirm('确认删除该检查？')) return;
+      this.activeInspections = this.activeInspections.filter(function(x) { return x.inspection_id !== inspId; });
+      try {
+        await API.delete('/' + inspId);
+      } catch(e) { this.showToast('删除失败', 'error'); }
+    },
+    async deleteOwnerSubmission(code) {
+      if (!confirm('确认删除该业主提交？')) return;
+      this.ownerSubmissions = this.ownerSubmissions.filter(function(x) { return x.code !== code; });
+      try {
+        await API.delete('/../owner/submissions/' + code);
+      } catch(e) { this.showToast('删除失败', 'error'); }
+    },
+    // === 业主自查管理 ===
+    async loadOwnerSubmissions() {
+      try {
+        var r = await API.get('/owner-submissions');
+        this.ownerSubmissions = r.data.data || [];
+        this.showOwnerCard = true;
+      } catch(e) { this.ownerSubmissions = []; }
+    },
+    async createOwnerLink() {
+      var o = this.ownerNewLink;
+      if (!o.venue_name) { this.showToast('请填写场所名称', 'error'); return; }
+      try {
+        var r = await API.post('/../owner/create-link', null, {
+          params: { venue_type: o.venue_type, venue_name: o.venue_name, venue_address: o.venue_address, inspector_id: this.currentUser?.id || 0, org_id: this.currentUser?.org_id || 0 }
+        });
+        var d = r.data.data;
+        this.ownerNewCode = d.code;
+        this.ownerNewLinkUrl = d.full_url;
+        this.showToast('链接已生成，可复制发给业主', 'info');
+        await this.loadOwnerSubmissions();
+      } catch(e) { this.showToast('创建失败', 'error'); }
+    },
+    copyOwnerLink() {
+      var input = document.createElement('input');
+      input.value = this.ownerNewLinkUrl;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      this.showToast('链接已复制', 'info');
+    },
+    async reviewOwnerDetail(code) {
+      try {
+        var r = await API.get('/../owner/submissions/' + code);
+        this.ownerReviewDetail = r.data.data;
+        this.showOwnerReview = true;
+        this.$nextTick(function() {
+          this._renderOwnerReviewModal();
+        });
+      } catch(e) { this.showToast('加载详情失败', 'error'); }
+    },
+    async approveOwnerSubmission(code) {
+      try {
+        await API.post('/../owner/submissions/' + code + '/review', null, {params:{status:'reviewed'}});
+        this.showToast('已审核通过', 'info');
+        this._hideOwnerReviewModal();
+        await this.loadOwnerSubmissions();
+      } catch(e) { this.showToast('操作失败', 'error'); }
+    },
+    async returnOwnerSubmission(code) {
+      var reason = prompt('请输入退回原因（业主可见）：');
+      if (reason === null) return;
+      try {
+        await API.post('/../owner/submissions/' + code + '/return', null, {params:{reason:reason}});
+        this.showToast('已退回', 'info');
+        this._hideOwnerReviewModal();
+        await this.loadOwnerSubmissions();
+      } catch(e) { this.showToast('操作失败', 'error'); }
+    },
+    async reviewOwner(code) {
+      await this.reviewOwnerDetail(code);
+    },
+    async openDashboard() {
+      this.page = 'dashboard';
+      try {
+        var r = await API.get('/stats');
+        this.dashboard = r.data.data || null;
+      } catch(e) { this.dashboard = null; this.showToast('加载统计数据失败', 'error'); }
+    },
+    async loadStats() {
+      try {
+        var r = await API.get('/stats');
+        this.dashboard = r.data.data || null;
+      } catch(e) {}
+    },
+    downloadPDF() {
+      var url = API_BASE + '/' + this.inspectionId + '/report/export?format=html';
+      var w = window.open(url, '_blank');
+      if (w) {
+        setTimeout(function() { w.print(); }, 1000);
+      } else {
+        this.showToast('请允许弹出窗口后重试', 'error');
+      }
+    },
+    printReport() {
+      var url = API_BASE + '/' + this.inspectionId + '/report/export?format=html';
+      var w = window.open(url, '_blank');
+      if (w) {
+        setTimeout(function() { w.print(); }, 1000);
+      } else {
+        this.showToast('请允许弹出窗口后重试', 'error');
+      }
     },
     getSectionGroup(item) {
       if (this.inspectType === 'daily') return item?.step || 0;
@@ -848,13 +1582,42 @@ createApp({
     _parseVoiceJudgment(text) {
       var t = text.trim();
       var result, note = '';
+
+      // 第一层：精确中文正则（保留原逻辑，零延迟）
       if (/合格|没问题|正常|符合|通过|合规/.test(t) && !/不/.test(t)) { result = 'pass'; note = t; }
       else if (/不合格|有问题|不行|隐患|过期|损坏|缺失|堵塞|故障|失效/.test(t)) { result = 'fail'; note = t.replace(/不合格[，。,.\s]*/, '').replace(/有问题[，。,.\s]*/, ''); if (!note.trim()) note = t; }
       else if (/跳过|不涉及|N\/?A/.test(t)) { result = 'na'; note = '不涉及'; }
       else if (/拍照|拍个照/.test(t)) { this.voiceJudgeText = '📸 请拍照'; setTimeout(() => { this.showPhoto = true; this.voiceJudgeText = ''; }, 500); return; }
-      else { this.voiceJudgeText = '🤔 无法识别: "' + t + '"'; return; }
-      this.voiceJudgeText = '';
-      this.judge(result, note);
+      else { result = null; }
+
+      if (result) {
+        this.voiceJudgeText = '';
+        this.judge(result, note);
+        return;
+      }
+
+      // 第二层：拼音模糊匹配（处理口音/识别错误，~200ms）
+      var self = this;
+      this.voiceJudgeText = '🔍 正在理解...';
+      this.fuzzyAPI.post('/fuzzy-judge?text=' + encodeURIComponent(t)).then(function(r) {
+        var d = r.data;
+        if (d.success && d.action !== 'unknown' && d.confidence >= 0.4) {
+          self.voiceJudgeText = '';
+          if (d.action === 'photo') {
+            self.showPhoto = true;
+          } else if (d.action === 'skip') {
+            self.judge('na', '不涉及');
+          } else if (d.action === 'pass') {
+            self.judge('pass', d.note || t);
+          } else if (d.action === 'fail') {
+            self.judge('fail', d.note || t);
+          }
+        } else {
+          self.voiceJudgeText = '🤔 无法识别: "' + t + '" 请说"合格"/"不合格"/"有隐患"等';
+        }
+      }).catch(function() {
+        self.voiceJudgeText = '🤔 无法识别: "' + t + '"';
+      });
     },
 
   },

@@ -1,4 +1,4 @@
-"""Vision LLM photo hazard analysis — supports Qwen-VL, Kimi, etc."""
+"""消防设施检查 — Vision LLM photo analysis (v3)"""
 import base64
 import json
 import logging
@@ -48,9 +48,9 @@ def _lookup_hazard(hazard_code: str) -> Dict:
                 }
     return {}
 
-async def analyze_photo(image_bytes, item_context, api_key,
-                        base_url='https://api.siliconflow.cn/v1',
-                        model='deepseek-ai/deepseek-vl2'):
+async def analyze_photo(images_bytes, item_context, api_key,
+                        base_url='https://dashscope.aliyuncs.com/compatible-mode/v1',
+                        model='qwen-vl-max'):
     facility = item_context.get('facility', '')
     check_point = item_context.get('check_point', '')
     regulation = item_context.get('regulation', {})
@@ -58,21 +58,17 @@ async def analyze_photo(image_bytes, item_context, api_key,
     reg_text = regulation.get('text', '')[:300]
     taxonomy = _build_label_taxonomy()
 
-    # Step 1: Vision API
-    vision_error = ''
     try:
-        img_b64 = base64.b64encode(image_bytes).decode('utf-8')
-        result = await _call_vision_api(img_b64, facility, check_point, reg_source, reg_text,
+        images_b64 = [base64.b64encode(img).decode('utf-8') for img in images_bytes]
+        result = await _call_vision_api(images_b64, facility, check_point, reg_source, reg_text,
                                         taxonomy, api_key, base_url, model)
         return result
     except Exception as _e:
-        vision_error = str(_e)[:200]
-        logger.warning('Vision API failed: %s, trying text fallback', vision_error)
+        logger.warning('Vision API failed: %s', str(_e)[:200])
 
-    # Step 2: Text fallback
     try:
         result = await _call_text_fallback(facility, check_point, reg_source, reg_text,
-                                           api_key, base_url, model, vision_error)
+                                           api_key, base_url, model)
         return result
     except Exception:
         logger.exception('Both vision and text fallback failed')
@@ -83,25 +79,40 @@ async def analyze_photo(image_bytes, item_context, api_key,
         'confidence': 0.0,
         'hazard_code': None, 'hazard_category': None,
         'regulation': [], 'rectification': '', 'deadline': '',
-        'detail': {
-            'judgment': 'unable', 'hazard_code': 'NONE',
-            'device': facility, 'description': '请人工检查: ' + check_point,
-            'severity': 'none', 'confidence': 'low'
-        },
+        'detail': {'judgment': 'unable', 'hazard_code': 'NONE', 'device': facility,
+                   'description': '请人工检查: ' + check_point, 'severity': 'none', 'confidence': 'low'},
         'raw': '',
     }
 
-async def _call_vision_api(img_b64, facility, check_point, reg_source, reg_text, taxonomy,
+async def _call_vision_api(images_b64, facility, check_point, reg_source, reg_text, taxonomy,
                             api_key, base_url, model):
+    # Facility-specific hard rules
+    guides = {
+        "防火门": "硬性判定: 1)铭牌不可见→标记隐患'铭牌缺失,建议核实耐火等级' 2)门未关闭→不合格 3)闭门器损坏→不合格 4)密封条脱落→不合格 5)门扇变形锈蚀→不合格 6)全部完好→合格",
+        "灭火器": "硬性判定: 1)压力表红区→不合格 2)瓶体锈蚀→不合格 3)过期→不合格 4)被遮挡→不合格 5)外观完好→合格",
+        "消火栓": "硬性判定: 1)箱门损坏→不合格 2)水带水枪缺失→不合格 3)阀门漏水→不合格 4)完好→合格",
+        "疏散通道": "硬性判定: 1)有杂物堵塞→不合格 2)宽度不足→不合格 3)锁闭→不合格 4)畅通→合格",
+        "安全出口": "硬性判定: 1)门锁闭→不合格 2)指示灯不亮→不合格 3)门前堆物→不合格 4)正常→合格",
+    }
+    guide_text = ""
+    for k, v in guides.items():
+        if k in facility:
+            guide_text = f"\n## {k}判定规则\n{v}"
+            break
+
     prompt = (
-        '你是消防设施检查专家。请根据照片进行深度分析。\n\n'
-        '## 检查部位\n' + facility + '\n\n'
-        '## 检查要点\n' + check_point + '\n\n'
-        '## 法规依据\n' + reg_source + '\n' + reg_text + '\n\n'
-        '## 隐患标签\n' + taxonomy + '\n\n'
-        '只返回JSON: {"判定":"合格/不合格/无法判断",'
-        '"hazard_code":"编码","设备类型":"名称","隐患描述":"简要描述(100字内)",'
-        '"隐患等级":"严重/重大/一般/无","置信度":"高/中/低"}'
+        "你是消防检查专家。铁律:永远不要说'无法判断'。\n"
+        "铭牌/标签看不到就是问题→标记为隐患(建议现场核实)。\n"
+        "照片中能看到什么就判定什么,不清晰也给出你的最佳判断。\n\n"
+        "## 检查部位\n" + facility + "\n\n"
+        "## 检查要点\n" + check_point + "\n\n"
+        "## 法规依据\n" + reg_source + "\n" + reg_text + "\n\n"
+        + guide_text + "\n\n"
+        "## 隐患编码\n" + taxonomy + "\n\n"
+        "返回JSON(判定只能是合格或不合格): "
+        "{\"判定\":\"合格/不合格\",\"hazard_code\":\"编码或NONE\","
+        "\"设备类型\":\"名称\",\"隐患描述\":\"照片中看到的具体问题(100字内)\","
+        "\"隐患等级\":\"严重/重大/一般/无\",\"置信度\":\"高/中/低\"}"
     )
 
     async with httpx.AsyncClient(timeout=60.0) as client:
@@ -111,7 +122,7 @@ async def _call_vision_api(img_b64, facility, check_point, reg_source, reg_text,
             json={
                 'model': model,
                 'messages': [{'role': 'user', 'content': [
-                    {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + img_b64}},
+                    *[{'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + img}} for img in images_b64],
                     {'type': 'text', 'text': prompt},
                 ]}],
                 'max_tokens': 600, 'temperature': 0.1,
@@ -123,18 +134,17 @@ async def _call_vision_api(img_b64, facility, check_point, reg_source, reg_text,
         reply = data['choices'][0]['message']['content'] if 'choices' in data else ''
     return _parse_to_contract(reply, facility)
 
-async def _call_text_fallback(facility, check_point, reg_source, reg_text, api_key, base_url, model, error_msg):
+async def _call_text_fallback(facility, check_point, reg_source, reg_text, api_key, base_url, model):
     prompt = (
-        'You are a fire safety assistant.\n'
-        'User uploaded a photo of "' + facility + '" 但图片分析不可用.\n'
-        'Based on the check item, give the most common hazard reminders.\n\n'
-        'Facility: ' + facility + '\nCheck Point: ' + check_point + '\n'
-        'Regulation: ' + reg_source + ' ' + reg_text + '\n\n'
-        'Return JSON: {"judgment":"unclear","hazard_code":"NONE","device":"' + facility + '",'
-        '"description":"图片AI暂不可用，请人工检查: ' + facility + ' - ' + check_point + '",'
-        '"severity":"minor","confidence":"low"}'
+        "你是消防检查专家。用户上传了\"" + facility + "\"的照片但图片分析暂不可用。\n"
+        "请根据检查要点，基于最常出现的问题给出检查提示，不要只说'请人工检查'。\n\n"
+        "检查部位: " + facility + "\n检查要点: " + check_point + "\n"
+        "法规: " + reg_source + " " + reg_text + "\n\n"
+        "返回JSON: {\"判定\":\"不合格\",\"hazard_code\":\"NONE\","
+        "\"设备类型\":\"" + facility + "\","
+        "\"隐患描述\":\"图片分析暂不可用，请人工检查: " + check_point + "\","
+        "\"隐患等级\":\"一般\",\"置信度\":\"低\"}"
     )
-
     async with httpx.AsyncClient(timeout=30.0) as client:
         resp = await client.post(
             base_url + '/chat/completions',
@@ -143,18 +153,18 @@ async def _call_text_fallback(facility, check_point, reg_source, reg_text, api_k
                   'max_tokens': 400, 'temperature': 0.1},
         )
         data = resp.json()
-        reply = data['choices'][0]['message']['content'] if 'choices' in data and 'choices' in data else ''
+        reply = data['choices'][0]['message']['content'] if 'choices' in data else ''
     return _parse_to_contract(reply, facility)
 
 def _parse_to_contract(reply, fallback_facility=''):
     detail = _extract_detail(reply, fallback_facility)
-    judgment = detail.get('判定', '无法判断')
+    judgment = detail.get('判定', '不合格')
     if '不合格' in judgment or 'non-compliant' in judgment:
         violation = True
     elif '合格' in judgment or 'compliant' in judgment:
         violation = False
     else:
-        violation = None
+        violation = True  # 宁严勿松
     confidence = _confidence(detail.get('置信度', '中'))
     reason = detail.get('隐患描述', '')
     hazard_code = detail.get('hazard_code', 'NONE')
@@ -163,40 +173,50 @@ def _parse_to_contract(reply, fallback_facility=''):
     rectification = hazard_info.get('rectification', '')
     deadline = hazard_info.get('deadline', '')
     return {
-        'violation': violation, 'reason': reason, 'confidence': confidence,
-        'hazard_code': hazard_code if hazard_code != 'NONE' else None,
-        'hazard_category': hazard_info.get('hazard_category'),
-        'hazard_name': hazard_info.get('hazard_name'),
-        'regulation': regulation, 'rectification': rectification, 'deadline': deadline,
-        'detail': detail, 'raw': reply,
+        'violation': violation,
+        'reason': reason or 'AI分析: ' + fallback_facility,
+        'confidence': confidence,
+        'hazard_code': hazard_code,
+        'hazard_category': hazard_info.get('hazard_category', ''),
+        'hazard_name': hazard_info.get('hazard_name', ''),
+        'regulation': regulation,
+        'rectification': rectification,
+        'deadline': deadline,
+        'detail': detail,
+        'raw': reply,
     }
 
 def _extract_detail(reply, fallback_facility=''):
+    # Handle markdown-wrapped JSON (```json ... ```)
+    cleaned = reply.strip()
+    if cleaned.startswith('```'):
+        # Remove markdown code fences
+        lines = cleaned.split('\n')
+        if lines[0].startswith('```'):
+            lines = lines[1:]
+        if lines and lines[-1].startswith('```'):
+            lines = lines[:-1]
+        cleaned = '\n'.join(lines)
     try:
-        start = reply.find('{')
-        end = reply.rfind('}') + 1
-        if start >= 0 and end > start:
-            data = json.loads(reply[start:end])
-            return {
-                '判定': data.get('判定', data.get('judgment', '无法判断')),
-                'hazard_code': data.get('hazard_code', 'NONE'),
-                '设备类型': data.get('设备类型', data.get('device', fallback_facility)),
-                '隐患描述': data.get('隐患描述', data.get('description', '')),
-                '隐患等级': data.get('隐患等级', data.get('severity', '无')),
-                '置信度': data.get('置信度', data.get('confidence', '中')),
-            }
-    except (json.JSONDecodeError, KeyError):
+        data = json.loads(cleaned)
+        return {
+            '判定': data.get('判定', data.get('judgment', '不合格')),
+            'hazard_code': data.get('hazard_code', 'NONE'),
+            '设备类型': data.get('设备类型', data.get('device', fallback_facility)),
+            '隐患描述': data.get('隐患描述', data.get('description', '')),
+            '隐患等级': data.get('隐患等级', data.get('severity', '一般')),
+            '置信度': data.get('置信度', data.get('confidence', '中')),
+        }
+    except (json.JSONDecodeError, TypeError):
         pass
     return {
-        '判定': '无法判断', 'hazard_code': 'NONE',
-        '设备类型': fallback_facility, '隐患描述': '',
-        '隐患等级': '无', '置信度': '中'
+        '判定': '不合格', 'hazard_code': 'NONE',
+        '设备类型': fallback_facility, '隐患描述': reply[:100],
+        '隐患等级': '一般', '置信度': '低',
     }
 
 def _confidence(val):
-    v = str(val).strip()
-    if 'high' in v.lower() or '高' in v: return 0.9
-    if 'medium' in v.lower() or '中' in v: return 0.6
-    if 'low' in v.lower() or '低' in v: return 0.3
-    try: return float(v)
-    except (ValueError, TypeError): return 0.5
+    if isinstance(val, (int, float)):
+        return float(val)
+    mapping = {'高': 0.85, '中': 0.6, '低': 0.35}
+    return mapping.get(str(val), 0.5)

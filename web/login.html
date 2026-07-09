@@ -32,6 +32,10 @@ input:focus{outline:none;border-color:#448aff}
   <input v-model="username" @keyup.enter="login" placeholder="用户名" autocomplete="username">
   <input v-model="password" @keyup.enter="login" type="password" placeholder="密码" autocomplete="current-password">
   <div class="error">{{ error }}</div>
+  <label style="display:flex;align-items:center;justify-content:flex-start;gap:6px;margin:8px 0;font-size:13px;color:#555;cursor:pointer">
+    <input type="checkbox" v-model="remember" style="width:auto;margin:0;accent-color:#c41e3a">
+    记住我（30天内自动登录）
+  </label>
   <button class="btn" @click="login">登 录</button>
   <div class="info">上饶市消防救援支队</div>
 </div>
@@ -40,7 +44,7 @@ input:focus{outline:none;border-color:#448aff}
 const { createApp } = Vue;
 const AUTH = axios.create({ baseURL: '/inspect/api/v1/auth' });
 createApp({
-  data(){ return { username:'', password:'', error:'' }; },
+  data(){ return { username:'', password:'', error:'', remember: true }; },
   methods: {
     async login(){
       this.error = '';
@@ -48,8 +52,9 @@ createApp({
       try {
         const r = await AUTH.post('/login', { username: this.username, password: this.password });
         const d = r.data.data;
-        localStorage.setItem('fire_token', d.token);
-        localStorage.setItem('fire_user', JSON.stringify(d.user));
+        var storage = this.remember ? localStorage : sessionStorage;
+        storage.setItem('fire_token', d.token);
+        storage.setItem('fire_user', JSON.stringify(d.user));
         window.location.href = '/inspect/web/';
       } catch(e) {
         this.error = e.response?.data?.detail || '登录失败';

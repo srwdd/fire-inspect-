@@ -9,12 +9,14 @@ import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from math import radians, sin, cos, sqrt, atan2
+import json
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Query
 from pydantic import BaseModel
 
 from app.core.checklist_engine import checklist_engine
+from app.api.v1.ws import ws_broadcast
 from app.dependencies import verify_api_key, get_current_user
 
 # ── 加载 .env 文件 ────────────────────────────────────
@@ -32,7 +34,8 @@ router = APIRouter(prefix="", tags=["检查流程"], dependencies=[Depends(verif
 
 # ── SQLite 持久化存储 ───────────────────────────────
 from app.db.storage import (
-    save_inspection, get_inspection, update_inspection_status,
+    list_owner_submissions, get_owner_submission,
+    save_inspection, get_inspection, update_inspection_status, list_active_inspections,
     update_current_index, search_inspections as storage_search,
     save_finding, get_findings, init_db,
 )
@@ -195,6 +198,126 @@ def search_inspections(
         })
     results.sort(key=lambda x: x["date"], reverse=True)
     return {"code": 0, "data": results}
+
+
+
+# ── 进行中的检查（协办可加入） ──────────────────────
+
+@router.get("/active")
+def get_active_inspections(user: dict = Depends(get_current_user), include_completed: int = 1):
+    """返回当前用户作为主办或协办的检查（进行中 + 最近完成的）"""
+    from app.db.storage import list_recent_completed
+    uid = user.get("uid", 0)
+    oid = user.get("oid", 0)
+    all_states = list_active_inspections(uid)
+    results = []
+    seen_ids = set()
+    for state in all_states:
+        seen_ids.add(state["inspection_id"])
+        lead = state.get("lead_id", 0)
+        assist = state.get("assist_id", 0)
+        results.append({
+            "inspection_id": state["inspection_id"],
+            "venue_name": state.get("venue_name", ""),
+            "venue_type": state.get("venue_type", ""),
+            "date": state.get("started_at", "")[:10],
+            "inspector": state.get("inspector", ""),
+            "total_items": state.get("total_items", 0),
+            "current_index": state.get("current_index", 0),
+            "role": "lead" if uid == lead else "assist",
+            "status": state.get("status", "in_progress"),
+        })
+    # 加上最近完成的检查
+    if include_completed:
+        completed = list_recent_completed(oid, limit=5)
+        for insp in completed:
+            if insp["inspection_id"] not in seen_ids:
+                items = insp.get("items") or []
+                fail_count = sum(1 for j in items if isinstance(j, dict) and j.get("result") == "fail")
+                results.append({
+                    "inspection_id": insp["inspection_id"],
+                    "venue_name": insp.get("venue_name", ""),
+                    "venue_type": insp.get("venue_type", ""),
+                    "date": (insp.get("completed_at") or insp.get("started_at") or "")[:10],
+                    "inspector": insp.get("inspector", ""),
+                    "total_items": insp.get("total_items", 0),
+                    "current_index": insp.get("current_index", 0),
+                    "role": "lead",
+                    "status": "completed",
+                    "fail_count": fail_count,
+                    "score": round((insp.get("total_items", 0) - fail_count) / max(insp.get("total_items", 1), 1) * 100),
+                })
+    results.sort(key=lambda x: x["date"], reverse=True)
+    return {"code": 0, "data": results}
+
+
+# ── 数据看板统计 ──────────────────────────────────
+
+@router.get("/stats")
+def get_stats(user: dict = Depends(get_current_user)):
+    """返回当前用户所在大队的检查统计数据"""
+    uid = user.get("uid", 0)
+    oid = user.get("oid", 0)
+
+    all_states = list_active_inspections(0)  # 获取所有进行中的
+    completed = storage_search("")  # 获取所有已完成的
+
+    # 合并
+    all_inspections = all_states + completed
+
+    # 按大队过滤
+    org_inspections = [s for s in all_inspections if int(s.get("org_id") or 0) == oid]
+
+    total = len(org_inspections)
+    in_progress = len([s for s in org_inspections if s.get("status") == "in_progress"])
+    completed_count = total - in_progress
+
+    # 汇总所有检查的 findings
+    total_pass = 0
+    total_fail = 0
+    fail_by_facility = {}
+    recent = []
+
+    for insp in org_inspections:
+        findings = get_findings(insp["inspection_id"])
+        insp_pass = len([f for f in findings if f.get("result") == "pass"])
+        insp_fail = len([f for f in findings if f.get("result") == "fail"])
+        total_pass += insp_pass
+        total_fail += insp_fail
+
+        for f in findings:
+            if f.get("result") == "fail":
+                fac = f.get("facility", "未知")
+                fail_by_facility[fac] = fail_by_facility.get(fac, 0) + 1
+
+        # 最近5条
+        if len(recent) < 5:
+            recent.append({
+                "inspection_id": insp["inspection_id"],
+                "venue_name": insp.get("venue_name", ""),
+                "date": insp.get("started_at", "")[:10],
+                "status": insp.get("status", ""),
+                "pass": insp_pass,
+                "fail": insp_fail,
+            })
+
+    # 隐患排行 top 5
+    hazard_ranking = sorted(fail_by_facility.items(), key=lambda x: x[1], reverse=True)[:5]
+    hazard_ranking = [{"facility": k, "count": v} for k, v in hazard_ranking]
+
+    total_judged = total_pass + total_fail
+    pass_rate = round(total_pass / total_judged * 100, 1) if total_judged > 0 else 0
+
+    return {"code": 0, "data": {
+        "total": total,
+        "in_progress": in_progress,
+        "completed": completed_count,
+        "total_pass": total_pass,
+        "total_fail": total_fail,
+        "pass_rate": pass_rate,
+        "hazard_ranking": hazard_ranking,
+        "recent": recent,
+    }}
 
 
 # ── 3. 复查 — 开始 ──────────────────────────────────
@@ -374,6 +497,22 @@ def submit_judge(inspection_id: str, req: JudgeRequest, user: dict = Depends(get
         "gps": {"lat": req.lat, "lng": req.lng} if req.lat is not None else None,
     }
     save_finding(inspection_id, finding)
+
+    # WebSocket broadcast to assistant
+    try:
+        print(f"[WS-DEBUG] broadcasting to {inspection_id}: item={req.item_index} result={req.result}", flush=True)
+        ws_broadcast(inspection_id, {
+            "type": "judgment",
+            "item_index": req.item_index,
+            "result": req.result,
+            "note": req.note,
+            "from_role": user.get("role", ""),
+            "from_uid": user.get("uid", 0),
+            "judged_count": 0,
+        })
+    except Exception as ex:
+        print(f"[WS-DEBUG] broadcast error: {ex}", flush=True)
+
     update_current_index(inspection_id, req.item_index + 1)
 
     # GPS防作假: 检查与之前判定的位置偏差
@@ -417,7 +556,7 @@ def get_ai_accuracy():
 async def photo_analyze(
     inspection_id: str,
     item_index: int = Form(...),
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     user: dict = Depends(get_current_user),
 ):
     state = _require_state(inspection_id)
@@ -434,17 +573,18 @@ async def photo_analyze(
             "message": "AI图片分析功能待API Key配置后启用",
         }}
 
-    image_bytes = await file.read()
+    images_bytes = [await f.read() for f in files]
     from app.core.photo_analyzer import analyze_photo
     result = await analyze_photo(
-        image_bytes=image_bytes,
+        images_bytes=images_bytes,
         item_context={"facility": item["facility"], "check_point": item["check_point"], "regulation": item.get("regulation", {})},
         api_key=api_key,
         base_url=_os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1"),
-        model=_os.environ.get("VISION_MODEL", "deepseek-chat"),
+        model=_os.environ.get("VISION_MODEL", "qwen-vl-max"),
     )
 
     # 自动填表建议
+    print(f'[PHOTO-ANALYSIS] facility={item[chr(102)+chr(97)+chr(99)+chr(105)+chr(108)+chr(105)+chr(116)+chr(121)]} violation={result.get(chr(118)+chr(105)+chr(111)+chr(108)+chr(97)+chr(116)+chr(105)+chr(111)+chr(110))} confidence={result.get(chr(99)+chr(111)+chr(110)+chr(102)+chr(105)+chr(100)+chr(101)+chr(110)+chr(99)+chr(101),0)} reason={result.get(chr(114)+chr(101)+chr(97)+chr(115)+chr(111)+chr(110),chr(78)+chr(111)+chr(110)+chr(101))[:80]}', flush=True)
     auto_result = "fail" if result.get("violation") else ("pass" if result.get("violation") is False else "")
     regulation_text = "; ".join(result.get("regulation") or [])
     auto_note = (
@@ -485,7 +625,7 @@ async def photo_analyze(
 async def photo_evidence(
     inspection_id: str,
     item_index: int = Form(...),
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
 ):
     """拍照 → 4层证据链推理 (对标FireAgent)"""
     state = _require_state(inspection_id)
@@ -498,14 +638,14 @@ async def photo_evidence(
     if not api_key or api_key == "sk-your-key-here":
         return {"code": 0, "data": {"error": "API Key 未配置"}}
 
-    image_bytes = await file.read()
+    images_bytes = [await f.read() for f in files]
     from app.core.photo_analyzer import analyze_photo
     analysis = await analyze_photo(
         image_bytes=image_bytes,
         item_context={"facility": item["facility"], "check_point": item["check_point"], "regulation": item.get("regulation", {})},
         api_key=api_key,
         base_url=_os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1"),
-        model=_os.environ.get("VISION_MODEL", "deepseek-chat"),
+        model=_os.environ.get("VISION_MODEL", "qwen-vl-max"),
     )
     from app.services.evidence_chain import build_evidence_chain
     chain = build_evidence_chain(analysis, {
@@ -752,6 +892,40 @@ def get_owner_report(inspection_id: str):
 
 
 # ── 12a. 法规智能检索 ──────────────────────────────
+
+
+# ── 业主自查管理 ──────────────────────────────────
+
+@router.get("/owner-submissions")
+def get_owner_submissions_api(org_id: int = 0):
+    """消防员查看所有业主提交"""
+    subs = list_owner_submissions(org_id)
+    import json as _json
+    return {"code": 0, "data": [{
+        "code": s["code"],
+        "venue_name": s.get("venue_name", ""),
+        "venue_type": s.get("venue_type", ""),
+        "venue_address": s.get("venue_address", ""),
+        "contact_name": s.get("contact_name", ""),
+        "contact_phone": s.get("contact_phone", ""),
+        "status": s["status"],
+        "created_at": s["created_at"],
+        "submitted_at": s.get("submitted_at", ""),
+    } for s in subs]}
+
+
+@router.delete("/{inspection_id}")
+def delete_inspection(inspection_id: str, user: dict = Depends(get_current_user)):
+    """删除进行中的检查"""
+    from app.db.storage import _connect
+    state=_require_state(inspection_id)
+    if state.get("status")!="in_progress":
+        raise HTTPException(400,"只能删除进行中的检查")
+    with _connect() as conn:
+        conn.execute("DELETE FROM inspections WHERE id=?",(inspection_id,))
+        conn.execute("DELETE FROM findings WHERE inspection_id=?",(inspection_id,))
+        conn.commit()
+    return {"code":0,"msg":"已删除"}
 
 @router.get("/regulation-search")
 def smart_regulation_search(

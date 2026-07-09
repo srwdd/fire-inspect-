@@ -90,12 +90,18 @@ def list_orgs():
     return {'code': 0, 'data': [{'id': r['id'], 'name': r['name'], 'short_name': r['short_name']} for r in rows]}
 
 @router.post('/users')
-def create_user(req: UserCreate, current_user: dict = None):
+def create_user(data: UserCreate):
     conn = _db()
+    # 检查用户名是否已存在
+    existing = conn.execute('SELECT id FROM users WHERE username = ?', (data.username,)).fetchone()
+    if existing:
+        conn.close()
+        from fastapi import HTTPException
+        raise HTTPException(400, f'用户名 {data.username} 已存在')
     conn.execute('INSERT INTO users (username, password_hash, role, display_name, org_id) VALUES (?,?,?,?,?)',
-                 (req.username, _hash_pw(req.password), req.role, req.display_name, req.org_id))
+                 (data.username, _hash_pw(data.password), data.role, data.display_name, data.org_id))
     conn.commit(); conn.close()
-    return {'code': 0}
+    return {'code': 0, 'msg': f'用户 {data.display_name} 创建成功'}
 
 @router.get('/users')
 def list_users(org_id: int = 0):

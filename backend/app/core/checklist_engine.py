@@ -372,7 +372,7 @@ class ChecklistEngine:
         province_rules = []
         for rid in related_ids:
             for r in self.rules:
-                if r["id"] == rid and r.get("province"):
+                if r["id"] == rid and r.get("province") and r.get("source_type") in ("province_regulation", "province_standard"):
                     province_rules.append({
                         "id": r["id"], "source": r["source"],
                         "article": r.get("article", ""),

@@ -1,4 +1,10 @@
-﻿from contextlib import asynccontextmanager
+﻿from dotenv import load_dotenv
+from pathlib import Path as _Path
+_env_path = _Path(__file__).resolve().parent.parent / '.env'
+if _env_path.exists():
+    load_dotenv(_env_path)
+
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from app.api.routes import api_router
+from app.api.v1.ws import router as ws_router
 from app.core.config import settings
 from app.core.cors import cors_config
 from app.db.session import SessionLocal, create_tables, engine
@@ -93,6 +100,7 @@ web_dir = settings.BASE_DIR.parent / "web"
 if web_dir.exists():
     app.mount("/web", StaticFiles(directory=str(web_dir), html=True), name="web")
 
+app.include_router(ws_router, prefix=settings.API_V1_PREFIX + "/ws")
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 

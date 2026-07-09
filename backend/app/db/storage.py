@@ -41,12 +41,33 @@ def init_db() -> None:
                 mandatory_count INTEGER NOT NULL DEFAULT 0,
                 sample_count INTEGER NOT NULL DEFAULT 0,
                 current_index INTEGER NOT NULL DEFAULT 0,
+                lead_id INTEGER NOT NULL DEFAULT 0,
+                assist_id INTEGER NOT NULL DEFAULT 0,
+                org_id INTEGER NOT NULL DEFAULT 0,
+                venue_addr TEXT NOT NULL DEFAULT '',
+                venue_address TEXT NOT NULL DEFAULT '',
                 items_json TEXT NOT NULL DEFAULT '[]',
                 started_at TEXT NOT NULL,
                 completed_at TEXT,
                 status TEXT NOT NULL DEFAULT 'in_progress',
                 previous_inspection_id TEXT,
                 previous_fail_ids TEXT NOT NULL DEFAULT '[]'
+            );
+
+
+            CREATE TABLE IF NOT EXISTS owner_submissions (
+                code TEXT PRIMARY KEY,
+                venue_type TEXT NOT NULL,
+                venue_name TEXT NOT NULL DEFAULT '',
+                venue_address TEXT NOT NULL DEFAULT '',
+                contact_name TEXT NOT NULL DEFAULT '',
+                contact_phone TEXT NOT NULL DEFAULT '',
+                inspector_id INTEGER NOT NULL DEFAULT 0,
+                org_id INTEGER NOT NULL DEFAULT 0,
+                items_json TEXT NOT NULL DEFAULT '[]',
+                status TEXT NOT NULL DEFAULT 'draft',
+                created_at TEXT NOT NULL,
+                submitted_at TEXT
             );
 
             CREATE TABLE IF NOT EXISTS findings (
@@ -94,10 +115,11 @@ def save_inspection(state: Dict[str, Any]) -> None:
                 staff_count, floor_count, area_sqm,
                 staff_sample, floor_sample,
                 total_items, mandatory_count, sample_count,
-                current_index, items_json,
+                current_index, lead_id, assist_id, org_id, venue_addr, venue_address,
+                items_json,
                 started_at, completed_at, status,
                 previous_inspection_id, previous_fail_ids
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             state["inspection_id"],
             state.get("mode", "first"),
@@ -114,6 +136,11 @@ def save_inspection(state: Dict[str, Any]) -> None:
             state.get("mandatory_count", 0),
             state.get("sample_count", 0),
             state.get("current_index", 0),
+            state.get("lead_id", 0),
+            state.get("assist_id", 0),
+            state.get("org_id", 0),
+            state.get("venue_addr", ""),
+            state.get("venue_address", ""),
             items_json,
             state.get("started_at", datetime.now().isoformat()),
             state.get("completed_at"),
@@ -173,15 +200,106 @@ def search_inspections(venue_name: str = "") -> List[Dict[str, Any]]:
     return [_row_to_state(r) for r in rows]
 
 
+
+def list_active_inspections(uid: int = 0) -> List[Dict[str, Any]]:
+    """列出进行中的检查（可按用户过滤）"""
+    with _connect() as conn:
+        if uid > 0:
+            rows = conn.execute(
+                "SELECT * FROM inspections WHERE status = 'in_progress' AND (lead_id = ? OR assist_id = ?) ORDER BY started_at DESC",
+                (uid, uid),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM inspections WHERE status = 'in_progress' ORDER BY started_at DESC",
+            ).fetchall()
+    return [_row_to_state(r) for r in rows]
+
+
+def list_recent_completed(org_id: int = 0, limit: int = 5) -> List[Dict[str, Any]]:
+    """列出最近完成的检查（7天内）"""
+    with _connect() as conn:
+        if org_id > 0:
+            rows = conn.execute(
+                "SELECT * FROM inspections WHERE status = 'completed' AND org_id = ? AND date(completed_at) >= date('now', '-7 days') ORDER BY completed_at DESC LIMIT ?",
+                (org_id, limit),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT * FROM inspections WHERE status = 'completed' AND date(completed_at) >= date('now', '-7 days') ORDER BY completed_at DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+    return [_row_to_state(r) for r in rows]
+
+
+def create_owner_submission(code, venue_type, venue_name, venue_address, inspector_id, org_id):
+    with _connect() as conn:
+        conn.execute(
+            """INSERT INTO owner_submissions (code, venue_type, venue_name, venue_address, inspector_id, org_id, items_json, status, created_at)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            (code, venue_type, venue_name, venue_address, inspector_id, org_id, '[]', 'draft', datetime.now().isoformat())
+        )
+        conn.commit()
+
+def get_owner_submission(code):
+    with _connect() as conn:
+        row=conn.execute("SELECT * FROM owner_submissions WHERE code=?",(code,)).fetchone()
+        if not row: return None
+        d=dict(row)
+        d['items']=json.loads(d.pop('items_json','[]'))
+        return d
+
+def update_owner_item(code, item_index, data):
+    with _connect() as conn:
+        row=conn.execute("SELECT items_json FROM owner_submissions WHERE code=?",(code,)).fetchone()
+        if not row: return
+        items=json.loads(row[0])
+        while len(items) <= item_index:
+            items.append({})
+        items[item_index]=data
+        conn.execute("UPDATE owner_submissions SET items_json=? WHERE code=?",(json.dumps(items,ensure_ascii=False),code))
+        conn.commit()
+
+def submit_owner(code):
+    with _connect() as conn:
+        conn.execute("UPDATE owner_submissions SET status='submitted', submitted_at=? WHERE code=?",(datetime.now().isoformat(),code))
+        conn.commit()
+
+def list_owner_submissions(org_id=0):
+    with _connect() as conn:
+        if org_id:
+            rows=conn.execute("SELECT * FROM owner_submissions WHERE org_id=? ORDER BY created_at DESC",(org_id,)).fetchall()
+        else:
+            rows=conn.execute("SELECT * FROM owner_submissions ORDER BY created_at DESC").fetchall()
+        return [dict(r) for r in rows]
+
+def update_owner_status(code, status):
+    with _connect() as conn:
+        conn.execute("UPDATE owner_submissions SET status=? WHERE code=?",(status,code))
+        conn.commit()
+
+def update_owner_return(code, reason=""):
+    with _connect() as conn:
+        conn.execute("UPDATE owner_submissions SET status='returned', return_reason=? WHERE code=?",(reason,code))
+        conn.commit()
+
 def _row_to_state(row: sqlite3.Row) -> Dict[str, Any]:
     """将数据库行转换回 state dict"""
     d = dict(row)
+    # 安全 JSON 解析辅助
+    def _safe_json(v, default=None):
+        if not v or not isinstance(v, str) or v.strip() == '':
+            return default if default is not None else []
+        try:
+            return json.loads(v)
+        except (json.JSONDecodeError, TypeError):
+            return default if default is not None else []
     # 还原 JSON 字段
-    d["items"] = json.loads(d.pop("items_json", "[]"))
+    d["items"] = _safe_json(d.pop("items_json", "[]"))
     d["inspection_id"] = d.pop("id")
-    d["staff_sample"] = json.loads(d["staff_sample"]) if d.get("staff_sample") else None
-    d["floor_sample"] = json.loads(d["floor_sample"]) if d.get("floor_sample") else None
-    d["previous_fail_ids"] = json.loads(d.get("previous_fail_ids", "[]"))
+    d["staff_sample"] = _safe_json(d.get("staff_sample"), None)
+    d["floor_sample"] = _safe_json(d.get("floor_sample"), None)
+    d["previous_fail_ids"] = _safe_json(d.get("previous_fail_ids", "[]"))
     return d
 
 

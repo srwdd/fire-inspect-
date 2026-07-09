@@ -3,24 +3,58 @@
 const APP_EXTRAS = {
   // ═══ 拍照 + 报告 ═══
   async uploadPhoto(e) {
-    const file = e.target.files[0];
-    if (!file) return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    // 累积照片：首次或追加
+    if (!this._pendingPhotos) this._pendingPhotos = [];
+    for (let i = 0; i < fileList.length; i++) {
+      this._pendingPhotos.push(fileList[i]);
+    }
+    this.photoUploadCount = this._pendingPhotos.length;
+    await this._doUploadPhotos();
+  },
+  async _doUploadPhotos() {
+    if (!this._pendingPhotos || this._pendingPhotos.length === 0) return;
     this.photoAnalyzing = true;
     try {
       const form = new FormData();
-      form.append('file', file);
+      for (let i = 0; i < this._pendingPhotos.length; i++) {
+        form.append('files', this._pendingPhotos[i]);
+      }
       form.append('item_index', this.currentIndex);
       const r = await API.post(`/${this.inspectionId}/photo`, form);
       this.photoResult = r.data.data?.analysis || { violation: null, reason: '分析完成', confidence: 0 };
-      // 加载典型隐患对比参考
       if (this.currentItem) {
         this.photoCompareHazard = this.getTypicalHazard(this.currentItem.facility);
+      }
+      // 置信度 < 0.5 → 建议再拍
+      const conf = this.photoResult.confidence || 0;
+      if (conf < 0.5 && this._pendingPhotos.length < 3) {
+        this.photoLowConfidence = true;
+      } else {
+        this.photoLowConfidence = false;
       }
     } catch (e) {
       this.photoResult = { violation: null, reason: '分析失败: ' + e.message, confidence: 0 };
       this.photoCompareHazard = null;
+      this.photoLowConfidence = false;
     }
     this.photoAnalyzing = false;
+  },
+  retakePhoto() {
+    // 保留已有照片，重新打开相机追加拍摄
+    this.photoLowConfidence = false;
+    // 触发隐藏的 file input
+    var input = document.getElementById('photo-input');
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  },
+  discardRetake() {
+    // 放弃追加，使用当前结果
+    this.photoLowConfidence = false;
+    this._pendingPhotos = [];
   },
   confirmPhotoResult() {
     // AI 分析结果自动填表
@@ -39,6 +73,8 @@ const APP_EXTRAS = {
     );
     this.showPhoto = false;
     this.photoResult = null;
+    this._pendingPhotos = [];
+    this.photoLowConfidence = false;
   },
   async uploadRecheckPhoto(e) {
     const file = e.target.files[0];

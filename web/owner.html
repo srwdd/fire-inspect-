@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>消防安全自查</title>
+<script src="vue.min.js"></script>
+<script>window.Vue||document.write('<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"><\/script>')</script>
+<script src="axios.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg-card:#fff;--bg:#f8f9fa;--border:#e5e5e5;--text:#1a1a2e;--text-muted:#8899aa;--accent-blue:#2979ff}body{background:#f0f2f5;color:#1a1a2e;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;font-size:14px}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:16px 20px;text-align:center}
+.header h1{font-size:18px;margin-bottom:4px}
+.header .sub{font-size:12px;opacity:.7}
+.header .info{margin-top:8px;font-size:13px}
+.status-bar{display:flex;justify-content:space-around;padding:12px;background:#fff;border-bottom:1px solid #e5e5e5}
+.status-item{text-align:center}
+.status-item .num{font-size:22px;font-weight:700}
+.status-item .label{font-size:11px;color:#999}
+.check-item{background:#fff;margin:8px 12px;border-radius:8px;padding:14px;border:1px solid #e5e5e5}
+.check-item.done{border-left:3px solid #16a34a}
+.check-item .facility{font-weight:600;margin-bottom:4px}
+.check-item .checkpoint{font-size:12px;color:#666;margin-bottom:8px}
+.check-item .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-block;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #d9d9d9;background:#fff;cursor:pointer}
+.btn-pass{background:#16a34a;color:#fff;border-color:#16a34a}
+.btn-fail{background:#dc2626;color:#fff;border-color:#dc2626}
+.btn-na{background:#f5f5f5;color:#999}
+.btn-cam{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.btn-upload{background:#2563eb;color:#fff;border-color:#2563eb}
+.btn.selected{border-width:2px;border-color:#000}
+.photos{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.photos img{width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #ddd}
+.note-input{width:100%;margin-top:8px;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.submit-bar{position:sticky;bottom:0;background:#fff;padding:14px;border-top:1px solid #e5e5e5;text-align:center;box-shadow:0 -2px 8px rgba(0,0,0,.1)}
+.btn-submit{width:100%;padding:14px;background:#c41e3a;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-submit:disabled{background:#ccc}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="header">
+  <h1>🧯 消防安全自查</h1>
+  <div class="sub">上饶市消防救援支队</div>
+  <div class="info" v-if="data">
+    <div>{{ data.venue_name }}</div>
+    <div style="font-size:11px;opacity:.7">{{ data.venue_address }}</div>
+  </div>
+</div>
+
+<div v-if="data" style="margin:8px 12px;padding:10px 14px;background:#fff;border:1px solid #e5e5e5;border-radius:8px;text-align:center;font-size:13px">
+  🎬 <a href="/inspect/api/v1/inspection/videos/%E6%B6%88%E9%98%B2%E9%AA%8C%E6%94%B6%E6%9F%A5%E9%AA%8C.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">消防验收查验示范片</a>
+  &nbsp;·&nbsp;
+  <a href="/inspect/api/v1/inspection/videos/%E7%9B%91%E7%9D%A3%E6%A3%80%E6%9F%A5%E7%A4%BA%E8%8C%83.mp4" target="_blank" style="color:#d46b08;text-decoration:underline">监督检查示范片</a>
+  <div style="font-size:11px;color:#999;margin-top:2px">请先观看示范视频，了解检查标准和流程</div>
+</div>
+
+<div v-if="data && !submitted" style="margin:8px 12px">
+  <div style="height:6px;background:#e5e5e5;border-radius:3px;overflow:hidden">
+    <div :style="{width:(judgedCount/data.total_items*100)+'%',height:'100%',background:'linear-gradient(90deg,#16a34a,#22c55e)',transition:'width .3s'}"></div>
+  </div>
+  <div style="font-size:11px;color:#999;margin-top:2px;text-align:center">已自查 {{ judgedCount }}/{{ data.total_items }} 项 · 已拍照 {{ photoCount }} 项</div>
+</div>
+
+<div class="status-bar" v-if="data">
+  <div class="status-item"><div class="num">{{ judgedCount }}</div><div class="label">已查</div></div>
+  <div class="status-item"><div class="num" style="color:#16a34a">{{ passCount }}</div><div class="label">合格</div></div>
+  <div class="status-item"><div class="num" style="color:#dc2626">{{ failCount }}</div><div class="label">不合格</div></div>
+  <div class="status-item"><div class="num">{{ data.total_items }}</div><div class="label">总计</div></div>
+</div>
+
+<div v-if="!data" style="text-align:center;padding:40px;color:#999">加载中...</div>
+<div v-if="data && data.status==='submitted'" style="margin:12px;padding:14px;background:#e8f5e9;border-radius:8px;text-align:center;color:#16a34a;font-weight:600">
+  ✅ 已提交！消防监督员将进行核查
+</div>
+<div v-if="data && data.status==='reviewed'" style="margin:12px;padding:14px;background:#e3f2fd;border-radius:8px;text-align:center;color:#1565c0;font-weight:600">
+  ✅ 已审核通过
+</div>
+<div v-if="data && data.status==='returned'" style="margin:12px;padding:14px;background:#fff3e0;border-radius:8px;text-align:center;">
+  <div style="color:#e65100;font-weight:600;margin-bottom:4px">⚠️ 消防监督员退回，请修改后重新提交</div>
+  <div v-if="data.return_reason" style="font-size:12px;color:#666;margin-top:4px">退回原因：{{ data.return_reason }}</div>
+  <button class="btn-submit" style="margin-top:10px;background:#e65100" @click="resubmit">🔄 重新提交</button>
+</div>
+
+<div v-for="(item,i) in (data?.items||[])" :key="i" class="check-item" :class="{done: saved[i]}">
+  <div class="facility">{{ item.facility || item.title }}</div>
+  <div class="checkpoint">{{ item.check_point }}</div>
+      <div class="method" style="font-size:11px;color:var(--text-muted);margin:4px 0;padding:4px 8px;background:rgba(0,0,0,.02);border-radius:4px">{{ item.check_method }}</div>
+      <div v-if="item.regulation" style="margin-top:6px;padding:8px;background:rgba(37,99,235,.05);border-radius:4px;font-size:11px;color:var(--text-muted);line-height:1.6">
+  <div style="font-weight:600;color:var(--accent-blue);margin-bottom:2px">📖 {{ item.regulation.source || "" }}</div>
+  <div>{{ item.regulation.text || "" }}</div>
+</div>
+  <div class="actions">
+    <button class="btn btn-pass" :class="{selected: saved[i]?.result==='pass'}" @click="judge(i,'pass')" :disabled="submitted || data?.status==='reviewed'">✅ 合格</button>
+    <button class="btn btn-fail" :class="{selected: saved[i]?.result==='fail'}" @click="judge(i,'fail')" :disabled="submitted">❌ 不合格</button>
+    <button class="btn btn-na" :class="{selected: saved[i]?.result==='na'}" @click="judge(i,'na')" :disabled="submitted">⊘ 不涉及</button>
+    <button class="btn btn-cam" @click="takePhoto(i)" :disabled="submitted">📷 拍照</button>
+    <button class="btn btn-upload" @click="uploadFile(i)" :disabled="submitted">📎 上传</button>
+  </div>
+  <input type="file" :ref="'photoInput'+i" accept="image/*" capture="environment" multiple style="display:none" @change="onPhotoSelected($event,i)">
+  <input type="file" :ref="'fileInput'+i" accept="*" style="display:none" @change="onFileSelected($event,i)">
+  <div class="photos" v-if="saved[i]?.photos?.length">
+    <img v-for="(p,j) in saved[i].photos" :key="j" :src="'data:'+p.type+';base64,'+p.data" @click="previewPhoto(p)">
+  </div>
+  <input v-if="saved[i]" class="note-input" v-model="saved[i].note" placeholder="补充说明..." :disabled="submitted" @change="saveItem(i)">
+</div>
+
+<div v-if="data && !submitted && judgedCount > 0" style="margin:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:12px">
+  <div style="font-weight:600;margin-bottom:6px">📋 提交预览</div>
+  <div>✅ 合格: {{ passCount }}项 · ❌ 不合格: {{ failCount }}项 · 📷 已拍照: {{ photoCount }}项</div>
+  <div v-if="failCount > 0" style="margin-top:4px;color:#dc2626;font-size:11px">⚠️ 有 {{ failCount }} 项不合格，请确认是否需要整改后再提交</div>
+</div>
+
+<div class="submit-bar" v-if="data && !submitted">
+  <button class="btn-submit" @click="submit" :disabled="judgedCount===0">📤 提交自查报告</button>
+</div>
+</div>
+<script>
+const {createApp}=Vue;
+const API=axios.create({baseURL:'/inspect/api/v1/owner'});
+createApp({
+  data(){return{
+    data:null, saved:{}, judgedCount:0, passCount:0, failCount:0, photoCount:0, submitted:false, code:''
+  };},
+  async mounted(){
+    this.code=new URLSearchParams(location.search).get('code')||'';
+    if(!this.code){alert('链接无效');return}
+    try{
+      const r=await API.get('/check/'+this.code);
+      this.data=r.data.data;
+      if(this.data.status==='submitted') this.submitted=true;
+      // Restore saved items
+      (this.data.submitted_items||[]).forEach((item,i)=>{
+        if(item&&item.result){
+          this.saved[i]=item;
+          this.judgedCount++;
+          if(item.result==='pass')this.passCount++;
+          else if(item.result==='fail')this.failCount++;
+          if(item.photos&&item.photos.length)this.photoCount+=item.photos.length;
+        }
+      });
+    }catch(e){alert('链接无效或已过期')}
+  },
+  methods:{
+    judge(i,result){
+      if(this.submitted)return;
+      const was=this.saved[i]?.result;
+      this.saved[i]=this.saved[i]||{};
+      // Adjust counters when changing result
+      if(was){
+        if(was==='pass')this.passCount--;
+        else if(was==='fail')this.failCount--;
+      } else {
+        this.judgedCount++;
+      }
+      this.saved[i].result=result;
+      if(result==='pass')this.passCount++;
+      else if(result==='fail')this.failCount++;
+      this.saveItem(i);
+    },
+    takePhoto(i){this.$refs['photoInput'+i][0].click()},
+    uploadFile(i){this.$refs['fileInput'+i][0].click()},
+    async onPhotoSelected(e,i){
+      const files=e.target.files;if(!files.length)return;
+      this.photoCount+=files.length;
+      const form=new FormData();
+      form.append('item_index',i);
+      for(let j=0;j<files.length;j++)form.append('files',files[j]);
+      await API.post('/check/'+this.code+'/item',form);
+      // Reload to sync
+      const r=await API.get('/check/'+this.code);
+      this.data=r.data.data;
+      // Re-sync photoCount from server data
+      let pc=0;
+      (this.data.submitted_items||[]).forEach((item,j)=>{
+        if(item&&item.result)this.saved[j]=item;
+        if(item&&item.photos&&item.photos.length)pc+=item.photos.length;
+      });
+      this.photoCount=pc;
+    },
+    async onFileSelected(e,i){
+      const files=e.target.files;if(!files.length)return;
+      const form=new FormData();
+      form.append('item_index',i);
+      for(let j=0;j<files.length;j++)form.append('files',files[j]);
+      await API.post('/check/'+this.code+'/item',form);
+      const r=await API.get('/check/'+this.code);
+      this.data=r.data.data;
+      let pc=0;
+      (this.data.submitted_items||[]).forEach((item,j)=>{
+        if(item&&item.result)this.saved[j]=item;
+        if(item&&item.photos&&item.photos.length)pc+=item.photos.length;
+      });
+      this.photoCount=pc;
+    },
+    async saveItem(i){
+      const form=new FormData();
+      form.append('item_index',i);
+      form.append('result',this.saved[i]?.result||'');
+      form.append('note',this.saved[i]?.note||'');
+      await API.post('/check/'+this.code+'/item',form);
+    },
+    async submit(){
+      if(!confirm('确认提交？提交后不可修改'))return;
+      await API.post('/check/'+this.code+'/submit');
+      this.submitted=true;
+      alert('提交成功！消防监督员将进行核查');
+    },
+    async resubmit(){
+      if(!confirm('确认重新提交？'))return;
+      await API.post('/check/'+this.code+'/resubmit');
+      this.submitted=true;
+      this.data.status='submitted';
+      alert('已重新提交！');
+    },
+    previewPhoto(p){
+      const w=window.open('','_blank');
+      w.document.write('<img src="data:'+p.type+';base64,'+p.data+'" style="max-width:100%">');
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>

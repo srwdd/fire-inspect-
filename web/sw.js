@@ -1,13 +1,13 @@
 // 消防监督检查智能辅助系统 — Service Worker
 // 策略：静态资源缓存优先 + API 网络优先（离线降级）
-const CACHE_STATIC = "fire-inspect-static-v11";
+const CACHE_STATIC = "fire-inspect-static-v13";
 const CACHE_CDN = "fire-inspect-cdn-v2";
 const CACHE_API = "fire-inspect-api-v2";
 
 // ── 安装：预缓存核心静态资源 ──────────────────────
 // 注意：HTML 不在缓存列表中，始终从网络获取最新版本
 const STATIC_ASSETS = [
-  "/inspect/web/app_v70.js",
+  "/inspect/web/app_v116.js",
   "/inspect/web/styles_v3.css",
   "/inspect/web/manifest.json",
   "/inspect/web/app-extras.js",
@@ -38,8 +38,22 @@ self.addEventListener("activate", (event) => {
             ![CACHE_STATIC, CACHE_CDN, CACHE_API].includes(k))
           .map((k) => caches.delete(k))
       )
-    ).then(() => self.clients.claim())
+    ).then(() => self.clients.claim()).then(() => {
+      // 通知所有客户端有更新
+      self.clients.matchAll().then(function(clients) {
+        clients.forEach(function(client) {
+          client.postMessage({type: 'UPDATE_AVAILABLE'});
+        });
+      });
+    })
   );
+});
+
+// ── 消息处理：接收页面发来的 SKIP_WAITING ──────
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // ── 请求拦截 ──────────────────────────────────────

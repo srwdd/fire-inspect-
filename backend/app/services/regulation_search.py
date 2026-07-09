@@ -3,6 +3,7 @@
 支持口语化查询: "这个灭火器过期了违反哪条？" → 自动提取关键词 → 匹配法规
 """
 import json
+import re
 from pathlib import Path
 from typing import Dict, List
 
@@ -48,7 +49,7 @@ def _expand_query(query: str) -> List[str]:
             tokens.update(synonyms)
     # 也保留原始查询词
     tokens.add(query)
-    # 提取双字和三字片段
+    # 提取双字和三字片段（原始查询词权重最高）
     for i in range(len(query) - 1):
         tokens.add(query[i:i+2])
         if i < len(query) - 2:
@@ -76,6 +77,7 @@ def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
         )
         score = 0
         matched_keywords = set()
+        matched_terms = 0
         for token in tokens:
             if len(token) < 2:
                 continue
@@ -83,6 +85,15 @@ def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
             if count > 0:
                 score += count * (2 if len(token) >= 3 else 1)
                 matched_keywords.add(token)
+                if len(token) >= 3:
+                    matched_terms += 1
+        # 概念多样性加分：匹配不同 CHAR 的原始查询词 → 更高分
+        unique_chars_matched = len(set(query) & set(text))
+        score = int(score * (1 + unique_chars_matched * 0.05))
+        if matched_terms >= 2:
+            score = int(score * 1.5)
+        if matched_terms >= 3:
+            score = int(score * 1.5)
         if score > 0:
             scored.append({
                 "rule_id": rule.get("id", ""),
@@ -100,7 +111,42 @@ def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
             })
 
     scored.sort(key=lambda x: x["score"], reverse=True)
-    results = scored[:top_k]
+    results = scored[:top_k * 2]  # get more candidates for re-rank
+
+    # Re-rank: extract original query words (2+ char substrings), 
+    # give intersection bonus when document matches words from >1 query segment
+    q_words = set()
+    for token in tokens:
+        if len(token) >= 3 and token not in q_words:
+            q_words.add(token)
+    for r in results:
+        text = (r.get("title","") + " " + r.get("check_point","") + " " + r.get("text",""))
+        # Count distinct query words (>=3 chars) matched
+        matched_qwords = sum(1 for w in q_words if w in text)
+        # Each distinct query word matched = +25% boost
+        if matched_qwords >= 2:
+            r["score"] = int(r["score"] * (1 + matched_qwords * 0.25))
+    
+    results.sort(key=lambda x: x["score"], reverse=True)
+    results = results[:top_k]
+
+    # LLM re-rank if API key available
+    import os as _os
+    # Ensure .env is loaded
+    try:
+        from dotenv import load_dotenv
+        from pathlib import Path as _P
+        _env = _P(__file__).resolve().parent.parent.parent / '.env'
+        if _env.exists():
+            load_dotenv(_env, override=True)
+    except Exception:
+        pass
+    api_key = _os.environ.get("SILICONFLOW_API_KEY", "")
+    print(f"[LLM-RERANK] key={'SET' if api_key else 'NOT SET'} results={len(results)}", flush=True)
+    if api_key and len(results) > 3:
+        base_url = _os.environ.get("SILICONFLOW_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+        llm_model = "qwen-plus"
+        results = _llm_rerank(query, results, api_key, base_url, llm_model)
 
     # 给结果添加处罚和整改建议
     for r in results:
@@ -108,6 +154,55 @@ def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
         r["suggested_action"] = _action_hint(r.get("check_point", ""), r.get("severity", "normal"))
 
     return results
+
+
+
+def _llm_rerank(query, candidates, api_key, base_url, model):
+    """Use LLM to re-rank search results for semantic relevance."""
+    import httpx
+    if not api_key or len(candidates) <= 3:
+        return candidates
+
+    items_text = []
+    for i, c in enumerate(candidates[:15]):
+        src = c.get('source', '')
+        art = c.get('article', '')
+        title = c.get('title', '')
+        cp = c.get('check_point', '')[:60]
+        items_text.append(f"{i+1}. [{src} {art}] {title}: {cp}")
+
+    prompt = (
+        "你是消防法规检索专家。用户查询可能包含多个概念，请按以下优先级排序：\n1. 同时匹配查询中所有概念的文档排最前面\n2. 只匹配部分概念的排在后面\n3. 法规条款直接相关的优先于一般性描述\n\n用户查询: " + query + "\n\n候选条款:\n" + "\n".join(items_text) + "\n\n按上述规则排序，只返回序号，用逗号分隔，如: 3,1,2\n注意: 如果查询包含多个关键词（如养老机构+耐火等级），优先返回同时涉及两者的条款"
+    )
+
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            resp = client.post(
+                base_url + '/chat/completions',
+                headers={'Authorization': 'Bearer ' + api_key},
+                json={
+                    'model': model,
+                    'messages': [{'role': 'user', 'content': prompt}],
+                    'max_tokens': 50, 'temperature': 0
+                }
+            )
+            data = resp.json()
+            if 'choices' not in data:
+                return candidates
+            reply = data['choices'][0]['message']['content'].strip()
+
+            indices = [int(x.strip()) for x in re.findall(r'\d+', reply)]
+            indices = [i-1 for i in indices if 1 <= i <= len(candidates)]
+
+            reranked = [candidates[i] for i in indices if i < len(candidates)]
+            seen = set(indices)
+            for i, c in enumerate(candidates):
+                if i not in seen:
+                    reranked.append(c)
+
+            return reranked[:len(candidates)]
+    except Exception:
+        return candidates
 
 
 def _penalty_hint(category: str, severity: str) -> str:
