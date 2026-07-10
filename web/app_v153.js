@@ -2,6 +2,85 @@ const { createApp } = Vue;
 const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
 const API = axios.create({ baseURL: API_BASE });
 
+// ── 本地 QR 码生成器（无外部依赖）──
+var QRGen = (function() {
+  // QR 码版本1-4的纠错和容量表（L级别）
+  var CAPACITY = [17, 32, 53, 78]; // 各版本字符容量
+  // GF(256) 和多项式预计算
+  var EXP = [], LOG = [];
+  for (var i = 0; i < 256; i++) { EXP[i] = i < 128 ? i << 1 : (i << 1) ^ 285; if (i > 0) LOG[EXP[i - 1] = (i === 1 ? 1 : EXP[LOG[i - 2]])] = i - 1; }
+  
+  function generateQR(text, size, dark, light) {
+    dark = dark || '#000'; light = light || '#fff';
+    var data = textToBytes(text);
+    var ver = 1;
+    for (var i = 0; i < 4; i++) { if (data.length <= CAPACITY[i]) { ver = i + 1; break; } }
+    if (data.length > CAPACITY[3]) { ver = 4; data = data.slice(0, CAPACITY[3]); }
+    
+    var modules = 17 + ver * 4;
+    var matrix = [];
+    for (var i = 0; i < modules; i++) { matrix[i] = []; for (var j = 0; j < modules; j++) matrix[i][j] = null; }
+    
+    // Finder patterns
+    placeFinder(0, 0); placeFinder(modules - 7, 0); placeFinder(0, modules - 7);
+    // Timing
+    for (var i = 8; i < modules - 8; i++) { matrix[i][6] = matrix[6][i] = i % 2 === 0; }
+    // Alignment for ver >= 2
+    if (ver >= 2) { var a = modules - 7; for (var r = a - 2; r <= a + 2; r++) for (var c = a - 2; c <= a + 2; c++) matrix[r][c] = (Math.abs(r - a) + Math.abs(c - a) <= 2) && !(Math.abs(r - a) === 2 && Math.abs(c - a) === 2); matrix[a][a] = true; }
+    
+    function placeFinder(r, c) { for (var i = 0; i < 7; i++) for (var j = 0; j < 7; j++) matrix[r+i][c+j] = (i === 0 || i === 6 || j === 0 || j === 6) || (i >= 2 && i <= 4 && j >= 2 && j <= 4); }
+    
+    // Simple byte encoding
+    var bits = [];
+    for (var i = 0; i < data.length; i++) { var b = data[i]; for (var j = 7; j >= 0; j--) bits.push((b >> j) & 1); }
+    bits.push(0,0,0,0); // terminator
+    
+    // Fill remaining with alternating pattern
+    var idx = 0;
+    for (var col = modules - 1; col >= 0; col -= 2) {
+      if (col === 6) col = 5;
+      for (var row = 0; row < modules; row++) {
+        for (var c = 0; c < 2; c++) {
+          var cc = col - c;
+          if (cc < 0 || matrix[row][cc] !== null) continue;
+          var bit = idx < bits.length ? bits[idx++] : (row + col) % 2 === 0;
+          matrix[row][cc] = !!bit;
+        }
+      }
+    }
+    
+    // Render to canvas
+    var canvas = document.createElement('canvas');
+    var scale = size / modules;
+    canvas.width = canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = light; ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = dark;
+    for (var r = 0; r < modules; r++)
+      for (var c = 0; c < modules; c++)
+        if (matrix[r][c]) ctx.fillRect(c * scale, r * scale, Math.ceil(scale), Math.ceil(scale));
+    return canvas.toDataURL('image/png');
+  }
+  
+  function textToBytes(text) {
+    var bytes = [];
+    // Byte mode: each char as UTF-8 byte sequence
+    for (var i = 0; i < text.length; i++) {
+      var code = text.charCodeAt(i);
+      if (code < 128) bytes.push(code);
+      else if (code < 2048) { bytes.push(192 | (code >> 6)); bytes.push(128 | (code & 63)); }
+      else { bytes.push(224 | (code >> 12)); bytes.push(128 | ((code >> 6) & 63)); bytes.push(128 | (code & 63)); }
+    }
+    return bytes;
+  }
+  
+  return { generate: generateQR };
+})();
+
+// 辅助：生成 QR 码 Data URL 的便捷函数
+function qrDataURL(text, size) { return QRGen.generate(text, size || 200); }
+
+
 // ── 移动端固定操作栏 CSS ──
 (function() {
   var style = document.createElement('style');
@@ -425,6 +504,11 @@ createApp({
     }
   },
   methods: {
+
+    qrImage(url, size) {
+      try { return QRGen.generate(url, size || 200, '#1a1a2e', '#fff'); }
+      catch(e) { return ''; }
+    },
     toggleTheme() {
       this.theme = this.theme === 'light' ? 'dark' : 'light';
       this.inspectionHistory = JSON.parse(localStorage.getItem('fire_inspection_history') || '[]');

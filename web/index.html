@@ -82,6 +82,19 @@ if ('serviceWorker' in navigator) {
       {{ inspectType==='preopen' ? '依据: GB46034-2025《公众聚集场所投入使用营业消防安全检查规则》+ 120号令' : '依据: 《消防法》+ 61号令 + GB/T40248 + GB25201 等日常管理规范' }}
     </div>
 
+    <!-- 全局搜索 -->
+    <div style="margin:8px 0;display:flex;gap:8px;align-items:center">
+      <input v-model="searchVenue" placeholder="🔍 搜索历史检查记录..." @keyup.enter="searchHistory" style="flex:1;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text)">
+      <button @click="searchHistory" style="padding:8px 14px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">搜索</button>
+    </div>
+    <div v-if="historyList.length > 0" style="margin:8px 0">
+      <div v-for="h in historyList" :key="h.inspection_id" class="history-card" :class="'risk-'+getRiskColor(h)" @click="previewRecheck(h)">
+        <div class="hc-header"><strong>{{ h.venue_name || h.location }}</strong><span>{{ h.date }}</span></div>
+        <div class="hc-body"><span>问题 {{ h.fail_count }} 项</span><span v-if="h.important_fail_count">· 重要 {{ h.important_fail_count }} 项</span><span>· {{ h.inspector }}</span></div>
+      </div>
+    </div>
+    <div v-if="historyList.length===0 && searchVenue && searched" style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">未找到匹配检查记录</div>
+
     <!-- 首次/复查切换 -->
     <div class="mode-tabs">
       <button :class="{active:mode==='first'}" @click="mode='first'">🆕 首次检查</button>
@@ -188,7 +201,7 @@ if ('serviceWorker' in navigator) {
       <div v-if="ownerNewCode" style="padding:8px 10px;margin-bottom:10px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.3);border-radius:6px;font-size:11px;color:#16a34a;word-break:break-all">
         ✅ <a :href="ownerNewLinkUrl" target="_blank" style="color:#16a34a">{{ ownerNewLinkUrl }}</a>
         <div style="margin-top:8px;text-align:center">
-          <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent(ownerNewLinkUrl)" style="width:120px;height:120px;border-radius:8px;border:1px solid #ddd">
+          <img :src="qrImage(ownerNewLinkUrl, 150)" style="width:150px;height:150px;border-radius:8px;border:1px solid #ddd">
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px">微信扫码即可自查</div>
         </div>
         <button @click="copyOwnerLink" style="margin-left:8px;padding:2px 8px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:10px">复制</button>
@@ -536,7 +549,7 @@ if ('serviceWorker' in navigator) {
         <span class="score-num">{{ report.assessment.score }}分</span>
         <span class="score-label">{{ report.assessment.color_label }}</span>
       </div>
-      <div style="margin:12px 0;padding:14px;background:#fff;border-radius:10px;text-align:center"><div style="font-size:12px;color:#999;margin-bottom:6px">📱 扫码分享报告</div><img :src="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent('https://ai-bang.top/inspect/api/v1/inspection/'+inspectionId+'/report/export?format=html')" style="width:150px;height:150px;border-radius:8px"></div>
+      <div style="margin:12px 0;padding:14px;background:#fff;border-radius:10px;text-align:center"><div style="font-size:12px;color:#999;margin-bottom:6px">📱 扫码分享报告</div><img :src="qrImage('https://ai-bang.top/inspect/api/v1/inspection/'+inspectionId+'/report/export?format=html', 150)" style="width:150px;height:150px;border-radius:8px"></div>
       <button class="btn-report" @click="page='report'">📊 查看检查报告</button>
       <button class="btn-generate" @click="generateReport">🔄 重新生成报告</button>
       <button class="btn-owner" @click="viewOwnerReport">📨 致业主整改告知书</button>
@@ -791,6 +804,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v152.js"></script>
+<script src="app_v153.js"></script>
 </body>
 </html>
