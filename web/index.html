@@ -921,6 +921,17 @@ if ('serviceWorker' in navigator) {
       <div class="loading-text">{{ loadingText }}</div>
     </div>
 
+    <!-- AI 法规问答弹窗 -->
+    <div v-if="showAiAnswer" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center" @click="showAiAnswer=false">
+      <div @click.stop style="background:#fff;border-radius:12px;padding:20px;width:90%;max-width:450px;max-height:70vh;overflow-y:auto">
+        <div style="font-size:15px;font-weight:700;color:#1a56db;margin-bottom:12px">🤖 AI 法规解答</div>
+        <div style="font-size:13px;color:#1a1a1a;line-height:1.8;white-space:pre-wrap">{{ aiAnswer }}</div>
+        <div style="margin-top:12px;text-align:right">
+          <button @click="showAiAnswer=false" style="padding:8px 20px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">关闭</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast 提示 -->
     <div v-if="toast" :class="['toast', 'toast-'+toast.type]">{{ toast.msg }}</div>
   </div>
