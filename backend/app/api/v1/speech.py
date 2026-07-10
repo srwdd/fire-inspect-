@@ -279,6 +279,33 @@ async def fuzzy_search(
 
 
 @router.get("/health")
+
+# ── AI 增强服务 ─────────────────────────────────
+
+@router.post("/ai-judge")
+async def ai_judge(req: dict):
+    """语音→AI结构化判定: voice_text + item_context → {result, note, suggested_fix}"""
+    from app.services.ai_service import ai_judge_from_voice
+    result = await ai_judge_from_voice(req.get("voice_text", ""), req.get("item_context", {}))
+    return {"code": 0, "data": result}
+
+@router.post("/ai-summary")
+async def ai_summary(req: dict):
+    """AI 生成检查报告摘要"""
+    from app.services.ai_service import ai_generate_summary
+    summary = await ai_generate_summary(req)
+    return {"code": 0, "data": {"summary": summary}}
+
+@router.post("/ai-qa")
+async def ai_qa(req: dict):
+    """AI 法规智能问答"""
+    from app.services.ai_service import ai_regulation_qa
+    from app.services.regulation_search import search_regulations
+    question = req.get("question", "")
+    rules = search_regulations(question, limit=5) if question else []
+    result = await ai_regulation_qa(question, rules)
+    return {"code": 0, "data": result}
+
 async def speech_health():
     """检查语音服务状态"""
     model = _get_model()

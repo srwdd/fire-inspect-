@@ -431,6 +431,12 @@ createApp({
       activeInspections: [],
       pendingRechecks: [],
       pendingRectifications: { total: 0, tasks: [] },
+      aiJudging: false,
+      aiSummarizing: false,
+      aiSummary: '',
+      aiAnswering: false,
+      aiAnswer: '',
+      showAiAnswer: false,
       rectifications: [],
       showSignaturePad: false,
       showAnnotator: false,
@@ -1164,6 +1170,50 @@ createApp({
         var r = await API.get('/pending-rectifications');
         this.pendingRectifications = r.data.data || { total: 0, tasks: [] };
       } catch(e) { this.pendingRectifications = { total: 0, tasks: [] }; }
+    },
+
+    // ── AI 增强 ──
+    async aiJudgeFromVoice(voiceText) {
+      if (!voiceText || !this.currentItem) return;
+      this.aiJudging = true;
+      try {
+        var r = await axios.post('/inspect/api/v1/speech/ai-judge', {
+          voice_text: voiceText,
+          item_context: {
+            facility: this.currentItem.facility || '',
+            check_point: this.currentItem.check_point || '',
+            regulation: this.currentItem.regulation?.source || this.currentItem.source || ''
+          }
+        });
+        var d = r.data.data;
+        if (d && d.result) {
+          this.judge(d.result, d.note || '');
+          if (d.confidence < 0.6) {
+            this.showToast('AI判定置信度较低(' + Math.round(d.confidence*100) + '%)，请人工确认', 'info');
+          }
+        }
+      } catch(e) { this.showToast('AI判定失败', 'error'); }
+      this.aiJudging = false;
+    },
+    async aiGenerateSummary() {
+      if (!this.report) return;
+      this.aiSummarizing = true;
+      try {
+        var r = await axios.post('/inspect/api/v1/speech/ai-summary', this.report);
+        this.aiSummary = r.data.data.summary || '';
+      } catch(e) { this.showToast('AI摘要生成失败', 'error'); }
+      this.aiSummarizing = false;
+    },
+    async aiAskRegulation() {
+      var q = prompt('请输入消防法规问题：');
+      if (!q) return;
+      this.aiAnswering = true;
+      try {
+        var r = await axios.post('/inspect/api/v1/speech/ai-qa', { question: q });
+        this.aiAnswer = r.data.data.answer || '';
+        this.showAiAnswer = true;
+      } catch(e) { this.showToast('AI问答失败', 'error'); }
+      this.aiAnswering = false;
     },
     recheckFromReminder(t) {
       this.mode = 'recheck';
