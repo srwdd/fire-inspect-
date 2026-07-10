@@ -752,6 +752,7 @@ if ('serviceWorker' in navigator) {
       <div style="display:flex;gap:8px;margin:8px 0">
         <button @click="downloadPDF" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📥 下载 PDF</button>
         <button @click="downloadExcel" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📊 导出 Excel</button>
+        <button @click="shareReport" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📤 分享</button>
       </div>
       <div class="report-meta">
         <span>检查人: {{ report.inspector }}</span>
@@ -828,6 +829,18 @@ if ('serviceWorker' in navigator) {
       </div>
       <button v-if="report && !signatureData" @click="showSignature" style="margin:8px 0;padding:8px 16px;background:#fff;border:1px dashed #999;border-radius:6px;font-size:12px;color:#666;cursor:pointer;width:100%">✍️ 添加签字</button>
 
+      <!-- 照片标注弹窗 -->
+      <div v-if="showAnnotator" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:10001;display:flex;align-items:center;justify-content:center" @click="showAnnotator=false">
+        <div @click.stop style="background:#fff;border-radius:12px;padding:16px;width:95%;max-width:400px">
+          <div style="font-size:14px;font-weight:700;text-align:center;margin-bottom:8px">🔴 点击照片标注隐患位置</div>
+          <canvas id="annotateCanvas" style="width:100%;border-radius:8px;touch-action:none;background:#f0f0f0"></canvas>
+          <div style="display:flex;gap:8px;margin-top:10px;justify-content:center">
+            <button @click="showAnnotator=false" style="padding:8px 20px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:13px;cursor:pointer">取消</button>
+            <button @click="saveAnnotatedPhoto" style="padding:8px 20px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">保存标注</button>
+          </div>
+        </div>
+      </div>
+
       <!-- 签名弹窗 -->
       <div v-if="showSignaturePad" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center" @click="showSignaturePad=false">
         <div @click.stop style="background:#fff;border-radius:12px;padding:20px;width:90%;max-width:400px">
@@ -859,6 +872,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v160.js"></script>
+<script src="app_v161.js"></script>
 </body>
 </html>

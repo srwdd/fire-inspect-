@@ -432,6 +432,9 @@ createApp({
       pendingRechecks: [],
       rectifications: [],
       showSignaturePad: false,
+      showAnnotator: false,
+      annotatePhotoUrl: '',
+      annotatedPhotoData: '',
       signatureData: '',
       showOwnerCard: true,
       ownerSubmissions: [],
@@ -1637,8 +1640,72 @@ createApp({
       } catch(e) { this.showToast('操作失败', 'error'); }
     },
 
+    // ── 报告分享 ──
+    shareReport() {
+      var url = 'https://ai-bang.top/inspect/web/?report=' + this.inspectionId;
+      if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+        navigator.share({ title: '消防检查报告 - ' + (this.report?.venue_name || ''), text: '检查报告：' + this.report?.venue_name, url: url })
+          .catch(function(){});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        this.showToast('报告链接已复制到剪贴板', 'info');
+      }
+    },
+
+    // ── 照片标注 ──
+    annotatePhoto(photoUrl) {
+      this.annotatePhotoUrl = photoUrl;
+      this.showAnnotator = true;
+      var self = this;
+      this.$nextTick(function() {
+        var canvas = document.getElementById('annotateCanvas');
+        if (!canvas) return;
+        var img = new Image();
+        img.onload = function() {
+          var maxW = Math.min(img.width, 360);
+          var ratio = maxW / img.width;
+          canvas.width = maxW;
+          canvas.height = img.height * ratio;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = photoUrl;
+        // Drawing
+        var drawing = false;
+        canvas.onmousedown = canvas.ontouchstart = function(e) {
+          drawing = true;
+          var rect = canvas.getBoundingClientRect();
+          var ctx = canvas.getContext('2d');
+          ctx.beginPath();
+          ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 3;
+          var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+          var y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+          ctx.arc(x, y, 15, 0, Math.PI * 2);
+          ctx.stroke();
+          e.preventDefault();
+        };
+        canvas.onmousemove = canvas.ontouchmove = function(e) {
+          if (!drawing) return;
+          e.preventDefault();
+        };
+        canvas.onmouseup = canvas.ontouchend = function() { drawing = false; };
+      });
+    },
+    saveAnnotatedPhoto() {
+      var canvas = document.getElementById('annotateCanvas');
+      if (canvas) {
+        this.annotatedPhotoData = canvas.toDataURL('image/jpeg', 0.85);
+        this.showAnnotator = false;
+        this.showToast('标注已保存', 'info');
+      }
+    },
+
     // ── 电子签名 ──
     showSignature() {
+        // ── 电子签名 ──
       this.showSignaturePad = true;
       var self = this;
       this.$nextTick(function() { self._initSignaturePad(); });
