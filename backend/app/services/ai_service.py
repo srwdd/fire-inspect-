@@ -7,10 +7,12 @@ logger = logging.getLogger(__name__)
 
 API_KEY = os.environ.get("SILICONFLOW_API_KEY", "")
 BASE_URL = os.environ.get("SILICONFLOW_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-TEXT_MODEL = os.environ.get("SILICONFLOW_TEXT_MODEL", "Qwen/Qwen3.6-35B-A3B")
+TEXT_MODEL = os.environ.get("SILICONFLOW_TEXT_MODEL", "qwen-plus")
 
 async def _call_llm(messages: list, temperature: float = 0.3) -> str:
     """调用文本 LLM"""
+    if not API_KEY:
+        logger.warning("SILICONFLOW_API_KEY not set")
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
             BASE_URL + "/chat/completions",
@@ -18,7 +20,17 @@ async def _call_llm(messages: list, temperature: float = 0.3) -> str:
             json={"model": TEXT_MODEL, "messages": messages, "temperature": temperature, "max_tokens": 1024}
         )
         data = resp.json()
-        return data["choices"][0]["message"]["content"]
+        if "choices" in data:
+            return data["choices"][0]["message"]["content"]
+        # Fallback: try OpenAI-compatible format
+        if "output" in data:
+            return data["output"].get("text", str(data))
+        if "response" in data:
+            return str(data["response"])
+        # Log the actual response for debugging
+        err_msg = data.get("error", {}).get("message", "") or data.get("message", "") or str(data)[:200]
+        logger.warning(f"LLM unexpected response: {err_msg}")
+        raise ValueError(err_msg)
 
 
 async def ai_judge_from_voice(voice_text: str, item_context: dict) -> dict:

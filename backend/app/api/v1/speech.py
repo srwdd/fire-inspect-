@@ -302,7 +302,7 @@ async def ai_qa(req: dict):
     from app.services.ai_service import ai_regulation_qa
     from app.services.regulation_search import search_regulations
     question = req.get("question", "")
-    rules = search_regulations(question, limit=5) if question else []
+    rules = search_regulations(question, top_k=5) if question else []
     result = await ai_regulation_qa(question, rules)
     return {"code": 0, "data": result}
 
