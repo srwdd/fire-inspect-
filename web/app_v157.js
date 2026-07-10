@@ -156,7 +156,7 @@ const SCENES = [
   { key: 'mixed_use', total_items: 71, name: '多业态混合', icon: '🏗️', preopen: false },
   { key: 'factory', total_items: 75, name: '厂房/仓库', icon: '🏭', preopen: false },
   { key: 'crowded', total_items: 76, name: '人员密集场所', icon: '👥', preopen: false },
-  { key: 'nine_small', total_items: 59, name: '九小场所', icon: '🏪', preopen: false },
+  { key: 'nine_small', total_items: 8, name: '九小场所', icon: '🏪', preopen: false },
 ];
 
 // 设施操作测试指南（现场测试用）

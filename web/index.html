@@ -163,7 +163,7 @@ if ('serviceWorker' in navigator) {
     <div v-if="showSubTypePicker" class="modal-overlay" @click.self="showSubTypePicker=false">
       <div class="scale-dialog">
         <h3>🏪 选择场所类型</h3>
-        <p class="dialog-hint">九小场所快速检查 — 共12项核心检查，约3分钟完成</p>
+        <p class="dialog-hint">九小场所快速检查 — 共8项核心检查，约2分钟完成</p>
         <div class="subtype-grid nine-small-grid">
           <button v-for="st in nineSmallSubTypes" :key="st" :class="{active:selectedSubType===st}" @click="selectedSubType=st">{{ st }}</button>
         </div>
@@ -809,6 +809,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v156.js"></script>
+<script src="app_v157.js"></script>
 </body>
 </html>
