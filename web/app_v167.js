@@ -1219,8 +1219,40 @@ createApp({
         var r = await axios.post('/inspect/api/v1/speech/ai-qa', { question: q });
         this.aiAnswer = r.data.data.answer || '';
         this.showAiAnswer = true;
+        this._renderAiAnswerModal();
       } catch(e) { this.showToast('AI问答失败', 'error'); }
       this.aiAnswering = false;
+    },
+    _renderAiAnswerModal() {
+      var existing = document.getElementById('aiAnswerModal');
+      if (existing) existing.remove();
+      if (!this.showAiAnswer || !this.aiAnswer) return;
+      var self = this;
+      var overlay = document.createElement('div');
+      overlay.id = 'aiAnswerModal';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center';
+      overlay.addEventListener('click', function() { self.showAiAnswer = false; self._renderAiAnswerModal(); });
+      var box = document.createElement('div');
+      box.style.cssText = 'background:#fff;border-radius:12px;padding:20px;width:90%;max-width:450px;max-height:70vh;overflow-y:auto';
+      box.addEventListener('click', function(e) { e.stopPropagation(); });
+      var title = document.createElement('div');
+      title.style.cssText = 'font-size:15px;font-weight:700;color:#1a56db;margin-bottom:12px';
+      title.textContent = '🤖 AI 法规解答';
+      var content = document.createElement('div');
+      content.style.cssText = 'font-size:13px;color:#1a1a1a;line-height:1.8;white-space:pre-wrap';
+      content.textContent = this.aiAnswer;
+      var btnDiv = document.createElement('div');
+      btnDiv.style.cssText = 'margin-top:12px;text-align:right';
+      var closeBtn = document.createElement('button');
+      closeBtn.textContent = '关闭';
+      closeBtn.style.cssText = 'padding:8px 20px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer';
+      closeBtn.addEventListener('click', function() { self.showAiAnswer = false; self._renderAiAnswerModal(); });
+      btnDiv.appendChild(closeBtn);
+      box.appendChild(title);
+      box.appendChild(content);
+      box.appendChild(btnDiv);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
     },
 
     // ── Phase 2: 视觉 AI ──
