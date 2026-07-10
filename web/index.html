@@ -790,6 +790,56 @@ if ('serviceWorker' in navigator) {
         </div>
       </div>
 
+      <!-- 整改跟踪 -->
+      <div v-if="report" style="margin:16px 0;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:14px;font-weight:700;color:var(--text)">📋 整改跟踪</div>
+          <div style="display:flex;gap:6px">
+            <button v-if="rectifications.length===0" @click="createRectifications" style="padding:6px 14px;background:#dc2626;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer">➕ 创建整改</button>
+            <button @click="loadRectifications" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px;cursor:pointer">🔄</button>
+          </div>
+        </div>
+        <div v-if="rectifications.length>0">
+          <div style="display:flex;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text-muted)">
+            <span>待整改: {{ rectifications.filter(function(r){return r.status==='pending'}).length }}</span>
+            <span style="color:#d48806">待确认: {{ rectifications.filter(function(r){return r.status==='rectified'}).length }}</span>
+            <span style="color:#16a34a">已销号: {{ rectifications.filter(function(r){return r.status==='verified'}).length }}</span>
+          </div>
+          <div v-for="r in rectifications" :key="r.id" style="padding:8px 10px;margin:3px 0;background:var(--bg);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div style="flex:1;min-width:0;font-size:12px">
+              <span style="font-weight:600">{{ r.facility }}</span>
+              <span v-if="r.deadline" style="color:var(--text-muted);margin-left:6px">截止 {{ r.deadline }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-size:10px;padding:2px 6px;border-radius:8px" :style="{background:r.status==='pending'?'#fff7e6':r.status==='rectified'?'#e6f7ff':'#e8f5e9',color:r.status==='pending'?'#d48806':r.status==='rectified'?'#1890ff':'#16a34a'}">
+                {{ r.status==='pending'?'待整改':r.status==='rectified'?'待确认':'已销号' }}
+              </span>
+              <button v-if="r.status==='pending'" @click="markRectified(r)" style="padding:3px 8px;background:#16a34a;color:#fff;border:none;border-radius:3px;font-size:10px;cursor:pointer">整改完</button>
+              <button v-if="r.status==='rectified'" @click="verifyRectification(r)" style="padding:3px 8px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;font-size:10px;cursor:pointer">销号</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 电子签名 -->
+      <div v-if="report && signatureData" style="margin:8px 0;padding:10px;background:#fff;border:1px solid #e5e5e5;border-radius:8px;text-align:center">
+        <div style="font-size:12px;color:#999;margin-bottom:4px">✍️ 被检查单位签字确认</div>
+        <img :src="signatureData" style="max-width:200px;max-height:80px;border-bottom:1px solid #1a1a1a">
+      </div>
+      <button v-if="report && !signatureData" @click="showSignature" style="margin:8px 0;padding:8px 16px;background:#fff;border:1px dashed #999;border-radius:6px;font-size:12px;color:#666;cursor:pointer;width:100%">✍️ 添加签字</button>
+
+      <!-- 签名弹窗 -->
+      <div v-if="showSignaturePad" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center" @click="showSignaturePad=false">
+        <div @click.stop style="background:#fff;border-radius:12px;padding:20px;width:90%;max-width:400px">
+          <div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:12px">✍️ 被检查单位签字</div>
+          <canvas id="signatureCanvas" width="360" height="180" style="border:2px dashed #ddd;border-radius:8px;width:100%;touch-action:none;background:#fafafa"></canvas>
+          <div style="display:flex;gap:8px;margin-top:12px;justify-content:center">
+            <button @click="clearSignature" style="padding:8px 20px;background:#f5f5f5;border:1px solid #ddd;border-radius:6px;font-size:13px;cursor:pointer">清除</button>
+            <button @click="confirmSignature" style="padding:8px 20px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">确认签字</button>
+          </div>
+        </div>
+      </div>
+
       <div class="action-bar">
         <button @click="newInspection">🆕 新检查</button>
         <button @click="page='home'">🏠 返回首页</button>
@@ -809,6 +859,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v158.js"></script>
+<script src="app_v159.js"></script>
 </body>
 </html>

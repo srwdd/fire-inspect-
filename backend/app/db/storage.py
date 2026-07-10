@@ -91,6 +91,24 @@ def init_db() -> None:
 
             CREATE INDEX IF NOT EXISTS idx_findings_inspection
                 ON findings(inspection_id);
+
+            CREATE TABLE IF NOT EXISTS rectifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                inspection_id TEXT NOT NULL,
+                item_index INTEGER NOT NULL,
+                rule_id TEXT NOT NULL DEFAULT '',
+                facility TEXT NOT NULL DEFAULT '',
+                status TEXT NOT NULL DEFAULT 'pending',
+                deadline TEXT NOT NULL DEFAULT '',
+                rectification_note TEXT NOT NULL DEFAULT '',
+                rectification_photo TEXT NOT NULL DEFAULT '',
+                rectified_at TEXT,
+                verified_at TEXT,
+                FOREIGN KEY (inspection_id) REFERENCES inspections(id)
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_rectifications_inspection
+                ON rectifications(inspection_id);
         """)
         # 迁移：旧表可能没有 photos 列
         try:
@@ -369,6 +387,61 @@ def get_findings(inspection_id: str) -> List[Dict[str, Any]]:
         results.append(d)
     return results
 
+
+# ── 整改跟踪 CRUD ────────────────────────────
+
+def save_rectifications(inspection_id, rectifications):
+    """批量保存整改项"""
+    with _connect() as conn:
+        for r in rectifications:
+            conn.execute("""INSERT OR REPLACE INTO rectifications
+                (inspection_id, item_index, rule_id, facility, status, deadline)
+                VALUES (?,?,?,?,?,?)""",
+                (inspection_id, r["item_index"], r.get("rule_id",""),
+                 r.get("facility",""), r.get("status","pending"), r.get("deadline","")))
+        conn.commit()
+
+def get_rectifications(inspection_id):
+    """获取某检查的所有整改项"""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM rectifications WHERE inspection_id=? ORDER BY item_index",
+            (inspection_id,)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+def update_rectification(rect_id, **kwargs):
+    """更新单条整改（状态、照片、备注）"""
+    allowed = {"status", "rectification_note", "rectification_photo", "rectified_at", "verified_at", "deadline"}
+    updates = {k: v for k, v in kwargs.items() if k in allowed}
+    if not updates:
+        return
+    set_clause = ", ".join(f"{k}=?" for k in updates)
+    values = list(updates.values()) + [rect_id]
+    with _connect() as conn:
+        conn.execute(f"UPDATE rectifications SET {set_clause} WHERE id=?", values)
+        conn.commit()
+
+def get_pending_rectifications(org_id=0):
+    """获取待整改/已整改未确认的项（用于首页提醒）"""
+    with _connect() as conn:
+        if org_id:
+            rows = conn.execute("""
+                SELECT r.*, i.venue_name, i.inspector, i.started_at
+                FROM rectifications r
+                JOIN inspections i ON r.inspection_id = i.id
+                WHERE i.org_id=? AND r.status IN ('pending','rectified')
+                ORDER BY r.deadline ASC
+            """, (org_id,)).fetchall()
+        else:
+            rows = conn.execute("""
+                SELECT r.*, i.venue_name, i.inspector, i.started_at
+                FROM rectifications r
+                JOIN inspections i ON r.inspection_id = i.id
+                WHERE r.status IN ('pending','rectified')
+                ORDER BY r.deadline ASC
+            """).fetchall()
+    return [dict(r) for r in rows]
 
 # ── 初始化 ───────────────────────────────────────────
 init_db()

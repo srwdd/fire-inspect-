@@ -430,6 +430,9 @@ createApp({
       inspectionHistory: JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'),
       activeInspections: [],
       pendingRechecks: [],
+      rectifications: [],
+      showSignaturePad: false,
+      signatureData: '',
       showOwnerCard: true,
       ownerSubmissions: [],
       ownerNewLink: {venue_type:'hotel',venue_name:'',venue_address:''},
@@ -1581,6 +1584,105 @@ createApp({
       a.click();
       document.body.removeChild(a);
       this.showToast('Excel 报告下载中...', 'info');
+    },
+
+    // ── 整改跟踪 ──
+    async createRectifications() {
+      var fails = [];
+      for (var i = 0; i < (this.report?.findings || []).length; i++) {
+        var f = this.report.findings[i];
+        if (f.result === 'fail') {
+          fails.push({
+            item_index: f.item_index || i,
+            rule_id: f.rule_id || '',
+            facility: f.facility || '',
+            status: 'pending',
+            deadline: ''
+          });
+        }
+      }
+      if (!fails.length) return this.showToast('无不合格项', 'info');
+      try {
+        var deadline = prompt('请输入整改期限（天数）:', '15');
+        if (!deadline) return;
+        var d = new Date();
+        d.setDate(d.getDate() + parseInt(deadline));
+        var dl = d.toISOString().split('T')[0];
+        fails.forEach(function(f) { f.deadline = dl; });
+        await API.post('/' + this.inspectionId + '/rectifications', fails);
+        this.showToast(fails.length + ' 项整改已创建，截止 ' + dl, 'info');
+        await this.loadRectifications();
+      } catch(e) { this.showToast('创建整改失败', 'error'); }
+    },
+    async loadRectifications() {
+      try {
+        var r = await API.get('/' + this.inspectionId + '/rectifications');
+        this.rectifications = r.data.data || [];
+      } catch(e) { this.rectifications = []; }
+    },
+    async markRectified(rect) {
+      if (!confirm('确认此项已整改？')) return;
+      try {
+        await API.put('/rectifications/' + rect.id, { status: 'rectified', rectified_at: new Date().toISOString() });
+        this.showToast('已标记为整改完成', 'info');
+        await this.loadRectifications();
+      } catch(e) { this.showToast('操作失败', 'error'); }
+    },
+    async verifyRectification(rect) {
+      if (!confirm('确认销号？此项整改将被标记为已确认。')) return;
+      try {
+        await API.put('/rectifications/' + rect.id, { status: 'verified', verified_at: new Date().toISOString() });
+        this.showToast('已销号', 'info');
+        await this.loadRectifications();
+      } catch(e) { this.showToast('操作失败', 'error'); }
+    },
+
+    // ── 电子签名 ──
+    showSignature() {
+      this.showSignaturePad = true;
+      var self = this;
+      this.$nextTick(function() { self._initSignaturePad(); });
+    },
+    _initSignaturePad() {
+      var self = this;
+      var canvas = document.getElementById('signatureCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var drawing = false;
+      canvas.onmousedown = canvas.ontouchstart = function(e) {
+        drawing = true;
+        var rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        var y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+        ctx.moveTo(x, y);
+        e.preventDefault();
+      };
+      canvas.onmousemove = canvas.ontouchmove = function(e) {
+        if (!drawing) return;
+        var rect = canvas.getBoundingClientRect();
+        var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        var y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        e.preventDefault();
+      };
+      canvas.onmouseup = canvas.ontouchend = function() { drawing = false; };
+      self._sigCanvas = canvas;
+    },
+    clearSignature() {
+      var canvas = this._sigCanvas || document.getElementById('signatureCanvas');
+      if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    },
+    confirmSignature() {
+      var canvas = this._sigCanvas || document.getElementById('signatureCanvas');
+      if (canvas) {
+        this.signatureData = canvas.toDataURL('image/png');
+        this.showSignaturePad = false;
+        this.showToast('签名已保存', 'info');
+      }
     },
     getSectionGroup(item) {
       if (this.inspectType === 'daily') return item?.step || 0;

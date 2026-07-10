@@ -251,6 +251,45 @@ def get_active_inspections(user: dict = Depends(get_current_user), include_compl
     return {"code": 0, "data": results}
 
 
+
+# ── 5. 整改跟踪 ──────────────────────────────────
+
+class RectificationBatch(BaseModel):
+    inspection_id: str
+    items: list[dict]
+
+@router.post("/{inspection_id}/rectifications")
+def create_rectifications(inspection_id: str, items: list[dict]):
+    """批量创建整改项"""
+    save_rectifications(inspection_id, items)
+    return {"code": 0, "msg": "整改项已保存", "data": {"count": len(items)}}
+
+@router.get("/{inspection_id}/rectifications")
+def list_rectifications(inspection_id: str):
+    """获取检查的整改项列表"""
+    items = get_rectifications(inspection_id)
+    return {"code": 0, "data": items}
+
+@router.put("/rectifications/{rect_id}")
+def update_rect(rect_id: int, data: dict):
+    """更新整改状态"""
+    update_rectification(rect_id, **data)
+    return {"code": 0, "msg": "已更新"}
+
+@router.get("/pending-rectifications")
+def list_pending_rectifications(user: dict = Depends(get_current_user)):
+    """首页待整改提醒"""
+    oid = user.get("oid", 0)
+    tasks = get_pending_rectifications(oid)
+    pending = [t for t in tasks if t["status"] == "pending"]
+    rectified = [t for t in tasks if t["status"] == "rectified"]
+    return {"code": 0, "data": {
+        "total": len(tasks),
+        "pending": len(pending),
+        "pending_verify": len(rectified),
+        "tasks": tasks
+    }}
+
 # ── 数据看板统计 ──────────────────────────────────
 
 @router.get("/stats")
