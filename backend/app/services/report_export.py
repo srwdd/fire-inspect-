@@ -240,15 +240,18 @@ table.findings td {{
 <body>
 
 <!-- ═══ 页头 ═══ -->
-<div class="header">
+<div class="red-header">
+  <div class="org-name">消防救援大队监督检查记录</div>
+  <div class="doc-title">消防安全检查记录表</div>
+</div>
+<div class="header" style="margin-top:6px">
   <div class="header-left">
-    <h1>消防监督检查记录表</h1>
-    <div class="dept">上饶市消防救援支队</div>
+    <div class="report-no">编号：{inspection_id}</div>
+    <div class="dept" style="font-size:11px;color:#666">上饶市消防救援支队</div>
   </div>
   <div class="header-right">
-    <div class="report-no">编号：{inspection_id}</div>
     <div class="qr-box">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={qr_url}" alt="扫码查看报告" width="64" height="64">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=64x64&data={qr_url}" alt="扫码查看报告" width="56" height="56">
       <div class="qr-label">扫码在线查看</div>
     </div>
   </div>
