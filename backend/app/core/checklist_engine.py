@@ -386,13 +386,11 @@ class ChecklistEngine:
     def sort_items_for_recheck(
         self, items: List[Dict], previous_fail_ids: List[str]
     ) -> List[Dict]:
+        """复查仅返回上次不合格项，大幅缩短复查时间"""
         failed_items = [i for i in items if i["rule_id"] in previous_fail_ids]
-        other_items = [i for i in items if i["rule_id"] not in previous_fail_ids]
         for item in failed_items:
             item["is_recheck_item"] = True
-        for item in other_items:
-            item["is_recheck_item"] = False
-        return failed_items + other_items
+        return failed_items
 
     # ------------------------------------------------------------------
     # 四色评分
