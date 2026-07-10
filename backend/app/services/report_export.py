@@ -63,6 +63,7 @@ def generate_html_report(inspection_id: str) -> str:
 
     # ── QR Code 指向在线报告 ──
     qr_url = f"https://ai-bang.top/inspect/web/?report={inspection_id}"
+    gen_time = datetime.now().strftime("%Y年%m月%d日 %H:%M")
 
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -76,20 +77,55 @@ body {{
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'SimSun', serif;
   font-size: 13px; color: #1a1a1a; line-height: 1.7;
   max-width: 210mm; margin: 0 auto; padding: 0;
+  min-height: 277mm; /* A4 content height */
+}}
+
+/* ── 签章区 ── */
+.signature-area {{
+  margin-top: 32px; display: flex; justify-content: space-between;
+  padding-top: 16px; border-top: 1px dashed #ccc;
+}}
+.signature-item {{
+  text-align: center; min-width: 120px;
+}}
+.signature-item .label {{ font-size: 12px; color: #555; margin-bottom: 36px; }}
+.signature-item .date {{ font-size: 11px; color: #999; }}
+
+/* ── 页脚 ── */
+.page-footer {{
+  margin-top: 24px; padding-top: 8px; border-top: 1px solid #e5e5e5;
+  font-size: 10px; color: #999; text-align: center;
+}}
+.page-footer span {{ margin: 0 8px; }}
+
+@media print {{
+  .no-print {{ display: none; }}
+  body {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
+}}
 }}
 
 /* ── 页头 ── */
+.red-header {{
+  text-align: center; border-bottom: 2px solid #dc2626;
+  padding-bottom: 10px; margin-bottom: 10px;
+}}
+.red-header .org-name {{
+  font-size: 16px; font-weight: 700; color: #dc2626;
+  letter-spacing: 4px; margin: 0;
+}}
+.red-header .doc-title {{
+  font-size: 20px; font-weight: 700; color: #1a1a1a;
+  letter-spacing: 3px; margin: 6px 0 0;
+}}
 .header {{
   display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 3px solid #dc2626; padding-bottom: 12px; margin-bottom: 16px;
+  padding-bottom: 8px; margin-bottom: 12px;
 }}
-.header-left h1 {{ font-size: 22px; margin: 0; color: #1a1a1a; letter-spacing: 2px; }}
-.header-left .dept {{ font-size: 11px; color: #666; margin-top: 2px; }}
+.header-left .report-no {{ font-size: 11px; color: #666; }}
 .header-right {{ text-align: right; }}
-.header-right .report-no {{ font-size: 11px; color: #999; }}
-.header-right .qr-box {{ margin-top: 6px; }}
-.header-right .qr-box img {{ width: 64px; height: 64px; }}
-.header-right .qr-label {{ font-size: 9px; color: #999; }}
+.header-right .qr-box {{ margin-top: 0; }}
+.header-right .qr-box img {{ width: 56px; height: 56px; }}
+.header-right .qr-label {{ font-size: 8px; color: #999; }}
 
 /* ── 信息表 ── */
 .info-grid {{
@@ -293,6 +329,25 @@ table.findings td {{
   <p>上饶市消防救援支队 · 生成时间 {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
 </div>
 
+  <div class="signature-area">
+    <div class="signature-item">
+      <div class="label">检查人（签字）</div>
+      <div class="date">{insp.get("inspector", "") or "　　　　　　"}</div>
+    </div>
+    <div class="signature-item">
+      <div class="label">被检查单位负责人（签字）</div>
+      <div class="date"></div>
+    </div>
+    <div class="signature-item">
+      <div class="label">日期</div>
+      <div class="date">{(insp.get("completed_at") or insp.get("started_at") or "")[:10]}</div>
+    </div>
+  </div>
+  <div class="page-footer">
+    <span>编号：{inspection_id}</span>
+    <span>本记录一式两份，检查单位和被检查单位各执一份</span>
+    <span>生成时间：<span class="no-print">{gen_time}</span></span>
+  </div>
 </body></html>"""
 
 
