@@ -1467,19 +1467,22 @@ createApp({
       var url = API_BASE + '/' + this.inspectionId + '/report/export?format=html';
       var w = window.open(url, '_blank');
       if (w) {
-        setTimeout(function() { w.print(); }, 1000);
+        var self = this;
+        setTimeout(function() { w.print(); self.showToast('💡 在打印对话框中选「另存为 PDF」即可保存', 'info'); }, 1500);
       } else {
         this.showToast('请允许弹出窗口后重试', 'error');
       }
     },
-    printReport() {
-      var url = API_BASE + '/' + this.inspectionId + '/report/export?format=html';
-      var w = window.open(url, '_blank');
-      if (w) {
-        setTimeout(function() { w.print(); }, 1000);
-      } else {
-        this.showToast('请允许弹出窗口后重试', 'error');
-      }
+    printReport() { this.downloadPDF(); },
+    downloadExcel() {
+      var url = API_BASE + '/' + this.inspectionId + '/report/export?format=excel';
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = this.inspectionId + '.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      this.showToast('Excel 报告下载中...', 'info');
     },
     getSectionGroup(item) {
       if (this.inspectType === 'daily') return item?.step || 0;

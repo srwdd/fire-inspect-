@@ -713,7 +713,7 @@ if ('serviceWorker' in navigator) {
       <h2>{{ report.venue_name }} — 检查报告</h2>
       <div style="display:flex;gap:8px;margin:8px 0">
         <button @click="downloadPDF" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📥 下载 PDF</button>
-        <button @click="printReport" style="padding:8px 16px;background:#1a1a2e;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">🖨️ 打印报告</button>
+        <button @click="downloadExcel" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">📊 导出 Excel</button>
       </div>
       <div class="report-meta">
         <span>检查人: {{ report.inspector }}</span>
@@ -771,6 +771,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v148.js"></script>
+<script src="app_v149.js"></script>
 </body>
 </html>
