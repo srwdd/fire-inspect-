@@ -750,7 +750,17 @@ if ('serviceWorker' in navigator) {
 
       <!-- 近期检查 -->
       <div v-if="dashboard.recent?.length" style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px">
-        <div style="font-size:14px;font-weight:700;margin-bottom:8px">📋 近期检查</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px"><!-- 趋势概览 -->
+      <div v-if="trends.total_inspections" style="margin-bottom:10px;padding:10px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border:1px solid #c6d8f0;border-radius:8px">
+        <div style="font-size:12px;font-weight:700;color:#1a56db;margin-bottom:4px">📈 本月趋势: {{ trends.trend }}</div>
+        <div style="display:flex;gap:12px;font-size:11px;color:#666">
+          <span>检查 {{ trends.total_inspections }} 次</span>
+          <span>不合格率 {{ trends.overall_rate }}%</span>
+          <span>最新 {{ trends.latest_month }}</span>
+        </div>
+      </div>
+
+      <div>📋 近期检查</div></div>
         <div v-for="r in dashboard.recent" :key="r.inspection_id" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
           <span>{{ r.venue_name }} <span style="color:var(--text-muted)">{{ r.date }}</span></span>
           <span :style="{color:r.status==='in_progress'?'#fa8c16':'#16a34a'}">{{ r.status==='in_progress'?'进行中':'已完成' }}</span>
@@ -784,6 +794,21 @@ if ('serviceWorker' in navigator) {
         <div class="stat">总计 {{ report.summary.checked }} 项</div>
         <div class="stat pass">合格 {{ report.summary.pass }}</div>
         <div class="stat fail">不合格 {{ report.summary.fail }}</div>
+      </div>
+
+      <!-- 历史对比 -->
+      <div v-if="venueHistory.length > 1" style="margin:12px 0;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">📊 历史检查对比（{{ venueHistory.length }} 次）</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px">
+          <div v-for="h in venueHistory" :key="h.inspection_id" style="padding:8px;background:var(--bg);border-radius:6px;border:1px solid var(--border);text-align:center">
+            <div style="font-size:11px;color:var(--text-muted)">{{ h.date }} · {{ h.mode==='recheck'?'复查':'首次' }}</div>
+            <div style="font-size:18px;font-weight:900;margin:4px 0" :style="{color:h.fail===0?'#16a34a':h.mandatory_fail>0?'#dc2626':'#ea580c'}">{{ h.fail===0?'✅':h.mandatory_fail>0?'🔴'+h.fail:'🟡'+h.fail }}</div>
+            <div style="font-size:10px;color:var(--text-muted)">{{ h.total }}项 · 不合格{{ h.fail }}</div>
+          </div>
+        </div>
+        <div v-if="venueHistory.length >= 2" style="margin-top:6px;font-size:11px;color:var(--text-muted)">
+          vs 上次: {{ venueHistory[0].fail > venueHistory[1].fail ? '🔴 不合格增多('+(venueHistory[0].fail-venueHistory[1].fail)+')' : venueHistory[0].fail < venueHistory[1].fail ? '🟢 不合格减少('+(venueHistory[1].fail-venueHistory[0].fail)+')' : '➡️ 持平' }}
+        </div>
       </div>
 
       <!-- AI 摘要 -->
@@ -902,7 +927,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v165.js"></script>
+<script src="app_v166.js"></script>
 
     <!-- AI 法规问答弹窗 -->
     <div v-if="showAiAnswer" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center" @click="showAiAnswer=false">

@@ -291,6 +291,105 @@ def list_pending_rectifications(user: dict = Depends(get_current_user)):
         "tasks": tasks
     }}
 
+
+# ── 6. 历史对比 & 趋势 ──────────────────────────
+
+@router.get("/venue-history")
+def get_venue_history(venue_name: str = Query(""), venue_address: str = Query(""), user: dict = Depends(get_current_user)):
+    """获取同一场所的历史检查记录"""
+    from app.db.storage import search_inspections as search_ins
+    oid = user.get("oid", 0)
+    all_completed = search_ins("")
+    # Filter by venue name
+    records = []
+    for insp in all_completed:
+        vn = insp.get("venue_name", "")
+        va = insp.get("venue_address", "") or insp.get("venue_addr", "")
+        if venue_name and venue_name in vn:
+            records.append(insp)
+        elif venue_address and venue_address in va:
+            records.append(insp)
+    # Filter by org
+    if oid:
+        records = [r for r in records if int(r.get("org_id", 0) or 0) == oid]
+    # Enrich with findings summary
+    from app.db.storage import get_findings
+    result = []
+    for insp in records:
+        findings = get_findings(insp["inspection_id"])
+        fails = [f for f in findings if f.get("result") == "fail"]
+        result.append({
+            "inspection_id": insp["inspection_id"],
+            "venue_name": insp.get("venue_name", ""),
+            "date": (insp.get("completed_at") or insp.get("started_at", ""))[:10],
+            "mode": insp.get("mode", "first"),
+            "total": len(findings),
+            "fail": len(fails),
+            "mandatory_fail": sum(1 for f in fails if f.get("is_mandatory")),
+            "important_fail": sum(1 for f in fails if f.get("severity") == "important"),
+            "fails": [{"facility": f.get("facility",""), "note": f.get("note","")} for f in fails[:10]]
+        })
+    result.sort(key=lambda x: x["date"], reverse=True)
+    return {"code": 0, "data": result}
+
+@router.get("/trends")
+def get_trends(user: dict = Depends(get_current_user)):
+    """AI 隐患趋势分析"""
+    from app.db.storage import search_inspections as search_ins, get_findings
+    from datetime import datetime, timedelta
+    from collections import Counter
+    
+    oid = user.get("oid", 0)
+    all_completed = search_ins("")
+    if oid:
+        all_completed = [i for i in all_completed if int(i.get("org_id", 0) or 0) == oid]
+    
+    # Monthly stats
+    monthly = {}
+    fail_facilities = Counter()
+    total_inspections = 0
+    total_fails = 0
+    total_items = 0
+    
+    for insp in all_completed:
+        date_str = (insp.get("completed_at") or insp.get("started_at", ""))[:7]
+        findings = get_findings(insp["inspection_id"])
+        fails = [f for f in findings if f.get("result") == "fail"]
+        
+        month_key = date_str if date_str else "unknown"
+        if month_key not in monthly:
+            monthly[month_key] = {"total": 0, "fails": 0, "inspections": 0}
+        monthly[month_key]["total"] += len(findings)
+        monthly[month_key]["fails"] += len(fails)
+        monthly[month_key]["inspections"] += 1
+        
+        for f in fails:
+            fail_facilities[f.get("facility", "未知")] += 1
+        total_inspections += 1
+        total_fails += len(fails)
+        total_items += len(findings)
+    
+    # Sort months
+    sorted_months = sorted(monthly.keys())
+    trend_data = [{"month": m, **monthly[m], "rate": round(monthly[m]["fails"]/max(monthly[m]["total"],1)*100, 1)} for m in sorted_months[-6:]]
+    
+    # Top fail facilities
+    top_fails = [{"facility": k, "count": v} for k, v in fail_facilities.most_common(10)]
+    
+    # Trend direction
+    recent_rates = [t["rate"] for t in trend_data[-3:]]
+    trend = "上升" if len(recent_rates) >= 2 and recent_rates[-1] > recent_rates[0] else ("下降" if len(recent_rates) >= 2 and recent_rates[-1] < recent_rates[0] else "持平")
+    
+    return {"code": 0, "data": {
+        "total_inspections": total_inspections,
+        "total_fails": total_fails,
+        "overall_rate": round(total_fails/max(total_items,1)*100, 1),
+        "trend": trend,
+        "monthly": trend_data,
+        "top_fails": top_fails[:5],
+        "latest_month": sorted_months[-1] if sorted_months else ""
+    }}
+
 # ── 数据看板统计 ──────────────────────────────────
 
 @router.get("/stats")

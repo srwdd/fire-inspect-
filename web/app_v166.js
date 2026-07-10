@@ -441,6 +441,8 @@ createApp({
       aiPhotoResult: null,
       showAiPhotoResult: false,
       aiComparing: false,
+      venueHistory: [],
+      trends: {},
       rectifications: [],
       showSignaturePad: false,
       showAnnotator: false,
@@ -506,7 +508,7 @@ createApp({
   mounted() {
     var self = this;
     this.$nextTick(function() {
-      if (self.page === 'home') { self.loadActiveInspections(); self.loadOwnerSubmissions(); }
+      if (self.page === 'home') { self.loadActiveInspections(); self.loadOwnerSubmissions(); self.loadTrends(); }
     });
   },
   watch: {
@@ -671,6 +673,7 @@ createApp({
         this.inspectionId = id;
         await this.generateReport();
         this.page = 'report';
+        this.loadVenueHistory();
       } catch(e) { this.showToast('报告加载失败', 'error'); }
     },
     categoryLabel(cat) {
@@ -1277,6 +1280,22 @@ createApp({
         }
       } catch(e) { this.showToast('对比失败', 'error'); }
       this.aiComparing = false;
+    },
+
+    // ── Phase 3: 分析 ──
+    async loadVenueHistory() {
+      var name = this.report?.venue_name;
+      if (!name) return;
+      try {
+        var r = await API.get('/venue-history?venue_name=' + encodeURIComponent(name));
+        this.venueHistory = r.data.data || [];
+      } catch(e) { this.venueHistory = []; }
+    },
+    async loadTrends() {
+      try {
+        var r = await API.get('/trends');
+        this.trends = r.data.data || {};
+      } catch(e) { this.trends = {}; }
     },
     recheckFromReminder(t) {
       this.mode = 'recheck';
