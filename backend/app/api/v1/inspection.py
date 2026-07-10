@@ -38,6 +38,7 @@ from app.db.storage import (
     save_inspection, get_inspection, update_inspection_status, list_active_inspections,
     update_current_index, search_inspections as storage_search,
     save_finding, get_findings, init_db,
+    save_rectifications, get_rectifications, update_rectification, get_pending_rectifications,
 )
 init_db()
 

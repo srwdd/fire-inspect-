@@ -1589,8 +1589,8 @@ createApp({
     // ── 整改跟踪 ──
     async createRectifications() {
       var fails = [];
-      for (var i = 0; i < (this.report?.findings || []).length; i++) {
-        var f = this.report.findings[i];
+      for (var i = 0; i < (this.report?.all_findings || []).length; i++) {
+        var f = this.report.all_findings[i];
         if (f.result === 'fail') {
           fails.push({
             item_index: f.item_index || i,
