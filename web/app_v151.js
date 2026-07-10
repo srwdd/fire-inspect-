@@ -350,6 +350,7 @@ createApp({
       lastReportId: localStorage.getItem('fire_last_inspection_id') || '',
       inspectionHistory: JSON.parse(localStorage.getItem('fire_inspection_history') || '[]'),
       activeInspections: [],
+      pendingRechecks: [],
       showOwnerCard: true,
       ownerSubmissions: [],
       ownerNewLink: {venue_type:'hotel',venue_name:'',venue_address:''},
@@ -1056,6 +1057,14 @@ createApp({
         this.inspectionHistory = hist;
         localStorage.setItem('fire_inspection_history', JSON.stringify(hist));
       } catch(e) { this.activeInspections = []; }
+      this.loadPendingRechecks();
+    },
+
+    async loadPendingRechecks() {
+      try {
+        var r = await API.get('/pending-rechecks');
+        this.pendingRechecks = r.data.data.tasks || [];
+      } catch(e) { this.pendingRechecks = []; }
     },
     // 协办加入检查
     async joinInspection(insp) {

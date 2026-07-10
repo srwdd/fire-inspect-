@@ -55,6 +55,7 @@ def get_pending_rechecks() -> List[Dict[str, Any]]:
             "venue_type": insp.get("venue_type", ""),
             "location": insp.get("location", ""),
             "inspector": insp.get("inspector", ""),
+            "org_id": insp.get("org_id"),
             "inspection_date": started[:10] if started else "",
             "score": score,
             "color": color,
