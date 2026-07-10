@@ -1292,8 +1292,9 @@ createApp({
     async aiCompareRecheck() {
       // In recheck mode, compare current photo with previous fail photo
       var item = this.currentItem;
-      if (!item || !item.photos || !item.photos.length) return this.showToast('上次检查无照片可对比', 'info');
-      var oldPhoto = item.photos[0];
+      var prevPhotos = (item?.previous_result?.photo_urls) || (item?.photos) || [];
+      if (!item || !prevPhotos.length) return this.showToast('上次检查无照片可对比，请拍照后直接判定', 'info');
+      var oldPhoto = prevPhotos[0];
       // Get current photo from judgments
       var cur = this.judgments[this.currentIndex];
       if (!cur || !cur.photos || !cur.photos.length) return this.showToast('请先拍摄新照片', 'info');
@@ -1310,7 +1311,7 @@ createApp({
           if (d.rectified) { this.judge('pass', msg); }
           else { this.showToast(msg, 'info'); }
         }
-      } catch(e) { this.showToast('对比失败', 'error'); }
+      } catch(e) { this.showToast('对比失败: ' + (e.message || ''), 'error'); }
       this.aiComparing = false;
     },
 

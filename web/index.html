@@ -380,9 +380,9 @@ if ('serviceWorker' in navigator) {
         </span>
         <span v-if="currentItem.previous_result.detail"> — {{ currentItem.previous_result.detail }}</span>
         <!-- 上次照片 + 本次对比 -->
-        <div v-if="currentItem.previous_result.photo_urls && currentItem.previous_result.photo_urls.length" style="margin-top:8px">
+        <div v-if="currentItem.previous_result.photos && currentItem.previous_result.photos.length" style="margin-top:8px">
           <div class="flex-gap-12" style="display:flex;overflow-x:auto">
-            <div v-for="url in currentItem.previous_result.photo_urls" style="flex:0 0 auto">
+            <div v-for="url in currentItem.previous_result.photos" style="flex:0 0 auto">
               <div style="font-size:12px;color:#999">📷 上次照片</div>
               <img :src="url" style="max-width:280px;max-height:200px;border-radius:6px;border:2px solid #d4380d">
             </div>
@@ -938,7 +938,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v168.js?v=2026071016"></script>
+<script src="app_v169.js?v=2026071016"></script>
 
     <!-- 
 </body>
