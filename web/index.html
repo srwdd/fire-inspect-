@@ -46,7 +46,7 @@ if ('serviceWorker' in navigator) {
   <!-- 顶部导航 -->
   <header class="app-header">
     <h1>🚒 消防检查助手</h1>
-    <button v-if="currentUser" @click="openDashboard" title="数据看板" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:13px;padding:4px 10px;border-radius:4px;cursor:pointer;margin-right:6px">📊</button>
+    <button v-if="currentUser" @click="openDashboard" title="数据看板" style="background:rgba(255,255,255,.1);border:none;color:#fff;font-size:13px;padding:4px 10px;border-radius:4px;cursor:pointer;margin-right:6px">📊<span v-if="pendingRechecks.filter(function(t){return t.urgency==='urgent'}).length" style="position:absolute;top:-4px;right:-4px;padding:1px 5px;background:#cf1322;color:#fff;border-radius:8px;font-size:9px;font-weight:700">{{ pendingRechecks.filter(function(t){return t.urgency==='urgent'}).length }}</span></button>
     <span v-if="currentUser" style="font-size:11px;margin:0 8px;color:#999">{{ currentUser.org_name || "" }} · {{ currentUser.display_name }}</span><button v-if="currentUser" @click="doLogout" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">退出</button><button class="theme-toggle" @click="toggleTheme" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;width:32px;height:32px;border-radius:50%;cursor:pointer;margin-right:6px">{{ theme==='light'?'☀️':'🌙' }}</button><button v-if="currentUser && currentUser.role==='admin'" @click="openAdmin()" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;margin-right:4px">⚙ 管理</button><span class="version">v0.1</span>
   </header>
 
@@ -180,7 +180,12 @@ if ('serviceWorker' in navigator) {
           <!-- 业主自查管理 -->
     <div v-if="showOwnerCard" style="margin:16px 0;padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:700;color:var(--text)">📋 业主自查管理</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text)">📋 业主自查管理
+        <span v-if="ownerSubmissions.filter(function(s){return s.status==='submitted'||s.status==='returned'}).length > 0"
+          style="display:inline-block;margin-left:6px;padding:1px 8px;background:#cf1322;color:#fff;border-radius:10px;font-size:11px;font-weight:600;vertical-align:middle">
+          {{ ownerSubmissions.filter(function(s){return s.status==='submitted'||s.status==='returned'}).length }} 待审核
+        </span>
+      </div>
         <span style="font-size:11px;color:var(--text-muted);cursor:pointer" @click="loadOwnerSubmissions">🔄 刷新</span>
       </div>
 
@@ -804,6 +809,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v153.js"></script>
+<script src="app_v154.js"></script>
 </body>
 </html>
