@@ -153,9 +153,9 @@ const SCENES = [
   { key: 'elderly', total_items: 62, daily_items: 62, name: '养老机构', icon: '🧓', preopen: false },
   { key: 'restaurant', total_items: 60, daily_items: 63, name: '餐饮场所', icon: '🍽️', preopen: true },
   { key: 'highrise', total_items: 62, daily_items: 62, name: '高层建筑', icon: '🏢', preopen: false },
-  { key: 'mixed_use', total_items: 71, name: '多业态混合', icon: '🏗️', preopen: false },
-  { key: 'factory', total_items: 75, name: '厂房/仓库', icon: '🏭', preopen: false },
-  { key: 'crowded', total_items: 76, name: '人员密集场所', icon: '👥', preopen: false },
+  { key: 'mixed_use', total_items: 43, name: '多业态混合', icon: '🏗️', preopen: false },
+  { key: 'factory', total_items: 43, name: '厂房/仓库', icon: '🏭', preopen: false },
+  { key: 'crowded', total_items: 45, name: '人员密集场所', icon: '👥', preopen: false },
   { key: 'nine_small', total_items: 8, name: '九小场所', icon: '🏪', preopen: false },
 ];
 
