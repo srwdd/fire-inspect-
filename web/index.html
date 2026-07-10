@@ -474,6 +474,7 @@ if ('serviceWorker' in navigator) {
         <button class="btn-fail" @click="judge('fail')">❌ 不合格</button>
         <button class="btn-na" @click="judge('na')">⊘ 不涉及</button>
         <button class="btn-photo" @click="showPhoto=true">📷 拍照</button>
+        <button class="btn-ai" @click="aiIdentifyPhoto" :disabled="aiIdentifying" style="margin-left:6px;padding:6px 12px;background:linear-gradient(135deg,#1a56db,#4f46e5);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">{{ aiIdentifying ? "识别中..." : "🔍 AI识别" }}</button>
         <button class="btn-voice" :class="{recording:isVoiceJudging}" @click="startVoiceJudge()">{{ isVoiceJudging ? '🔴 停止' : '🎤 语音判定' }}</button>
       </div>
 
@@ -901,7 +902,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v164.js"></script>
+<script src="app_v165.js"></script>
 
     <!-- AI 法规问答弹窗 -->
     <div v-if="showAiAnswer" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:10002;display:flex;align-items:center;justify-content:center" @click="showAiAnswer=false">

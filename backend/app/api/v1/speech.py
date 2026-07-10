@@ -306,6 +306,38 @@ async def ai_qa(req: dict):
     result = await ai_regulation_qa(question, rules)
     return {"code": 0, "data": result}
 
+
+@router.post("/ai-identify")
+async def ai_identify(req: dict):
+    """拍照→AI识别设施类型"""
+    from app.services.ai_service import ai_identify_facility
+    img = req.get("image", "")  # base64
+    if not img:
+        return {"code": 1, "msg": "缺少图片数据"}
+    # Strip data:image prefix if present
+    if "," in img:
+        img = img.split(",", 1)[1]
+    result = await ai_identify_facility(img)
+    return {"code": 0, "data": result}
+
+@router.post("/ai-compare")
+async def ai_compare(req: dict):
+    """整改前后照片对比"""
+    from app.services.ai_service import ai_compare_photos
+    old_img = req.get("old_image", "")
+    new_img = req.get("new_image", "")
+    facility = req.get("facility", "")
+    if not old_img or not new_img:
+        return {"code": 1, "msg": "需要前后两张照片"}
+    for img in [old_img, new_img]:
+        if "," in str(img):
+            img = str(img).split(",", 1)[1]
+    # Strip prefix
+    if "," in old_img: old_img = old_img.split(",", 1)[1]
+    if "," in new_img: new_img = new_img.split(",", 1)[1]
+    result = await ai_compare_photos(old_img, new_img, facility)
+    return {"code": 0, "data": result}
+
 async def speech_health():
     """检查语音服务状态"""
     model = _get_model()

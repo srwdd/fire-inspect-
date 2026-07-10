@@ -437,6 +437,10 @@ createApp({
       aiAnswering: false,
       aiAnswer: '',
       showAiAnswer: false,
+      aiIdentifying: false,
+      aiPhotoResult: null,
+      showAiPhotoResult: false,
+      aiComparing: false,
       rectifications: [],
       showSignaturePad: false,
       showAnnotator: false,
@@ -1214,6 +1218,65 @@ createApp({
         this.showAiAnswer = true;
       } catch(e) { this.showToast('AI问答失败', 'error'); }
       this.aiAnswering = false;
+    },
+
+    // ── Phase 2: 视觉 AI ──
+    async aiIdentifyPhoto() {
+      // Get the last uploaded photo
+      var photos = this.judgments[this.currentIndex]?.photos;
+      if (!photos || !photos.length) return this.showToast('请先拍照', 'info');
+      var lastPhoto = photos[photos.length - 1];
+      this.aiIdentifying = true;
+      try {
+        var r = await axios.post('/inspect/api/v1/speech/ai-identify', { image: lastPhoto });
+        var d = r.data.data;
+        if (d && d.facility_type) {
+          this.aiPhotoResult = d;
+          this.showAiPhotoResult = true;
+          // Auto-suggest matching item
+          var self = this;
+          var found = false;
+          (this.items || []).forEach(function(item, idx) {
+            if (!found && item.facility && d.facility_type !== '无法识别' &&
+                (item.facility.includes(d.facility_type) || d.facility_type.includes(item.facility.substring(0,3)))) {
+              if (idx !== self.currentIndex) {
+                if (confirm('AI识别为「' + d.facility_type + '」，匹配到第' + (idx+1) + '项「' + item.facility + '」，要跳转吗？')) {
+                  self.goToItem(idx);
+                  found = true;
+                }
+              }
+            }
+          });
+          if (!found && d.facility_type !== '无法识别') {
+            this.showToast('AI识别: ' + d.facility_type + ' - ' + (d.note || d.condition || ''), 'info');
+          }
+        }
+      } catch(e) { this.showToast('AI识别失败', 'error'); }
+      this.aiIdentifying = false;
+    },
+    async aiCompareRecheck() {
+      // In recheck mode, compare current photo with previous fail photo
+      var item = this.currentItem;
+      if (!item || !item.photos || !item.photos.length) return this.showToast('上次检查无照片可对比', 'info');
+      var oldPhoto = item.photos[0];
+      // Get current photo from judgments
+      var cur = this.judgments[this.currentIndex];
+      if (!cur || !cur.photos || !cur.photos.length) return this.showToast('请先拍摄新照片', 'info');
+      var newPhoto = cur.photos[cur.photos.length - 1];
+      this.aiComparing = true;
+      try {
+        var r = await axios.post('/inspect/api/v1/speech/ai-compare', {
+          old_image: oldPhoto, new_image: newPhoto,
+          facility: item.facility || ''
+        });
+        var d = r.data.data;
+        if (d) {
+          var msg = d.verdict + (d.changes ? ': ' + d.changes : '');
+          if (d.rectified) { this.judge('pass', msg); }
+          else { this.showToast(msg, 'info'); }
+        }
+      } catch(e) { this.showToast('对比失败', 'error'); }
+      this.aiComparing = false;
     },
     recheckFromReminder(t) {
       this.mode = 'recheck';

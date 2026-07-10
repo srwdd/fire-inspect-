@@ -122,3 +122,76 @@ async def ai_regulation_qa(question: str, context_rules: list = None) -> dict:
         return {"answer": content, "source": "AI + 法规库"}
     except Exception as e:
         return {"answer": f"法规查询失败: {e}", "source": "error"}
+
+
+# ── Phase 2: 视觉 AI ──
+
+VISION_MODEL = os.environ.get("VISION_MODEL", "qwen-vl-max")
+
+async def _call_vision(messages: list) -> str:
+    """调用视觉模型（支持图片）"""
+    if not API_KEY:
+        raise ValueError("SILICONFLOW_API_KEY not set")
+    async with httpx.AsyncClient(timeout=30) as client:
+        resp = await client.post(
+            BASE_URL + "/chat/completions",
+            headers={"Authorization": f"Bearer {API_KEY}"},
+            json={"model": VISION_MODEL, "messages": messages, "max_tokens": 512}
+        )
+        data = resp.json()
+        if "choices" in data:
+            return data["choices"][0]["message"]["content"]
+        raise ValueError(data.get("error", {}).get("message", str(data)[:200]))
+
+
+async def ai_identify_facility(image_base64: str) -> dict:
+    """拍照识别消防设施类型"""
+    prompt = """识别这张照片中的消防设施类型，输出JSON（不要其他文字）：
+{
+  "facility_type": "消火栓|灭火器|喷淋头|烟感探测器|手动报警按钮|防火门|应急照明灯|疏散指示标志|消防车道|消防电梯|消防控制室|水泵房|其他",
+  "specific_name": "具体名称（如'室内消火栓箱''干粉灭火器MFZ/ABC4'等）",
+  "condition": "正常|损坏|缺失|被遮挡|无法判断",
+  "note": "一句话描述（15字以内）"
+}"""
+    try:
+        content = await _call_vision([
+            {"role": "user", "content": [
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}},
+                {"type": "text", "text": prompt}
+            ]}
+        ])
+        start = content.find("{")
+        end = content.rfind("}") + 1
+        if start >= 0:
+            return json.loads(content[start:end])
+    except Exception as e:
+        logger.warning(f"Vision identify failed: {e}")
+    return {"facility_type": "无法识别", "specific_name": "", "condition": "无法判断", "note": str(e)[:50]}
+
+
+async def ai_compare_photos(old_base64: str, new_base64: str, facility: str) -> dict:
+    """整改前后照片对比"""
+    prompt = f"""这是消防检查中"{facility}"的整改前后对比照片。判断是否已整改，输出JSON：
+{{
+  "rectified": true/false,
+  "confidence": 0.0-1.0,
+  "changes": "具体改变了什么（30字以内）",
+  "verdict": "已整改|部分整改|未整改"
+}}"""
+    try:
+        content = await _call_vision([
+            {"role": "user", "content": [
+                {"type": "text", "text": f"【整改前照片】"},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{old_base64}"}},
+                {"type": "text", "text": f"【整改后照片】"},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{new_base64}"}},
+                {"type": "text", "text": prompt}
+            ]}
+        ])
+        start = content.find("{")
+        end = content.rfind("}") + 1
+        if start >= 0:
+            return json.loads(content[start:end])
+    except Exception as e:
+        logger.warning(f"Vision compare failed: {e}")
+    return {"rectified": None, "confidence": 0, "changes": "", "verdict": "无法判断"}
