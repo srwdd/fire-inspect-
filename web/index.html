@@ -213,6 +213,26 @@ if ('serviceWorker' in navigator) {
       <div v-if="ownerSubmissions.length===0 && ownerNewCode" style="text-align:center;padding:8px;color:var(--text-muted);font-size:12px">暂无业主提交</div>
     </div>
 
+    <!-- 复查到期提醒 -->
+    <div v-if="pendingRechecks.length > 0" style="margin:16px 0;padding:12px;background:linear-gradient(135deg,#fff5f5,#fff7ed);border:1px solid #ffccc7;border-radius:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:#cf1322">⚠️ 复查到期提醒</div>
+        <span style="font-size:10px;color:#999">{{ pendingRechecks.length }} 项</span>
+      </div>
+      <div v-for="t in pendingRechecks.slice(0,5)" :key="t.inspection_id" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin:4px 0;background:#fff;border-radius:6px;border:1px solid #ffe7e7">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">{{ t.venue_name }}</div>
+          <div style="font-size:10px;color:#999;margin-top:1px">
+            检查日期 {{ t.inspection_date }} · 得分 {{ t.score }} · 
+            <span v-if="t.urgency==='urgent'" style="color:#cf1322;font-weight:600">逾期 {{ t.overdue_days }} 天</span>
+            <span v-else style="color:#d48806">将在 {{ -t.overdue_days || (new Date(t.recheck_deadline).getTime()-Date.now())/86400000|0 }} 天后到期</span>
+            · 截止 {{ t.recheck_deadline }}
+          </div>
+        </div>
+        <button @click="mode='recheck';searchVenue=t.venue_name;searchHistory()" style="padding:6px 12px;background:#cf1322;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">🔄 复查</button>
+      </div>
+    </div>
+
     <!-- 进行中的检查 -->
     <div v-if="activeInspections.length > 0" style="margin:16px 0;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px">
       <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">📋 进行中的检查</div>
@@ -771,6 +791,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v149.js"></script>
+<script src="app_v150.js"></script>
 </body>
 </html>
