@@ -145,14 +145,14 @@ API.interceptors.request.use(function(config) {
 });
 
 const SCENES = [
-  { key: 'hotel', total_items: 63, daily_items: 70, name: '宾馆/酒店', icon: '🏨', preopen: true },
-  { key: 'mall', total_items: 63, daily_items: 70, name: '商场/市场', icon: '🏬', preopen: true },
-  { key: 'entertainment', total_items: 63, daily_items: 70, name: '公共娱乐场所', icon: '🎤', preopen: true },
-  { key: 'school', total_items: 36, daily_items: 68, name: '学校/幼儿园', icon: '🏫', preopen: false },
-  { key: 'hospital', total_items: 37, daily_items: 69, name: '医院', icon: '🏥', preopen: false },
-  { key: 'elderly', total_items: 38, daily_items: 69, name: '养老机构', icon: '🧓', preopen: false },
-  { key: 'restaurant', total_items: 63, daily_items: 67, name: '餐饮场所', icon: '🍽️', preopen: true },
-  { key: 'highrise', total_items: 36, daily_items: 69, name: '高层建筑', icon: '🏢', preopen: false },
+  { key: 'hotel', total_items: 60, daily_items: 70, name: '宾馆/酒店', icon: '🏨', preopen: true },
+  { key: 'mall', total_items: 60, daily_items: 70, name: '商场/市场', icon: '🏬', preopen: true },
+  { key: 'entertainment', total_items: 60, daily_items: 70, name: '公共娱乐场所', icon: '🎤', preopen: true },
+  { key: 'school', total_items: 61, daily_items: 68, name: '学校/幼儿园', icon: '🏫', preopen: false },
+  { key: 'hospital', total_items: 62, daily_items: 69, name: '医院', icon: '🏥', preopen: false },
+  { key: 'elderly', total_items: 62, daily_items: 69, name: '养老机构', icon: '🧓', preopen: false },
+  { key: 'restaurant', total_items: 60, daily_items: 67, name: '餐饮场所', icon: '🍽️', preopen: true },
+  { key: 'highrise', total_items: 62, daily_items: 69, name: '高层建筑', icon: '🏢', preopen: false },
   { key: 'mixed_use', total_items: 71, name: '多业态混合', icon: '🏗️', preopen: false },
   { key: 'factory', total_items: 75, name: '厂房/仓库', icon: '🏭', preopen: false },
   { key: 'crowded', total_items: 76, name: '人员密集场所', icon: '👥', preopen: false },
