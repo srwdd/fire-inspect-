@@ -229,7 +229,7 @@ if ('serviceWorker' in navigator) {
             · 截止 {{ t.recheck_deadline }}
           </div>
         </div>
-        <button @click="mode='recheck';searchVenue=t.venue_name;searchHistory()" style="padding:6px 12px;background:#cf1322;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">🔄 复查</button>
+        <button @click="recheckFromReminder(t)" style="padding:6px 12px;background:#cf1322;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">🔄 复查</button>
       </div>
     </div>
 
@@ -791,6 +791,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v151.js"></script>
+<script src="app_v152.js"></script>
 </body>
 </html>

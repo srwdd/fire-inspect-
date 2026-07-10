@@ -1066,6 +1066,11 @@ createApp({
         this.pendingRechecks = r.data.data.tasks || [];
       } catch(e) { this.pendingRechecks = []; }
     },
+    recheckFromReminder(t) {
+      this.mode = 'recheck';
+      this.searchVenue = t.venue_name;
+      this.$nextTick(function() { this.searchHistory(); }.bind(this));
+    },
     // 协办加入检查
     async joinInspection(insp) {
       try {
