@@ -2038,27 +2038,24 @@ createApp({
         return;
       }
 
-      // 第二层：拼音模糊匹配（处理口音/识别错误，~200ms）
+      // 第二层：AI 语音判定（理解复杂描述）
       var self = this;
-      this.voiceJudgeText = '🔍 正在理解...';
-      this.fuzzyAPI.post('/fuzzy-judge?text=' + encodeURIComponent(t)).then(function(r) {
-        var d = r.data;
-        if (d.success && d.action !== 'unknown' && d.confidence >= 0.4) {
-          self.voiceJudgeText = '';
-          if (d.action === 'photo') {
-            self.showPhoto = true;
-          } else if (d.action === 'skip') {
-            self.judge('na', '不涉及');
-          } else if (d.action === 'pass') {
-            self.judge('pass', d.note || t);
-          } else if (d.action === 'fail') {
-            self.judge('fail', d.note || t);
+      this.voiceJudgeText = '🤖 AI 理解中...';
+      this.aiJudgeFromVoice(t).catch(function() {
+        // AI 失败 → 回退到拼音模糊匹配
+        self.voiceJudgeText = '🔍 正在理解...';
+        self.fuzzyAPI.post('/fuzzy-judge?text=' + encodeURIComponent(t)).then(function(r) {
+          var d = r.data;
+          if (d.success && d.action !== 'unknown' && d.confidence >= 0.4) {
+            self.voiceJudgeText = '';
+            if (d.action === 'photo') { self.showPhoto = true; }
+            else if (d.action === 'skip') { self.judge('na', '不涉及'); }
+            else if (d.action === 'pass') { self.judge('pass', d.note || t); }
+            else if (d.action === 'fail') { self.judge('fail', d.note || t); }
+          } else {
+            self.voiceJudgeText = '🤔 无法识别: "' + t + '"';
           }
-        } else {
-          self.voiceJudgeText = '🤔 无法识别: "' + t + '" 请说"合格"/"不合格"/"有隐患"等';
-        }
-      }).catch(function() {
-        self.voiceJudgeText = '🤔 无法识别: "' + t + '"';
+        }).catch(function() { self.voiceJudgeText = '🤔 无法识别: "' + t + '"'; });
       });
     },
 
