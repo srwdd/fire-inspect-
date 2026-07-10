@@ -251,6 +251,24 @@ if ('serviceWorker' in navigator) {
       </div>
     </div>
 
+    <!-- 整改逾期提醒 -->
+    <div v-if="pendingRectifications.total > 0" style="margin:8px 0;padding:12px;background:linear-gradient(135deg,#fff7ed,#fff1f0);border:1px solid #ffd8bf;border-radius:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:13px;font-weight:700;color:#d48806">📋 整改待办</div>
+        <span style="font-size:10px;color:#999">待整改 {{ pendingRectifications.pending || 0 }} · 待确认 {{ pendingRectifications.pending_verify || 0 }}</span>
+      </div>
+      <div v-for="t in pendingRectifications.tasks.slice(0,3)" :key="t.id" style="padding:6px 8px;margin:2px 0;background:#fff;border-radius:6px;border:1px solid #ffe7e7;font-size:12px;display:flex;align-items:center;justify-content:space-between">
+        <div style="flex:1;min-width:0">
+          <span style="font-weight:600">{{ t.venue_name }}</span>
+          <span style="color:#999;margin-left:4px">{{ t.facility }}</span>
+          <span v-if="t.deadline" style="color:#cf1322;font-size:10px;margin-left:4px">截止 {{ t.deadline }}</span>
+        </div>
+        <span style="font-size:10px;padding:2px 6px;border-radius:8px" :style="{background:t.status==='pending'?'#fff7e6':t.status==='rectified'?'#e6f7ff':'#e8f5e9',color:t.status==='pending'?'#d48806':t.status==='rectified'?'#1890ff':'#16a34a'}">
+          {{ t.status==='pending'?'待整改':t.status==='rectified'?'待确认':'已销号' }}
+        </span>
+      </div>
+    </div>
+
     <!-- 进行中的检查 -->
     <div v-if="activeInspections.length > 0" style="margin:16px 0;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px">
       <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text)">📋 进行中的检查</div>
@@ -872,6 +890,6 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v161.js"></script>
+<script src="app_v163.js"></script>
 </body>
 </html>
