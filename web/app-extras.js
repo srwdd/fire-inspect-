@@ -86,7 +86,14 @@ const APP_EXTRAS = {
       await API.post(`/${this.inspectionId}/photo`, form);
     } catch(e) { console.error(e); }
     const reader = new FileReader();
-    reader.onload = (ev) => { this.recheckPhoto = ev.target.result; };
+    var self = this;
+    reader.onload = function(ev) {
+      self.recheckPhoto = ev.target.result;
+      // Also store in judgments for AI comparison
+      if (!self.judgments[self.currentIndex]) self.judgments[self.currentIndex] = {};
+      if (!self.judgments[self.currentIndex].photos) self.judgments[self.currentIndex].photos = [];
+      self.judgments[self.currentIndex].photos.push(ev.target.result);
+    };
     reader.readAsDataURL(file);
   },
   async viewReport() {

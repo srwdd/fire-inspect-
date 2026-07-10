@@ -396,6 +396,9 @@ if ('serviceWorker' in navigator) {
               📸 拍复查照对比
               <input type="file" accept="image/*" capture="environment" multiple style="display:none" @change="uploadRecheckPhoto">
             </label>
+            <button v-if="recheckPhoto" @click="aiCompareRecheck" :disabled="aiComparing" style="margin-left:8px;padding:8px 16px;background:linear-gradient(135deg,#1a56db,#4f46e5);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">
+              {{ aiComparing ? '对比中...' : '🤖 AI 对比' }}
+            </button>
           </div>
         </div>
       </div>
@@ -938,7 +941,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v169.js?v=2026071016"></script>
+<script src="app_v170.js?v=2026071016"></script>
 
     <!-- 
 </body>
