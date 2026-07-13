@@ -81,6 +81,36 @@ async def lifespan(_: FastAPI):
     yield
 
 
+# ── Security Headers Middleware ─────────────────────
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StRequest
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security-related HTTP response headers."""
+    async def dispatch(self, request: StRequest, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        # Don't set CSP on /docs or /redoc (needs inline scripts)
+        if not request.url.path.startswith("/docs") and not request.url.path.startswith("/redoc"):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "img-src 'self' data: blob: https:; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "connect-src 'self' wss: ws: https:; "
+                "frame-src 'none'; "
+                "object-src 'none'; "
+                "base-uri 'self'"
+            )
+        return response
+
+
 app = FastAPI(
     title="Fire Hazard Detection API",
     description="Upload an image and get AI analysis result.",
@@ -89,6 +119,10 @@ app = FastAPI(
 )
 
 app.add_middleware(CORSMiddleware, **cors_config)
+app.add_middleware(SecurityHeadersMiddleware)
+
+
+
 
 app.mount("/static", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="static")
 

@@ -1,8 +1,9 @@
 import hashlib, hmac, json, os, sqlite3, time
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi import APIRouter, HTTPException, Header, Depends, Request
 from pydantic import BaseModel, Field
 from app.dependencies import get_current_user
+from app.core.rate_limiter import login_limiter
 
 router = APIRouter()
 SECRET = os.environ.get('JWT_SECRET', 'fire-inspect-secret-key-2026')
@@ -57,11 +58,22 @@ async def get_current_user(authorization: str = Header(None)):
 
 
 @router.post('/login')
-def login(req: LoginRequest):
+def login(req: LoginRequest, request: Request):
+    # Rate limiting: 5 failed attempts per minute -> 15 min block
+    client_ip = request.client.host if request.client else 'unknown'
+    blocked, remaining = login_limiter.is_blocked(client_ip)
+    if blocked:
+        raise HTTPException(429, {'code': 1, 'msg': f'登录过于频繁，请 {remaining} 秒后重试'})
+    blocked, remaining = login_limiter.is_blocked(req.username)
+    if blocked:
+        raise HTTPException(429, {'code': 1, 'msg': f'该账号登录过于频繁，请 {remaining} 秒后重试'})
+
     conn = _db()
     row = conn.execute('SELECT * FROM users WHERE username = ? AND active = 1', (req.username,)).fetchone()
     conn.close()
     if not row or row['password_hash'] != _hash_pw(req.password):
+        login_limiter.record_attempt(client_ip)
+        login_limiter.record_attempt(req.username)
         raise HTTPException(401, '用户名或密码错误')
     org_name = ''
     if row['org_id']:
@@ -69,6 +81,8 @@ def login(req: LoginRequest):
         o = c2.execute('SELECT name FROM organizations WHERE id = ?', (row['org_id'],)).fetchone()
         c2.close()
         if o: org_name = o['name']
+    login_limiter.reset(client_ip)
+    login_limiter.reset(req.username)
     token = _make_token(row['id'], row['role'], row['org_id'] or 0)
     return {'code': 0, 'data': {
         'token': token,
