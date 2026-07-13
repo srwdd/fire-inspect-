@@ -1128,7 +1128,7 @@ def facility_history(facility: str = Query(...), venue_type: str = Query("")):
 # ── 12a. 报告导出 ──────────────────────────────────
 
 @router.get("/{inspection_id}/report/export")
-def export_report(inspection_id: str, format: str = Query("html", regex="^(html|excel)$")):
+def export_report(inspection_id: str, format: str = Query("html", pattern="^(html|excel)$")):
     """导出检查报告: ?format=html (可打印PDF) 或 ?format=excel"""
     from fastapi.responses import Response, HTMLResponse
     from app.services.report_export import generate_html_report, generate_excel_data
@@ -1163,7 +1163,7 @@ def submit_for_review(inspection_id: str, req: WorkflowRequest = WorkflowRequest
 
 
 @router.post("/{inspection_id}/review")
-def review_inspection(inspection_id: str, action: str = Query(..., regex="^(approve|reject)$"), req: WorkflowRequest = WorkflowRequest()):
+def review_inspection(inspection_id: str, action: str = Query(..., pattern="^(approve|reject)$"), req: WorkflowRequest = WorkflowRequest()):
     """队长审核: ?action=approve→已审核 / ?action=reject→驳回"""
     from app.services.workflow import transition
     new_status = "reviewed" if action == "approve" else "rejected"

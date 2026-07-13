@@ -104,9 +104,16 @@ app.include_router(ws_router, prefix=settings.API_V1_PREFIX + "/ws")
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
+import time as _time
+_start_time = _time.time()
+
 @app.get("/health")
 def health_check():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "version": "v170",
+        "uptime_seconds": round(_time.time() - _start_time, 1),
+    }
 
 
 @app.get("/")
@@ -122,4 +129,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+
 

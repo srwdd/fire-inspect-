@@ -8,12 +8,13 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 import requests
 from fastapi import APIRouter, HTTPException
+from app.core.config import settings
 from pydantic import BaseModel, Field, conint, confloat
 
 router = APIRouter()
 
-SILICONFLOW_URL = "https://api.siliconflow.cn/v1/chat/completions"
-DEFAULT_MODEL = "Qwen/Qwen3.6-35B-A3B"
+# URL and model come from settings (SILICONFLOW_BASE_URL in .env)
+DEFAULT_MODEL = settings.SILICONFLOW_TEXT_MODEL
 
 
 class MessageContentPart(BaseModel):
@@ -69,7 +70,7 @@ def create_chat_completion(payload: ChatCompletionRequest):
 
     try:
         response = requests.post(
-            SILICONFLOW_URL,
+            settings.SILICONFLOW_BASE_URL.rstrip("/") + "/chat/completions",
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",

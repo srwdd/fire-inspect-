@@ -26,8 +26,8 @@ class Settings(BaseSettings):
 
     SILICONFLOW_API_KEY: Optional[str] = None
     SILICONFLOW_BASE_URL: str = "https://api.siliconflow.cn/v1"
-    SILICONFLOW_VISION_MODEL: str = "Qwen/Qwen3-VL-30B-A3B-Instruct"
-    SILICONFLOW_TEXT_MODEL: str = "Qwen/Qwen3.6-35B-A3B"
+    SILICONFLOW_VISION_MODEL: str = "qwen-vl-max"
+    SILICONFLOW_TEXT_MODEL: str = "qwen-plus"
 
     RESULT_CACHE_ENABLED: bool = True
     RESULT_CACHE_TTL_SECONDS: int = 7 * 24 * 60 * 60
