@@ -145,7 +145,7 @@ _start_time = _time.time()
 def health_check():
     return {
         "status": "ok",
-        "version": "v171",
+        "version": "v176",
         "uptime_seconds": round(_time.time() - _start_time, 1),
     }
 
