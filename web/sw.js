@@ -1,13 +1,13 @@
 // 消防监督检查智能辅助系统 — Service Worker
 // 策略：静态资源缓存优先 + API 网络优先（离线降级）
-const CACHE_STATIC = "fire-inspect-static-v13";
+const CACHE_STATIC = "fire-inspect-static-v14";
 const CACHE_CDN = "fire-inspect-cdn-v2";
 const CACHE_API = "fire-inspect-api-v2";
 
 // ── 安装：预缓存核心静态资源 ──────────────────────
 // 注意：HTML 不在缓存列表中，始终从网络获取最新版本
 const STATIC_ASSETS = [
-  "/inspect/web/app_v116.js",
+  "/inspect/web/app_v170.js",
   "/inspect/web/styles_v3.css",
   "/inspect/web/manifest.json",
   "/inspect/web/app-extras.js",

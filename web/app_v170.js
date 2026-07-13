@@ -352,6 +352,7 @@ createApp({
     return {
       page: ((sessionStorage.getItem('fire_token') || localStorage.getItem('fire_token')) && (sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user'))) ? 'home' : 'login',
       theme: localStorage.getItem('fire_theme') || 'dark',
+      appVersion: 'v173',
       currentUser: JSON.parse(sessionStorage.getItem('fire_user') || localStorage.getItem('fire_user') || 'null'),
       token: sessionStorage.getItem('fire_token') || localStorage.getItem('fire_token') || '',
       fuzzyAPI: axios.create({ baseURL: API_BASE.replace('/inspection', '/speech') }),
