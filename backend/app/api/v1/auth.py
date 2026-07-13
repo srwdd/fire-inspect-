@@ -1,7 +1,8 @@
 import hashlib, hmac, json, os, sqlite3, time
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel, Field
+from app.dependencies import get_current_user
 
 router = APIRouter()
 SECRET = os.environ.get('JWT_SECRET', 'fire-inspect-secret-key-2026')
@@ -32,7 +33,8 @@ def _decode_token(token):
         pad = 4 - len(p) % 4
         if pad < 4: p += '=' * pad
         return json.loads(base64.urlsafe_b64decode(p.encode()))
-    except: return None
+    except Exception:
+        return None
 
 
 class LoginRequest(BaseModel):
@@ -75,12 +77,13 @@ def login(req: LoginRequest):
     }}
 
 @router.get('/me')
-def me(current_user: dict = None):
-    try:
-        current_user = None
-        # me is called with Depends(get_current_user) - handled in routes
-    except: pass
-    return {'code': 0, 'data': {'ok': True}}
+def me(current_user: dict = Depends(get_current_user)):
+    """Return current authenticated user info."""
+    if not current_user:
+        return {'code': 0, 'data': None}
+    return {'code': 0, 'data': {'id': current_user.get('id'), 'username': current_user.get('username'),
+            'role': current_user.get('role'), 'display_name': current_user.get('display_name'),
+            'org_id': current_user.get('org_id'), 'org_name': current_user.get('org_name', '')}}
 
 @router.get('/organizations')
 def list_orgs():

@@ -194,5 +194,8 @@ async def _broadcast(inspection_id: str, event: dict, exclude_ws=None):
             continue
         try:
             await entry['ws'].send_json(event)
-        except Exception:
+        except WebSocketDisconnect:
             pass
+        except Exception:
+            import logging
+            logging.getLogger("fire_inspect").debug(f"WS send failed to uid={uid}: client likely disconnected")

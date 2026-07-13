@@ -650,7 +650,8 @@ def submit_judge(inspection_id: str, req: JudgeRequest, user: dict = Depends(get
             "judged_count": 0,
         })
     except Exception as ex:
-        print(f"[WS-DEBUG] broadcast error: {ex}", flush=True)
+        import logging
+        logging.getLogger("fire_inspect").warning(f"WS broadcast failed for inspection {inspection_id}: {ex}")
 
     update_current_index(inspection_id, req.item_index + 1)
 
@@ -998,7 +999,9 @@ def calculate(calc_type: str, params: dict):
             return {"code":1,"msg":f"不支持: {calc_type}"}
         return {"code":0,"data":r}
     except Exception as e:
-        return {"code":1,"msg":f"计算失败: {e}"}
+        import logging
+        logging.getLogger("fire_inspect").error(f"Calculation failed for type={calc_type}, params={params}: {e}")
+        return {"code":1,"msg":"计算失败，请稍后重试"}
 
 
 # ── 11. 业主告知书 ──────────────────────────────────
