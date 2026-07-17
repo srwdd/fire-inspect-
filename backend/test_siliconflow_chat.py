@@ -19,7 +19,7 @@ def main() -> int:
 
     url = "http://127.0.0.1:8000/api/v1/chat/completions"
     payload = {
-        "model": "Qwen/Qwen3.6-35B-A3B",
+        "model": "qwen-plus",
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "Introduce yourself in one sentence."},
