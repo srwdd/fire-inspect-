@@ -123,61 +123,27 @@ const APP_EXTRAS = {
   // ═══ 语音搜索 ═══
   startSearch() { this.page = 'search'; this.searchResult = ''; this.searchQuery = ''; },
   async doSearch() {
-    var q = this.searchQuery.trim();
+    const q = this.searchQuery.trim();
     if (!q) return;
-    this.searching = true; this.searchResult = ''; this.searchData = null;
+    this.searching = true; this.searchResult = '';
     try {
-      var api = axios.create({ baseURL: API_BASE.replace('/inspection', '/speech') });
-      var r = await api.post('/search-all', { question: q });
-      var d = r.data.data;
-      this.searchData = d;
-      this.searchResult = APP_EXTRAS._formatSearchResult(d);
+      const chatAPI = axios.create({ baseURL: API_BASE.replace('/inspection', '/agent') });
+      const r = await chatAPI.post('/chat', { message: q, scene: 'general' });
+      this.searchResult = r.data.reply || r.data.answer || '未获取到结果';
     } catch (e) { this.searchResult = '查询失败: ' + (e.response?.data?.detail || e.message); }
     this.searching = false;
   },
-  _formatSearchResult(d) {
-    d = d || {};
-    var regs = d.regulations || [], cases = d.cases || [], sols = d.solutions || [];
-    var h = '<div class="result-tabs">';
-    h += '<div class="result-tab"><div class="tab-title">\u{1f4d6} 法规依据（'+regs.length+'条）</div>';
-    if (regs.length === 0) h += '<div class="tab-empty">暂无匹配法规</div>';
-    else regs.slice(0,3).forEach(function(r,idx){ var cls=idx===0?'tab-item tab-item-first':'tab-item tab-item-sub'; h += '<div class="'+cls+'"><b>'+APP_EXTRAS._esc(r.title||'')+'</b><br><span class="tab-meta">'+APP_EXTRAS._esc(r.source||'')+' '+APP_EXTRAS._esc(r.article||'')+(r.penalty?' | ⚠️ '+APP_EXTRAS._esc(r.penalty):'')+'</span></div>'; }, this);
-    h += '</div>';
-    h += '<div class="result-tab"><div class="tab-title">\u{1f6a8} 相似案例（'+cases.length+'条）</div>';
-    if (cases.length === 0) h += '<div class="tab-empty">暂无相似案例</div>';
-    else cases.slice(0,2).forEach(function(c,idx){ var cls=idx===0?'tab-item tab-item-first':'tab-item tab-item-sub'; h += '<div class="'+cls+'"><b>'+APP_EXTRAS._esc(c.finding||'')+'</b><br><span class="tab-meta">'+APP_EXTRAS._esc(c.venue_type||'')+' | '+APP_EXTRAS._esc(c.cause||'')+(c.severity==='critical'?' | \u{1f534}严重':c.severity==='high'?' | \u{1f7e0}高风险':'')+'</span></div>'; }, this);
-    h += '</div>';
-    h += '<div class="result-tab"><div class="tab-title">\u{1f527} 整改方案（'+sols.length+'条）</div>';
-    if (sols.length === 0) h += '<div class="tab-empty">暂无匹配方案</div>';
-    else sols.slice(0,2).forEach(function(s,idx){ var cls=idx===0?'tab-item tab-item-first':'tab-item tab-item-sub'; h += '<div class="'+cls+'"><b>'+APP_EXTRAS._esc(s.immediate_action||'')+'</b><br><span class="tab-meta">期限：'+APP_EXTRAS._esc(s.rectification_period||'')+' | 责任人：'+APP_EXTRAS._esc(s.responsible_role||'')+(s.cost_estimate?' | \u{1f4b0}'+APP_EXTRAS._esc(s.cost_estimate):'')+'</span></div>'; }, this);
-    h += '</div></div>';
-    return h;
-  },
-  _esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); },
   voiceAvailable() {
-    var hasGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    var hasMR = typeof MediaRecorder !== 'undefined';
-    var isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
-    var isIP = /^\d+\.\d+\.\d+\.\d+$/.test(location.hostname);
-    this._voiceDiag = { getUserMedia: hasGUM, mediaRecorder: hasMR, secure: isSecure, isIP: isIP };
-    return hasGUM && hasMR && isSecure;
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && typeof MediaRecorder !== 'undefined' && (location.protocol === 'https:' || location.hostname === 'localhost');
   },
   voiceUnavailableReason() {
-    var d = this._voiceDiag || {};
-    if (!d.mediaRecorder) {
-      var ua = navigator.userAgent;
-      if (/MicroMessenger/.test(ua)) return '微信不支持录音，请用系统浏览器打开';
-      if (/QQBrowser|MQQBrowser/.test(ua)) return 'QQ浏览器不支持录音，请用Chrome打开';
-      if (/UCBrowser|UCWEB/.test(ua)) return 'UC浏览器不支持录音，请用Chrome打开';
-      if (/Baidu|baiduboxapp/.test(ua)) return '百度浏览器不支持录音，请用Chrome打开';
-      if (/MiuiBrowser/.test(ua)) return 'MIUI浏览器不支持录音，请用Chrome打开';
-      if (/HuaweiBrowser|HUAWEI|HarmonyOS|ArkWeb/.test(ua)) return '鸿蒙自带浏览器不支持录音，请安装Chrome浏览器打开';
-      if (/iPad|iPhone|iPod/.test(ua)) return 'iOS请使用Safari浏览器（需iOS 14.5+）';
-      if (/Android/.test(ua) && /Chrome/.test(ua)) return 'Chrome版本过旧，请更新Chrome后重试';
-      return '浏览器不支持录音，请用Chrome/Safari打开';
+    if (typeof MediaRecorder === 'undefined') {
+      const ua = navigator.userAgent;
+      if (/iPad|iPhone|iPod/.test(ua)) return 'iOS 请使用 Safari 浏览器（iOS 14.5+）';
+      if (/MicroMessenger/.test(ua)) return '微信内置浏览器不支持录音，请点击右上角"在浏览器中打开"';
+      return '您的浏览器不支持录音功能，请使用 Chrome/Safari 浏览器';
     }
-    if (!d.secure) return '录音需要HTTPS连接';
-    if (!d.getUserMedia) return '浏览器不支持麦克风访问';
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return '录音功能需要 HTTPS 安全连接';
     return '';
   },
   async startVoice() {
@@ -215,15 +181,9 @@ const APP_EXTRAS = {
     } catch (e) {
       console.error('[Voice] getUserMedia 失败:', e); this.isRecording = false;
       if (e.name === 'NotAllowedError') {
-        if (/^\d+\.\d+\.\d+\.\d+$/.test(location.hostname)) {
-          this.searchResult = '麦克风权限被拒 - 检测到您正在使用IP地址访问，请在Chrome中打开 https://ai-bang.top/inspect/web/ 后使用语音功能。或直接打字搜索';
-        } else if (/HarmonyOS|ArkWeb|HuaweiBrowser/.test(navigator.userAgent)) {
-          this.searchResult = '鸿蒙自带浏览器限制麦克风访问 - 请安装Chrome浏览器打开 ai-bang.top/inspect/web/ 后使用语音。或直接打字搜索';
-        } else {
-          this.searchResult = '麦克风权限未开启 - 请点击地址栏左侧锁图标，将麦克风设为允许后重试。也可以直接打字搜索';
-        }
-      } else if (e.name === 'NotFoundError') { this.searchResult = '未找到麦克风设备，请使用文字输入检索'; }
-      else { this.searchResult = '录音失败: ' + (e.message || '未知错误') + ' - 请使用文字输入检索'; }
+        alert(/Android/.test(navigator.userAgent) ? '麦克风权限未开启\n\n请在 Chrome 地址栏右侧点击🔒图标 → 权限 → 麦克风 → 允许\n\n或: 手机设置 → 应用管理 → Chrome → 权限 → 麦克风 → 允许' : '麦克风权限未开启\n\n请允许浏览器访问麦克风后重试\n\n（iOS: 设置 → Safari → 麦克风）');
+      } else if (e.name === 'NotFoundError') { alert('未找到麦克风设备'); }
+      else { alert('无法访问麦克风: ' + (e.message || '未知错误')); }
     }
   },
   stopVoice() {

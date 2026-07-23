@@ -296,14 +296,26 @@ async def ai_summary(req: dict):
     summary = await ai_generate_summary(req)
     return {"code": 0, "data": {"summary": summary}}
 
+@router.post("/search-all")
+async def search_all_endpoint(req: dict):
+    """火鉴三层知识库联合检索 — 同时返回法规+案例+方案"""
+    from app.services.regulation_search import search_all as do_search_all
+    question = req.get("question", "")
+    facility = req.get("facility", "")
+    if not question:
+        return {"code": 1, "msg": "缺少问题文本"}
+    results = do_search_all(question, facility=facility)
+    return {"code": 0, "data": results}
+
 @router.post("/ai-qa")
 async def ai_qa(req: dict):
-    """AI 法规智能问答"""
+    """AI 法规智能问答 — 火鉴三层知识库联合检索"""
     from app.services.ai_service import ai_regulation_qa
-    from app.services.regulation_search import search_regulations
+    from app.services.regulation_search import search_all
     question = req.get("question", "")
-    rules = search_regulations(question, top_k=5) if question else []
-    result = await ai_regulation_qa(question, rules)
+    facility = req.get("facility", "")
+    all_results = search_all(question, facility=facility) if question else {}
+    result = await ai_regulation_qa(question, all_results)
     return {"code": 0, "data": result}
 
 

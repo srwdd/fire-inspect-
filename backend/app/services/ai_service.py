@@ -97,24 +97,40 @@ async def ai_generate_summary(inspection_data: dict) -> str:
         return f"本次检查共{len(findings)}项，合格{len(passes)}项，不合格{len(fails)}项，其中强制性条文违犯{len(mandatory_fails)}项。建议限期整改。"
 
 
-async def ai_regulation_qa(question: str, context_rules: list = None) -> dict:
-    """AI 法规智能问答"""
+async def ai_regulation_qa(question: str, all_results: dict = None) -> dict:
+    """AI 法规智能问答 — 火鉴三层知识库"""
+    all_results = all_results or {}
+    rules = all_results.get("regulations", [])
+    cases = all_results.get("cases", [])
+    solutions = all_results.get("solutions", [])
+
     context = ""
-    if context_rules:
-        context = "\n\n相关法规条文:\n" + "\n".join([
+    if rules:
+        context += "\n\n【法规依据·法鉴】\n" + "\n".join([
             f"- [{r.get('source','')}] {r.get('title','')}: {r.get('check_point','')[:200]}"
-            for r in context_rules[:5]
+            for r in rules[:5]
+        ])
+    if cases:
+        context += "\n\n【相似案例·警鉴】\n" + "\n".join([
+            f"- {c.get('finding','')}（{c.get('venue_type','')}，原因：{c.get('cause','')}）"
+            for c in cases[:3]
+        ])
+    if solutions:
+        context += "\n\n【整改方案·策鉴】\n" + "\n".join([
+            f"- {s.get('immediate_action','')}，期限：{s.get('rectification_period','')}，责任人：{s.get('responsible_role','')}"
+            for s in solutions[:3]
         ])
 
-    prompt = f"""你是中国消防法规专家。请根据消防法规知识回答以下问题。
+    prompt = f"""你是中国消防法规专家。请根据以下三层知识库综合回答。
 
 问题: {question}
 {context}
 
 要求:
-- 引用具体法规条文（如 GB 50016-2014 第X条）
-- 给出具体数值或标准（如果有）
-- 回答简洁明了，200字以内
+- 先引用具体法规条文（标注 GB/消防法等出处）
+- 如有相似案例，简要提及以佐证
+- 给出具体整改建议（步骤、期限、责任人）
+- 回答简洁明了，300字以内
 - 如果问题超出消防法规范围，回答"该问题不在消防法规范围内" """
 
     try:

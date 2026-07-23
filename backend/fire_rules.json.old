@@ -1,7 +1,7 @@
 {
   "knowledge_base": {
     "name": "中国消防监督检查法规知识库",
-    "version": "0.3.2",
+    "version": "0.3.1",
     "language": "zh-CN",
     "built_at": "2026-07-22",
     "chunk_policy": "article-level",
@@ -176,6 +176,53 @@
         "type": "personnel_interview",
         "question": "请消防安全管理人现场回答:本场所的消防安全重点部位有哪些?最近一次防火检查发现什么问题?如何整改的?",
         "show_by_default": false
+      },
+      "step": 5,
+      "step_name": "",
+      "preopen_order": 512,
+      "preopen_section": 1,
+      "preopen_group": 0,
+      "preopen_sub": 0,
+      "daily_step_new": 2
+    },
+    {
+      "id": "GB46034-5.2-b",
+      "source": "消防法第16条",
+      "source_type": "national_standard",
+      "article": "",
+      "title": "消防安全管理人确定",
+      "category": "消防管理",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "restaurant"
+      ],
+      "hazard_type": "incompetent_personnel",
+      "tags": [
+        "消防安全责任人",
+        "管理人",
+        "能力",
+        "培训",
+        "履职"
+      ],
+      "text": "消防安全管理人应由单位分管安全的负责人担任，宜具备注册消防工程师执业资格。消防安全管理人负责组织实施日常消防安全管理工作。",
+      "check_point": "是否明确消防安全管理人，管理人是否具备相应资格和能力",
+      "check_method": "查阅任命文件和资格证书，面谈消防安全管理人，核查日常消防管理工作记录",
+      "severity": "important",
+      "is_mandatory": true,
+      "province": null,
+      "related_rules": [
+        "FIRE-LAW-16",
+        "ORDER61",
+        "JX-FIRE-REG-18"
+      ],
+      "inspection_type": "preopen",
+      "qa_config": {
+        "question": "消防安全管理人确定是否合格？",
+        "yes_action": "pass",
+        "no_action": "fail_and_note",
+        "note_hint": "记录消防安全管理人确定不合格的具体问题和位置"
       },
       "step": 5,
       "step_name": "",
@@ -2419,6 +2466,60 @@
       "facility": "独立安全出口"
     },
     {
+      "id": "GB46034-7.5",
+      "source": "GB 55037-2022 建筑防火通用规范",
+      "source_type": "national_standard",
+      "article": "7.1",
+      "title": "独立安全出口",
+      "category": "技术条件",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "restaurant",
+        "highrise",
+        "mixed_use",
+        "factory",
+        "crowded",
+        "nine_small"
+      ],
+      "hazard_type": "evacuation_blocked",
+      "tags": [
+        "安全出口",
+        "疏散楼梯",
+        "疏散走道",
+        "净宽度",
+        "数量",
+        "锁闭",
+        "堵塞"
+      ],
+      "text": "安全出口的数量、宽度和分布应符合规范要求，每个防火分区不少于2个安全出口。疏散走道净宽度不应小于1.10m。安全出口的门应向疏散方向开启，采用平推式外开门。营业期间安全出口严禁锁闭。疏散通道、安全出口、消防车通道严禁被占用、堵塞、封闭。",
+      "check_point": "安全出口数量、宽度是否符合要求，疏散通道是否畅通",
+      "check_method": "逐层检查安全出口数量，测量疏散走道宽度，测试安全出口门开启方向",
+      "severity": "important",
+      "is_mandatory": true,
+      "province": null,
+      "related_rules": [
+        "FIRE-LAW-28",
+        "GB50016-7",
+        "GB55037-7",
+        "GB-T40248-7.5"
+      ],
+      "inspection_type": "reference_only",
+      "step": 5,
+      "step_name": "",
+      "legal_basis": "《消防法》第28条(禁止占用疏散通道) + 第60条",
+      "preopen_order": 566,
+      "preopen_section": 2,
+      "preopen_group": 1,
+      "preopen_sub": 5,
+      "daily_step_new": 4,
+      "facility": "独立安全出口"
+    },
+    {
       "id": "GB46034-7.3",
       "source": "GB 50222-2017 建筑内部装修设计防火规范",
       "source_type": "national_standard",
@@ -2593,6 +2694,47 @@
       "preopen_sub": 6,
       "daily_step_new": 6,
       "facility": "消防水箱"
+    },
+    {
+      "id": "GB46034-7.8.7-b",
+      "source": "GB 50974-2014 消防给水及消火栓系统技术规范",
+      "source_type": "national_standard",
+      "article": "5.2",
+      "title": "消防水箱",
+      "text": "高位消防水箱的设置高度应满足最不利点消火栓静水压力的要求。多层建筑最不利点消火栓静水压力不应低于0.07MPa，高层建筑不应低于0.10MPa。水箱的消防储水量应符合规范要求。",
+      "check_point": "消防水箱的设置高度和有效容积是否满足最不利点静水压力要求",
+      "check_method": "现场测量水箱设置高度，在最不利点消火栓处测试静水压力",
+      "category": "技术条件",
+      "severity": "important",
+      "is_mandatory": true,
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "restaurant"
+      ],
+      "hazard_type": "hydrant_defect",
+      "tags": [
+        "消防设施",
+        "功能测试"
+      ],
+      "inspection_type": "preopen",
+      "province": null,
+      "related_rules": [],
+      "step": 5,
+      "step_name": "",
+      "legal_basis": "《消防法》第16条(单位职责) + 第60条(消防设施器材不完整有效)",
+      "preopen_order": 601,
+      "qa_config": {
+        "question": "消防水箱是否合格？",
+        "yes_action": "pass",
+        "no_action": "fail_and_note",
+        "note_hint": "记录消防水箱不合格的具体问题和位置"
+      },
+      "preopen_section": 2,
+      "preopen_group": 2,
+      "preopen_sub": 6,
+      "daily_step_new": 6
     },
     {
       "id": "GB46034-7.10.6-a",
@@ -4595,6 +4737,46 @@
       "daily_step_new": 7,
       "preopen_order": 710,
       "facility": "发电机房灭火设施"
+    },
+    {
+      "id": "DAILY-3.3-EXT-1",
+      "source": "GB 50140-2005 建筑灭火器配置设计规范",
+      "source_type": "national_standard",
+      "article": "5.1",
+      "text": "灭火器应设置在位置明显和便于取用的地点，且不得影响安全疏散。灭火器的摆放应稳固，其铭牌应朝外。手提式灭火器宜设置在灭火器箱内或挂钩、托架上，其顶部离地面高度不应大于1.50m；底部离地面高度不宜小于0.08m。",
+      "title": "灭火器配置及使用年限 — 干粉5年充装、10年报废",
+      "facility": "灭火器配置",
+      "check_point": "灭火器配置：位置合理；类型匹配火灾类别；数量足够；压力表在绿区；有效期内(干粉灭火器使用年限5年充装/10年报废，CO2灭火器3年充装/12年报废)；筒体无锈蚀变形；软管配件完好",
+      "check_method": "现场检查灭火器的配置、数量、压力、有效期和外观状态",
+      "category": "设施完好",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "restaurant",
+        "highrise",
+        "mixed_use",
+        "factory",
+        "crowded",
+        "nine_small"
+      ],
+      "severity": "normal",
+      "is_mandatory": false,
+      "inspection_type": "daily",
+      "daily_step": 33,
+      "daily_order": 231,
+      "tags": [
+        "灭火器配置",
+        "设施完好"
+      ],
+      "preopen_section": 2,
+      "preopen_group": 2,
+      "preopen_sub": 14,
+      "daily_step_new": 7,
+      "preopen_order": 720
     },
     {
       "id": "GB46034-7.17.1",
@@ -7715,6 +7897,46 @@
       "preopen_order": 1240
     },
     {
+      "id": "DAILY-3.2-2",
+      "source": "消防法第17条",
+      "source_type": "department_rule",
+      "article": "",
+      "text": "消防安全重点单位制定的灭火和应急疏散预案应当包括下列内容：(一)组织机构，包括：灭火行动组、通讯联络组、疏散引导组、安全防护救护组；(二)报警和接警处置程序；(三)应急疏散的组织程序和措施；(四)扑救初起火灾的程序和措施；(五)通讯联络、安全防护救护的程序和措施。消防安全重点单位应当按照灭火和应急疏散预案，至少每半年进行一次演练，并结合实际，不断完善预案。其他单位应当结合本单位实际，参照制定相应的应急方案，至少每年组织一次演练。",
+      "title": "灭火和应急疏散预案",
+      "facility": "灭火和应急疏散预案",
+      "check_point": "检查预案内容是否完整；是否每半年至少组织一次演练；抽查2名员工是否熟悉本岗位应急任务",
+      "check_method": "现场检查",
+      "category": "消防管理",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "restaurant",
+        "highrise",
+        "mixed_use",
+        "factory",
+        "crowded",
+        "nine_small"
+      ],
+      "severity": "normal",
+      "is_mandatory": true,
+      "inspection_type": "daily",
+      "daily_step": 32,
+      "daily_order": 20,
+      "tags": [
+        "灭火和应急疏散预案",
+        "消防管理"
+      ],
+      "preopen_section": 2,
+      "preopen_group": 2,
+      "preopen_sub": 17,
+      "daily_step_new": 2,
+      "preopen_order": 1250
+    },
+    {
       "id": "DAILY-3.2-3",
       "source": "GB/T 40248-2021",
       "source_type": "national_standard",
@@ -9292,6 +9514,54 @@
       "daily_step_new": 2
     },
     {
+      "id": "GB46034-7.1-d",
+      "source": "GB 55037-2022 建筑防火通用规范",
+      "source_type": "national_standard",
+      "article": "2.2",
+      "title": "消防救援窗口",
+      "category": "技术条件",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "restaurant"
+      ],
+      "hazard_type": "fire_spread_risk",
+      "tags": [
+        "防火间距",
+        "消防车道",
+        "消防登高面",
+        "救援场地",
+        "净宽4米"
+      ],
+      "text": "厂房、仓库、公共建筑的外墙应在每层的适当位置设置可供消防救援人员进入的窗口。窗口的净高度和净宽度均不应小于1.0m，下沿距室内地面不宜大于1.2m。窗口应设置可在室外易于识别的明显标志。",
+      "check_point": "消防救援窗口的设置尺寸和标识是否符合规范要求",
+      "check_method": "现场测量救援窗口的尺寸（宽x高≥1.0m×1.0m），检查室外标识是否明显",
+      "severity": "important",
+      "is_mandatory": true,
+      "province": null,
+      "related_rules": [
+        "GB50016-7.1",
+        "GB55037",
+        "JX-FIRE-REG-29"
+      ],
+      "inspection_type": "preopen",
+      "step": 5,
+      "step_name": "",
+      "preopen_order": 533,
+      "qa_config": {
+        "question": "消防救援窗口是否合格？",
+        "yes_action": "pass",
+        "no_action": "fail_and_note",
+        "note_hint": "记录消防救援窗口不合格的具体问题和位置"
+      },
+      "preopen_section": 2,
+      "preopen_group": 0,
+      "preopen_sub": 1,
+      "daily_step_new": 3,
+      "facility": "消防救援窗口"
+    },
+    {
       "id": "GB46034-7.10.6",
       "source": "GB 50974-2014 消防给水及消火栓系统技术规范",
       "source_type": "national_standard",
@@ -9377,6 +9647,52 @@
       "daily_step_new": 7
     },
     {
+      "id": "GB46034-6.9",
+      "source": "消防法第16条",
+      "source_type": "national_standard",
+      "article": "",
+      "title": "消防档案",
+      "category": "消防管理",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "highrise",
+        "factory",
+        "crowded",
+        "restaurant"
+      ],
+      "hazard_type": "missing_records",
+      "tags": [
+        "消防档案",
+        "消防记录",
+        "维保记录",
+        "检测报告",
+        "培训记录"
+      ],
+      "text": "消防安全重点单位应建立消防档案，包括消防安全基本情况、消防安全管理情况。档案应包含建筑消防设施检测报告、维修保养记录、防火检查巡查记录、培训演练记录等。档案应实时更新并妥善保存。",
+      "check_point": "消防档案是否建立完整并妥善保存",
+      "check_method": "查阅消防档案，核实各项记录的完整性和时效性",
+      "severity": "normal",
+      "is_mandatory": false,
+      "province": null,
+      "related_rules": [
+        "ORDER61",
+        "JX-FIRE-REG-19"
+      ],
+      "inspection_type": "reference_only",
+      "step": 5,
+      "step_name": "",
+      "preopen_order": 719,
+      "preopen_section": 3,
+      "preopen_group": 0,
+      "preopen_sub": 0,
+      "daily_step_new": 8
+    },
+    {
       "id": "GB-T40248-7.3",
       "source": "消防法第16条",
       "source_type": "national_standard",
@@ -9423,6 +9739,56 @@
       "daily_step_new": 2,
       "preopen_order": 800,
       "facility": "防火巡查"
+    },
+    {
+      "id": "GB-T40248-7.9",
+      "source": "消防法第16条",
+      "source_type": "department_rule",
+      "article": "",
+      "title": "用火用电用油用气安全管理",
+      "category": "消防管理",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "restaurant",
+        "crowded"
+      ],
+      "hazard_type": "electrical_fire",
+      "tags": [
+        "动火作业",
+        "电动车",
+        "电气作业",
+        "电工",
+        "营业结束断电",
+        "烟道清洗"
+      ],
+      "text": "动火作业严禁在营业时间进行，须办理审批手续、清除可燃物、配置灭火器材、落实监护人。人员密集场所内严禁电动自行车停放或充电。电气作业必须由具备职业资格的电工进行。营业结束后应切断非必要电源。宾馆、餐饮、医院、学校厨房烟道至少每季度清洗一次。",
+      "check_point": "用火用电是否制定安全管理制度；电气线路敷设是否规范；大功率用电设备是否有独立回路；是否存在违规使用明火",
+      "check_method": "查阅动火审批记录，检查电动车停放充电情况，查阅厨房烟道清洗记录",
+      "severity": "important",
+      "is_mandatory": true,
+      "province": null,
+      "related_rules": [
+        "GB46034-6.2",
+        "GB46034-7.14",
+        "FIRE-LAW-28"
+      ],
+      "inspection_type": "daily",
+      "step": 2,
+      "step_name": "资料审查",
+      "daily_step": 32,
+      "daily_step_name": "消防安全管理",
+      "daily_order": 73,
+      "preopen_section": 3,
+      "preopen_group": 0,
+      "preopen_sub": 0,
+      "daily_step_new": 2,
+      "preopen_order": 810,
+      "facility": "用火用电用油用气安全管理"
     },
     {
       "id": "ORDER61-PATROL",
@@ -9638,6 +10004,46 @@
       "daily_step_new": 7,
       "preopen_order": 860,
       "facility": "自动喷水管道检查"
+    },
+    {
+      "id": "DAILY-3.2-5",
+      "source": "消防法第16条",
+      "source_type": "department_rule",
+      "article": "",
+      "text": "单位应当定期对消防设施、器材进行维护保养和检测，确保其完好有效。对建筑消防设施每年至少进行一次全面检测，检测记录应当完整准确，存档备查。消防设施维护保养检测机构应当依法取得相应资质，并按照国家标准、行业标准进行维护保养检测。",
+      "title": "消防设施维护保养",
+      "facility": "消防设施维护保养",
+      "check_point": "查阅消防设施维保记录：是否每年至少一次全面检测；维保机构是否具备资质",
+      "check_method": "现场检查",
+      "category": "消防管理",
+      "scene": [
+        "hotel",
+        "mall",
+        "entertainment",
+        "school",
+        "hospital",
+        "elderly",
+        "restaurant",
+        "highrise",
+        "mixed_use",
+        "factory",
+        "crowded",
+        "nine_small"
+      ],
+      "severity": "normal",
+      "is_mandatory": true,
+      "inspection_type": "daily",
+      "daily_step": 32,
+      "daily_order": 50,
+      "tags": [
+        "消防设施维护保养",
+        "消防管理"
+      ],
+      "preopen_section": 3,
+      "preopen_group": 0,
+      "preopen_sub": 0,
+      "daily_step_new": 2,
+      "preopen_order": 870
     },
     {
       "id": "DAILY-3.2-6",

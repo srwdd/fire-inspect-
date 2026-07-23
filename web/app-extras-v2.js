@@ -151,7 +151,7 @@ const APP_EXTRAS = {
     if (sols.length === 0) h += '<div class="tab-empty">暂无匹配方案</div>';
     else sols.slice(0,2).forEach(function(s,idx){ var cls=idx===0?'tab-item tab-item-first':'tab-item tab-item-sub'; h += '<div class="'+cls+'"><b>'+APP_EXTRAS._esc(s.immediate_action||'')+'</b><br><span class="tab-meta">期限：'+APP_EXTRAS._esc(s.rectification_period||'')+' | 责任人：'+APP_EXTRAS._esc(s.responsible_role||'')+(s.cost_estimate?' | \u{1f4b0}'+APP_EXTRAS._esc(s.cost_estimate):'')+'</span></div>'; }, this);
     h += '</div></div>';
-    return h;
+    h += '<style>.tab-item-first{background:#fff5f5!important;border-left:3px solid #c41e3a!important;padding:8px 9px!important;border-radius:0 8px 8px 0!important;box-sizing:border-box!important}.tab-item-first b{font-size:15px!important;color:#c41e3a!important}.tab-item-sub{opacity:.75;font-size:12px}.tab-item-sub b{font-size:13px!important;color:#555!important}@media(max-width:480px){.tab-item-first b{font-size:14px!important}.tab-item-sub{font-size:11px}.tab-item-sub b{font-size:12px!important}}</style>'; return h;
   },
   _esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); },
   voiceAvailable() {

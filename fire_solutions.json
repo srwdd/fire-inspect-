@@ -1,0 +1,599 @@
+{
+  "knowledge_base": {
+    "name": "策鉴·消防隐患处置方案库",
+    "version": "2.0.0",
+    "language": "zh-CN",
+    "built_at": "2026-07-22",
+    "description": "标准化消防隐患整改方案，含立即处置、限期整改、验收方法"
+  },
+  "solutions": [
+    {
+      "id": "S001",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding_keywords": [
+        "压力不足",
+        "欠压",
+        "指针红区",
+        "压力表失效"
+      ],
+      "immediate_action": "立即更换或送专业机构重新充装",
+      "rectification_period": "3日内",
+      "responsible_role": "消防安全管理人",
+      "verification_method": "检查压力表指针是否回到绿色区域，筒体有无锈蚀",
+      "cost_estimate": "充装约30-50元/具，更换约80-150元/具",
+      "reference": "GB50444-2008 第5.2.1条",
+      "steps": [
+        "关闭灭火器阀门",
+        "拆卸压力表",
+        "送专业充装站",
+        "安装后检查密封",
+        "贴检验标签"
+      ]
+    },
+    {
+      "id": "S002",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding_keywords": [
+        "过期",
+        "超期",
+        "筒体锈蚀",
+        "超过8年"
+      ],
+      "immediate_action": "立即更换新灭火器，旧灭火器交由专业机构报废处理",
+      "rectification_period": "立即",
+      "responsible_role": "消防安全管理人",
+      "verification_method": "确认新灭火器生产日期在有效期内，张贴月度检查记录表",
+      "cost_estimate": "80-300元/具（按类型和规格）",
+      "reference": "GB50444-2008 第5.4.3条",
+      "steps": [
+        "确认灭火器型号规格",
+        "购买同规格或更高等级新品",
+        "安装到位",
+        "旧灭火器交专业机构报废",
+        "更新消防器材台账"
+      ]
+    },
+    {
+      "id": "S003",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding_keywords": [
+        "遮挡",
+        "杂物",
+        "标识不清",
+        "取用不便"
+      ],
+      "immediate_action": "立即清理遮挡物，确保灭火器周围1米无障碍",
+      "rectification_period": "立即",
+      "responsible_role": "区域负责人",
+      "verification_method": "站在5米外能清晰看到灭火器位置标识",
+      "cost_estimate": "免费（清理即可）",
+      "reference": "消防法第28条",
+      "steps": [
+        "搬离遮挡物品",
+        "擦拭灭火器箱外观",
+        "确保标识（灭火器使用说明）朝外可见",
+        "在地面画黄色禁止堆放标线"
+      ]
+    },
+    {
+      "id": "S004",
+      "facility": "消火栓",
+      "category": "消火栓系统",
+      "finding_keywords": [
+        "箱门",
+        "遮挡",
+        "无法开启",
+        "货架"
+      ],
+      "immediate_action": "立即清除消火栓箱前方1米范围内障碍物",
+      "rectification_period": "立即",
+      "responsible_role": "区域负责人",
+      "verification_method": "消火栓箱门能开启≥160°，水带水枪齐全可用",
+      "cost_estimate": "免费（清理即可）",
+      "reference": "GB50974-2014 第7.4.8条",
+      "steps": [
+        "搬离前方障碍物",
+        "检查箱门铰链是否完好",
+        "检查水带水枪是否在位",
+        "在地面画黄色禁止堆放标线",
+        "列入每周巡查必查项"
+      ]
+    },
+    {
+      "id": "S005",
+      "facility": "消火栓",
+      "category": "消火栓系统",
+      "finding_keywords": [
+        "无水",
+        "阀门关闭",
+        "管网无压",
+        "水压为零"
+      ],
+      "immediate_action": "立即打开供水阀门，检查管网是否有漏点",
+      "rectification_period": "24小时内",
+      "responsible_role": "消防主管+物业工程部",
+      "verification_method": "末端试水压力≥0.15MPa，最不利点消火栓静压≥0.07MPa",
+      "cost_estimate": "视管网损坏情况而定",
+      "reference": "GB50974-2014 第7.4.12条",
+      "steps": [
+        "打开主管道供水阀门",
+        "逐层打开消火栓排气",
+        "检查压力表读数",
+        "如有漏点立即停水维修",
+        "维修后重新注水试压",
+        "贴维修记录标签"
+      ]
+    },
+    {
+      "id": "S006",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding_keywords": [
+        "锁闭",
+        "钥匙",
+        "疏散门",
+        "上锁"
+      ],
+      "immediate_action": "立即拆除锁具，更换为推闩式防火门锁（可从内部直接推开）",
+      "rectification_period": "立即",
+      "responsible_role": "消防安全管理人",
+      "verification_method": "按下推闩门锁时门能顺畅开启，门外无阻碍物",
+      "cost_estimate": "推闩式门锁200-500元",
+      "reference": "消防法第28条、GB50016第5.5.2条",
+      "steps": [
+        "拆除现有锁具",
+        "安装推闩式防火门锁",
+        "测试开启是否顺畅",
+        "在门上方贴'安全出口'标识",
+        "纳入每日闭店前检查"
+      ]
+    },
+    {
+      "id": "S007",
+      "facility": "疏散通道",
+      "category": "疏散设施",
+      "finding_keywords": [
+        "堆放",
+        "杂物",
+        "楼梯",
+        "堵塞",
+        "占用"
+      ],
+      "immediate_action": "立即清理通道内所有杂物，恢复通行宽度≥1.1米",
+      "rectification_period": "立即",
+      "responsible_role": "物业管理+社区网格员",
+      "verification_method": "通道净宽≥1.1米，无任何堆放物，地面无油渍",
+      "cost_estimate": "免费（清理+管理）",
+      "reference": "消防法第28条",
+      "steps": [
+        "组织人员清运杂物",
+        "检查楼梯扶手是否牢固",
+        "清洁地面",
+        "张贴'疏散通道禁止堆放'警示牌",
+        "建立每日巡查制度"
+      ]
+    },
+    {
+      "id": "S008",
+      "facility": "疏散指示",
+      "category": "疏散设施",
+      "finding_keywords": [
+        "不亮",
+        "损坏",
+        "指示标志",
+        "应急灯"
+      ],
+      "immediate_action": "立即更换损坏的灯具，测试应急照明持续时间",
+      "rectification_period": "2日内",
+      "responsible_role": "物业工程部",
+      "verification_method": "切断主电源后应急灯自动点亮，持续时间≥90分钟",
+      "cost_estimate": "50-150元/盏",
+      "reference": "GB50016第10.3.5条",
+      "steps": [
+        "购买同型号应急灯",
+        "断电后更换",
+        "测试续航是否达标",
+        "在灯具上贴检测日期标签",
+        "建立季度检测台账"
+      ]
+    },
+    {
+      "id": "S009",
+      "facility": "电气线路",
+      "category": "电气防火",
+      "finding_keywords": [
+        "接线",
+        "裸露",
+        "配电箱",
+        "私拉乱接",
+        "铜线"
+      ],
+      "immediate_action": "立即断电，由持证电工重新规范接线",
+      "rectification_period": "3日内",
+      "responsible_role": "持证电工+物业工程部主管",
+      "verification_method": "配电箱内线路排列整齐，绝缘良好，接线端子紧固",
+      "cost_estimate": "视整改量，一般500-2000元",
+      "reference": "GB50054第4.1.2条",
+      "steps": [
+        "切断总电源",
+        "拆除杂乱线路",
+        "重新布线穿管",
+        "紧固所有接线端子",
+        "测量绝缘电阻",
+        "贴电路图及责任人标签"
+      ]
+    },
+    {
+      "id": "S010",
+      "facility": "电气线路",
+      "category": "电气防火",
+      "finding_keywords": [
+        "未穿管",
+        "木质",
+        "吊顶",
+        "明敷"
+      ],
+      "immediate_action": "立即断电，将线路穿金属管或阻燃PVC管保护",
+      "rectification_period": "7日内",
+      "responsible_role": "持证电工",
+      "verification_method": "所有吊顶内线路均穿管保护，无可燃物靠近",
+      "cost_estimate": "穿管材料费约10-20元/米",
+      "reference": "GB50016第10.2.3条",
+      "steps": [
+        "切断电源",
+        "拆除未穿管线路",
+        "穿金属导管或阻燃管",
+        "固定在非可燃结构上",
+        "恢复接线和绝缘测试",
+        "拍照留档"
+      ]
+    },
+    {
+      "id": "S011",
+      "facility": "火灾报警",
+      "category": "自动报警",
+      "finding_keywords": [
+        "故障灯",
+        "控制器",
+        "消音",
+        "报警失效"
+      ],
+      "immediate_action": "立即联系维保单位排查所有故障点并修复",
+      "rectification_period": "24小时内",
+      "responsible_role": "消防维保单位+消防主管",
+      "verification_method": "控制器面板无故障灯，手动测试按钮触发报警正常",
+      "cost_estimate": "维保费按合同，零星维修约500-3000元",
+      "reference": "GB50116第4.2.1条",
+      "steps": [
+        "联系签约维保单位",
+        "逐个排查故障回路",
+        "更换故障探测器或模块",
+        "测试全部报警功能",
+        "更新维保记录",
+        "严禁再用胶带粘消音键"
+      ]
+    },
+    {
+      "id": "S012",
+      "facility": "防火门",
+      "category": "防火分隔",
+      "finding_keywords": [
+        "常开",
+        "挡住",
+        "闭门器",
+        "灭火器抵门"
+      ],
+      "immediate_action": "立即移除阻挡物，检查闭门器是否正常关闭",
+      "rectification_period": "立即",
+      "responsible_role": "区域负责人",
+      "verification_method": "防火门能自动完全关闭，门扇与门框贴合紧密",
+      "cost_estimate": "如需更换闭门器100-300元",
+      "reference": "GB50016第6.5.1条",
+      "steps": [
+        "移除阻挡物",
+        "测试闭门器是否自动关门",
+        "检查顺序器是否正常",
+        "在门上贴'常闭防火门请随手关闭'标识",
+        "纳入每日巡查"
+      ]
+    },
+    {
+      "id": "S013",
+      "facility": "自动喷水",
+      "category": "自动灭火",
+      "finding_keywords": [
+        "涂料",
+        "覆盖",
+        "喷淋头",
+        "热敏",
+        "装修"
+      ],
+      "immediate_action": "立即更换被污染的喷淋头，装修期间对喷淋头做保护罩",
+      "rectification_period": "3日内",
+      "responsible_role": "消防维保单位",
+      "verification_method": "换新后做末端试水测试，喷淋头外观清洁无覆盖物",
+      "cost_estimate": "更换喷淋头约30-80元/个",
+      "reference": "GB50084第6.1.3条",
+      "steps": [
+        "关闭该区域喷淋管网阀门",
+        "拆除被污染的喷淋头",
+        "安装同型号新喷淋头",
+        "恢复供水并试压",
+        "今后装修时用保护罩临时遮挡"
+      ]
+    },
+    {
+      "id": "S014",
+      "facility": "燃气管道",
+      "category": "燃气安全",
+      "finding_keywords": [
+        "软管",
+        "燃气",
+        "橡胶",
+        "接头",
+        "厨房"
+      ],
+      "immediate_action": "立即关闭燃气阀门，将橡胶软管更换为不锈钢金属波纹管",
+      "rectification_period": "立即",
+      "responsible_role": "燃气公司或持证燃气具安装维修工",
+      "verification_method": "用肥皂水检测接口无气泡，管长≤2米无接头",
+      "cost_estimate": "金属波纹管约50-150元（含安装）",
+      "reference": "GB50028第10.4.3条",
+      "steps": [
+        "关闭燃气总阀",
+        "拆除老旧橡胶管",
+        "安装不锈钢金属波纹管",
+        "用管卡紧固两端接头",
+        "肥皂水检漏",
+        "贴更换日期标签",
+        "今后每年检查一次"
+      ]
+    },
+    {
+      "id": "S015",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding_keywords": [
+        "无人值班",
+        "值班",
+        "持证",
+        "脱岗"
+      ],
+      "immediate_action": "立即安排持证值班人员到岗，实行24小时双人值班",
+      "rectification_period": "立即",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "任意时间抽查控制室有≥2名持证人员在岗",
+      "cost_estimate": "值班人员薪资（依当地标准）",
+      "reference": "GB25506-2010第4.2.1条",
+      "steps": [
+        "排查现有持证人员数量",
+        "不足则安排人员参加消防设施操作员培训考试",
+        "排定24小时值班表",
+        "安装指纹或人脸考勤机",
+        "值班制度上墙公示"
+      ]
+    },
+    {
+      "id": "S016",
+      "facility": "自动喷水灭火系统",
+      "category": "自动灭火",
+      "finding_keywords": [
+        "未安装",
+        "缺失",
+        "喷淋",
+        "应设未设"
+      ],
+      "immediate_action": "立即委托消防设计单位制定增设方案，申请消防设计审查",
+      "rectification_period": "按消防部门要求限期完成",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "安装后通过第三方检测，末端试水压力≥0.05MPa",
+      "cost_estimate": "按建筑面积约80-150元/㎡",
+      "reference": "GB55037-2022 第8.1.9条",
+      "steps": [
+        "委托有资质的设计单位",
+        "编制消防设计文件并报审",
+        "组织施工安装",
+        "第三方检测验收",
+        "报消防部门备案"
+      ]
+    },
+    {
+      "id": "S017",
+      "facility": "疏散楼梯",
+      "category": "疏散设施",
+      "finding_keywords": [
+        "栅栏",
+        "上锁",
+        "铁栅栏",
+        "铁丝网"
+      ],
+      "immediate_action": "立即拆除楼梯间栅栏和锁具，更换为可从内部直接推开的门",
+      "rectification_period": "立即",
+      "responsible_role": "单位消防安全管理人",
+      "verification_method": "任意时间抽查楼梯通道全程畅通",
+      "cost_estimate": "拆除费用约200-500元",
+      "reference": "GB55037-2022 第8.3.5条",
+      "steps": [
+        "立即拆除栅栏",
+        "安装推闩式门锁",
+        "张贴'安全出口禁止锁闭'标识",
+        "纳入每班次巡查"
+      ]
+    },
+    {
+      "id": "S018",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding_keywords": [
+        "无证",
+        "值班",
+        "操作员",
+        "未持证",
+        "消控室"
+      ],
+      "immediate_action": "立即安排持证人员上岗，无证人员安排参加消防设施操作员培训考试",
+      "rectification_period": "立即安排持证人员；替补人员6个月内取证",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "检查值班排班表+人员资格证书原件",
+      "cost_estimate": "培训考试费约3000-5000元/人",
+      "reference": "GB25506-2010 第4.2.1条",
+      "steps": [
+        "排查现有人员持证情况",
+        "招聘或借调持证人员",
+        "安排无证人员报名培训考试",
+        "排定24小时3班倒值班表",
+        "安装考勤打卡机"
+      ]
+    },
+    {
+      "id": "S019",
+      "facility": "防盗窗",
+      "category": "疏散设施",
+      "finding_keywords": [
+        "防盗窗",
+        "铁栅栏",
+        "无法开启",
+        "窗户",
+        "护栏"
+      ],
+      "immediate_action": "在防盗窗上开设不小于1.0m×0.8m的紧急逃生窗口，确保可从内部快速开启",
+      "rectification_period": "7日内",
+      "responsible_role": "单位安全负责人",
+      "verification_method": "从内部推动逃生窗口能在3秒内打开",
+      "cost_estimate": "改装每个窗户约100-300元",
+      "reference": "消防法第28条",
+      "steps": [
+        "在防盗窗上切割逃生窗口",
+        "安装可快速开启的插销",
+        "测试开启是否顺畅",
+        "张贴'紧急时可从此逃生'标识",
+        "纳入安全培训内容"
+      ]
+    },
+    {
+      "id": "S020",
+      "facility": "建筑材料",
+      "category": "建筑防火",
+      "finding_keywords": [
+        "彩钢板",
+        "泡沫夹芯",
+        "易燃",
+        "夹芯板"
+      ],
+      "immediate_action": "立即拆除泡沫夹芯彩钢板建筑，更换为岩棉夹芯等不燃材料",
+      "rectification_period": "30日内",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "材料燃烧性能达到A级（不燃）",
+      "cost_estimate": "岩棉彩钢板约60-100元/㎡",
+      "reference": "消防法第26条",
+      "steps": [
+        "评估需拆除面积",
+        "采购A级防火板材",
+        "拆除易燃板材",
+        "安装防火板材",
+        "请检测机构验证材料等级"
+      ]
+    },
+    {
+      "id": "S021",
+      "facility": "消防给水",
+      "category": "消火栓系统",
+      "finding_keywords": [
+        "消防水池",
+        "水泵",
+        "市政管网",
+        "压力不足",
+        "无水"
+      ],
+      "immediate_action": "立即委托设计单位核算消防用水量，按规范增设消防水池和消防水泵",
+      "rectification_period": "按消防部门整改通知期限",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "最不利点消火栓静压≥0.07MPa，动压满足设计要求",
+      "cost_estimate": "根据地况约10-50万元",
+      "reference": "GB50974-2014 第4.1.5条",
+      "steps": [
+        "进行消防给水水力计算",
+        "设计消防水池+泵房方案",
+        "施工安装",
+        "调试达到额定压力",
+        "第三方检测验收"
+      ]
+    },
+    {
+      "id": "S022",
+      "facility": "防火分隔",
+      "category": "建筑防火",
+      "finding_keywords": [
+        "防火封堵",
+        "电缆",
+        "穿墙",
+        "孔洞",
+        "管道"
+      ],
+      "immediate_action": "立即对所有电缆桥架和管道穿墙处用防火堵料严密封堵",
+      "rectification_period": "3日内",
+      "responsible_role": "物业工程部",
+      "verification_method": "穿墙孔洞无漏光、无缝隙，防火堵料填充密实",
+      "cost_estimate": "500-2000元",
+      "reference": "GB55037-2022 第6.3.3条",
+      "steps": [
+        "排查所有穿墙孔洞",
+        "清除孔洞周边杂物",
+        "填充防火堵料或防火泥",
+        "表面抹平",
+        "贴封堵验收标签"
+      ]
+    },
+    {
+      "id": "S023",
+      "facility": "安全管理",
+      "category": "消防管理",
+      "finding_keywords": [
+        "安全出口",
+        "不足",
+        "单一",
+        "仅一个"
+      ],
+      "immediate_action": "立即增设第二个安全出口，在增设期间限制营业人数",
+      "rectification_period": "30日内",
+      "responsible_role": "单位消防安全责任人",
+      "verification_method": "两个安全出口间距≥5m，均能直通室外或楼梯间",
+      "cost_estimate": "视建筑结构改造难度",
+      "reference": "GB55037-2022 第7.4.1条",
+      "steps": [
+        "委托设计单位确定增设位置",
+        "办理施工手续",
+        "组织施工",
+        "验收通过后方可恢复营业",
+        "营业期间每2小时巡查出口畅通"
+      ]
+    },
+    {
+      "id": "S024",
+      "facility": "电动自行车",
+      "category": "消防管理",
+      "finding_keywords": [
+        "电动车",
+        "充电",
+        "私拉电线",
+        "电池"
+      ],
+      "immediate_action": "立即停止室内充电行为，设置室外集中充电区并配灭火器",
+      "rectification_period": "立即停止室内充电；7日内建成集中充电区",
+      "responsible_role": "场所负责人",
+      "verification_method": "室内无电动车停放或充电，室外充电区有灭火器和监控",
+      "cost_estimate": "集中充电桩约2000-5000元/套",
+      "reference": "消防法第27条",
+      "steps": [
+        "立即移除室内充电车辆",
+        "选择室外安全位置",
+        "安装智能充电桩（充满自停）",
+        "配置灭火器和监控摄像头",
+        "张贴安全充电须知"
+      ]
+    }
+  ]
+}

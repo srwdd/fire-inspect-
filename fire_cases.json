@@ -1,0 +1,1459 @@
+{
+  "knowledge_base": {
+    "name": "警鉴·消防隐患案例库",
+    "version": "2.2.0",
+    "language": "zh-CN",
+    "built_at": "2026-07-23",
+    "description": "典型消防隐患案例，含现场特征、法规依据、成因分析，用于AI辅助判定参考"
+  },
+  "cases": [
+    {
+      "id": "C001",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding": "压力表指针在红色区域(欠压)",
+      "finding_keywords": [
+        "压力不足",
+        "指针红区",
+        "欠压",
+        "压力表"
+      ],
+      "venue_type": "居民楼道",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50444-2008 5.2.1"
+      ],
+      "cause": "长期未巡检，未按周期充装",
+      "consequence": "火灾时无法正常喷射，延误初期扑救",
+      "photo_features": "压力表指针偏左下方，表盘玻璃有积灰",
+      "typical_scene": "高层住宅楼道、老旧小区",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C002",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding": "灭火器筒体锈蚀严重，生产日期2018年已超8年",
+      "finding_keywords": [
+        "锈蚀",
+        "过期",
+        "筒体",
+        "超期",
+        "使用年限"
+      ],
+      "venue_type": "企业车间",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50444-2008 5.4.3"
+      ],
+      "cause": "环境潮湿，未做防腐处理",
+      "consequence": "筒体承压能力下降，可能爆裂",
+      "photo_features": "底部锈斑面积超1/3，漆面起皮",
+      "typical_scene": "工厂车间、地下室",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C003",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding": "灭火器被杂物遮挡，无明显标识",
+      "finding_keywords": [
+        "遮挡",
+        "标识",
+        "杂物",
+        "取用不便"
+      ],
+      "venue_type": "商场通道",
+      "severity": "medium",
+      "regulation_refs": [
+        "消防法第28条"
+      ],
+      "cause": "商户堆放货物占用",
+      "consequence": "紧急时无法快速取用",
+      "photo_features": "灭火器箱前堆有纸箱，标识被遮挡",
+      "typical_scene": "商场、仓库、批发市场",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C004",
+      "facility": "室内消火栓",
+      "category": "消火栓系统",
+      "finding": "消火栓箱门无法正常开启，被货架挡住",
+      "finding_keywords": [
+        "箱门",
+        "遮挡",
+        "货架",
+        "无法开启"
+      ],
+      "venue_type": "超市仓库",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50974-2014 7.4.8"
+      ],
+      "cause": "仓库重新布局未考虑消防设施位置",
+      "consequence": "火灾时无法及时出水",
+      "photo_features": "消火栓箱前1米内有货架",
+      "typical_scene": "超市、仓库、厂房",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C005",
+      "facility": "室外消火栓",
+      "category": "消火栓系统",
+      "finding": "消火栓井盖被车辆停放压占",
+      "finding_keywords": [
+        "井盖",
+        "压占",
+        "车辆",
+        "占用"
+      ],
+      "venue_type": "商业街",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第28条"
+      ],
+      "cause": "停车位规划不合理",
+      "consequence": "消防车无法连接取水",
+      "photo_features": "消火栓井盖上停有私家车",
+      "typical_scene": "商业街、老城区",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C006",
+      "facility": "消火栓",
+      "category": "消火栓系统",
+      "finding": "消火栓管网无水，阀门关闭",
+      "finding_keywords": [
+        "无水",
+        "阀门关闭",
+        "管网",
+        "水压"
+      ],
+      "venue_type": "办公楼",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB50974-2014 7.4.12"
+      ],
+      "cause": "维修后未恢复供水，阀门误关",
+      "consequence": "火灾时消火栓完全失效",
+      "photo_features": "压力表归零，阀门处于关闭状态",
+      "typical_scene": "办公楼、学校",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C007",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding": "安全出口门锁闭，钥匙不知去向",
+      "finding_keywords": [
+        "锁闭",
+        "安全出口",
+        "钥匙",
+        "疏散门"
+      ],
+      "venue_type": "KTV",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第28条",
+        "GB50016 5.5.2"
+      ],
+      "cause": "日常管理疏忽，为防止客人逃单锁门",
+      "consequence": "火灾时人员无法逃生，可能导致群死群伤",
+      "photo_features": "安全出口门挂有锁链或插销",
+      "typical_scene": "KTV、酒吧、网吧",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C008",
+      "facility": "疏散通道",
+      "category": "疏散设施",
+      "finding": "楼梯间堆放大量纸箱和杂物，仅容一人侧身通过",
+      "finding_keywords": [
+        "堆放",
+        "杂物",
+        "楼梯",
+        "堵塞"
+      ],
+      "venue_type": "老旧居民楼",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第28条"
+      ],
+      "cause": "居民习惯性堆放杂物",
+      "consequence": "疏散速度大幅降低，烟雾中极易绊倒",
+      "photo_features": "楼梯平台堆放纸箱、旧家具",
+      "typical_scene": "老旧小区、城中村",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C009",
+      "facility": "疏散指示标志",
+      "category": "疏散设施",
+      "finding": "疏散指示标志灯不亮，部分被人为破坏",
+      "finding_keywords": [
+        "不亮",
+        "指示标志",
+        "损坏",
+        "应急灯"
+      ],
+      "venue_type": "地下车库",
+      "severity": "medium",
+      "regulation_refs": [
+        "GB50016 10.3.5"
+      ],
+      "cause": "灯具老化，维护不到位",
+      "consequence": "烟雾中无法辨识逃生方向",
+      "photo_features": "指示标志暗或灯罩破损",
+      "typical_scene": "地下车库、商场",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C010",
+      "facility": "电气线路",
+      "category": "电气防火",
+      "finding": "配电箱内接线混乱，多股铜线裸露无绝缘保护",
+      "finding_keywords": [
+        "接线",
+        "裸露",
+        "配电箱",
+        "铜线"
+      ],
+      "venue_type": "小作坊",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50054 4.1.2"
+      ],
+      "cause": "私拉乱接，非专业电工操作",
+      "consequence": "短路引发电气火灾",
+      "photo_features": "配电箱内线路凌乱，有铜丝裸露",
+      "typical_scene": "小作坊、出租屋、临时建筑",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C011",
+      "facility": "电气线路",
+      "category": "电气防火",
+      "finding": "电线未穿管保护，沿木质吊顶内敷设",
+      "finding_keywords": [
+        "未穿管",
+        "木质",
+        "吊顶",
+        "敷设"
+      ],
+      "venue_type": "老旧商铺",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50016 10.2.3"
+      ],
+      "cause": "装修时偷工减料",
+      "consequence": "线路老化短路引燃木质吊顶",
+      "photo_features": "电线直接铺设在木龙骨上",
+      "typical_scene": "老旧商铺、民宿、木结构建筑",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C012",
+      "facility": "火灾报警控制器",
+      "category": "自动报警",
+      "finding": "报警控制器显示多处故障灯，消音键被胶带粘住",
+      "finding_keywords": [
+        "故障灯",
+        "控制器",
+        "消音",
+        "报警"
+      ],
+      "venue_type": "酒店",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB50116 4.2.1"
+      ],
+      "cause": "设备老化，维护人员为消除报警声故意消音",
+      "consequence": "真正发生火灾时无法报警",
+      "photo_features": "控制器面板有黄色故障灯，消音键上有胶带痕迹",
+      "typical_scene": "酒店、医院、养老院",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C013",
+      "facility": "防火门",
+      "category": "防火分隔",
+      "finding": "常闭防火门被灭火器挡住保持常开状态",
+      "finding_keywords": [
+        "常开",
+        "防火门",
+        "挡住",
+        "闭门器"
+      ],
+      "venue_type": "医院走廊",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50016 6.5.1"
+      ],
+      "cause": "人员嫌开门不便",
+      "consequence": "火灾时烟气迅速蔓延至疏散通道",
+      "photo_features": "防火门用灭火器或砖块抵住",
+      "typical_scene": "医院、学校、办公楼",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C014",
+      "facility": "自动喷水灭火系统",
+      "category": "自动灭火",
+      "finding": "喷淋头被装修涂料覆盖，热敏元件无法感应",
+      "finding_keywords": [
+        "涂料",
+        "覆盖",
+        "喷淋头",
+        "热敏"
+      ],
+      "venue_type": "新装修餐厅",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50084 6.1.3"
+      ],
+      "cause": "装修时未对喷淋头做保护",
+      "consequence": "火灾时喷淋头无法正常开启",
+      "photo_features": "喷淋头表面被白色乳胶漆覆盖",
+      "typical_scene": "新装修商铺、餐厅",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C015",
+      "facility": "燃气管道",
+      "category": "燃气安全",
+      "finding": "后厨燃气管路使用普通橡胶软管超2米，多处接头",
+      "finding_keywords": [
+        "软管",
+        "燃气",
+        "接头",
+        "厨房"
+      ],
+      "venue_type": "小餐饮",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50028 10.4.3"
+      ],
+      "cause": "图便宜未使用金属波纹管",
+      "consequence": "软管老化龟裂漏气，可能引发爆炸",
+      "photo_features": "橡胶软管有裂纹和油污",
+      "typical_scene": "小餐饮、大排档、食堂",
+      "created": "2026-07-22"
+    },
+    {
+      "id": "C016",
+      "facility": "自动喷水灭火系统",
+      "category": "自动灭火",
+      "finding": "养老院未安装自动喷淋灭火系统，负责人以'涉及成本'为由未配置",
+      "finding_keywords": [
+        "未安装",
+        "喷淋",
+        "养老院",
+        "缺失"
+      ],
+      "venue_type": "养老院",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB55037-2022 第8.1.9条",
+        "GB35181-2025 A.3.2"
+      ],
+      "cause": "建设时未按标准配置，后期未按要求增设",
+      "consequence": "火灾时无自动灭火能力，老年人逃生困难",
+      "photo_features": "天花板仅有普通灯具，未见喷淋头",
+      "typical_scene": "老旧养老院、小型福利机构",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·陕西安康福如东海老年公寓"
+    },
+    {
+      "id": "C017",
+      "facility": "火灾报警控制器",
+      "category": "自动报警",
+      "finding": "火灾报警控制器显示火警信息，但值班运行记录表无相应记录，值班流于形式",
+      "finding_keywords": [
+        "报警记录",
+        "值班",
+        "运行记录",
+        "造假"
+      ],
+      "venue_type": "卫生院",
+      "severity": "high",
+      "regulation_refs": [
+        "GB25506-2010 第4.2.1条"
+      ],
+      "cause": "值班人员责任心不强，日常管理松懈",
+      "consequence": "报警信息无人处理，延误灭火时机",
+      "photo_features": "控制器面板有火警灯闪烁，值班记录表为空白",
+      "typical_scene": "乡镇卫生院、小型医院",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·广西梧州某卫生院"
+    },
+    {
+      "id": "C018",
+      "facility": "消火栓系统",
+      "category": "消火栓系统",
+      "finding": "消防用水仅依靠市政管网，未设置消防水池和消防水泵，消火栓系统流量压力不足",
+      "finding_keywords": [
+        "消防水池",
+        "水泵",
+        "市政管网",
+        "压力不足"
+      ],
+      "venue_type": "养老院",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB50974-2014 第4.1.5条"
+      ],
+      "cause": "建设时未按标准建设消防给水系统",
+      "consequence": "火灾时消火栓出水压力不足，无法有效灭火",
+      "photo_features": "仅有市政给水管接入，未见消防水池和水泵房",
+      "typical_scene": "老旧建筑改造的养老、医疗机构",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·陕西安康福如东海老年公寓"
+    },
+    {
+      "id": "C019",
+      "facility": "疏散楼梯",
+      "category": "疏散设施",
+      "finding": "5楼疏散楼梯设置栅栏并上锁，严重堵塞逃生通道",
+      "finding_keywords": [
+        "栅栏",
+        "上锁",
+        "楼梯",
+        "逃生通道",
+        "堵塞"
+      ],
+      "venue_type": "养老院",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB55037-2022 8.3.5",
+        "消防法第28条"
+      ],
+      "cause": "为防止老人走失而锁闭，安全管理与消防要求矛盾",
+      "consequence": "火灾时人员无法逃生，极易造成群死群伤",
+      "photo_features": "楼梯口安装有铁栅栏门并挂锁",
+      "typical_scene": "养老院、精神卫生机构",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·陕西安康福如东海老年公寓"
+    },
+    {
+      "id": "C020",
+      "facility": "防火门",
+      "category": "防火分隔",
+      "finding": "常闭式防火门被敞开，部分防火门控制器损坏，楼梯间消防管道未进行防火封堵",
+      "finding_keywords": [
+        "常开",
+        "防火门",
+        "控制器损坏",
+        "防火封堵"
+      ],
+      "venue_type": "养老护理院",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50016 第6.5.1条",
+        "GB55037-2022 第8.2.4条"
+      ],
+      "cause": "日常使用习惯差，维保不到位",
+      "consequence": "火灾时烟气通过敞开的防火门蔓延至疏散通道",
+      "photo_features": "防火门被灭火器抵住保持常开，管道穿墙处有缝隙",
+      "typical_scene": "医院、养老院、酒店",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·陕西安康阳光爱心护理院"
+    },
+    {
+      "id": "C021",
+      "facility": "防盗窗",
+      "category": "疏散设施",
+      "finding": "学生宿舍窗外设有铁栅栏且无法从内部开启",
+      "finding_keywords": [
+        "防盗窗",
+        "铁栅栏",
+        "无法开启",
+        "宿舍"
+      ],
+      "venue_type": "学校宿舍",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第28条"
+      ],
+      "cause": "防盗需求未与消防安全统筹考虑",
+      "consequence": "火灾时窗口逃生通道被堵死",
+      "photo_features": "窗户外部装有全封闭式铁栅栏",
+      "typical_scene": "学校宿舍、老旧居民楼",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·江西吉安某中学（与'1·24'新余特大火灾类似隐患）"
+    },
+    {
+      "id": "C022",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "消防控制室员工无证上岗，未持有消防设施操作员证",
+      "finding_keywords": [
+        "无证",
+        "消防控制室",
+        "值班",
+        "操作员证"
+      ],
+      "venue_type": "酒店",
+      "severity": "high",
+      "regulation_refs": [
+        "GB25506-2010 第4.2.1条",
+        "GB35181-2025 6.6.1"
+      ],
+      "cause": "未安排人员参加职业资格考试，管理不重视",
+      "consequence": "发生火情时不会操作消防联动设备",
+      "photo_features": "消防控制室值班表上人员无证号信息",
+      "typical_scene": "酒店、商场、物业小区",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·山西长治某酒店/养老院"
+    },
+    {
+      "id": "C023",
+      "facility": "燃气管道",
+      "category": "燃气安全",
+      "finding": "2楼餐厅使用明火作业，后厨与前台仅用玻璃窗简单隔开，未做防火分隔",
+      "finding_keywords": [
+        "明火",
+        "厨房",
+        "防火分隔",
+        "玻璃窗"
+      ],
+      "venue_type": "卫生院食堂",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50016 第6.2.3条",
+        "GB55037-2022 第6.2.1条"
+      ],
+      "cause": "改造时未按规范设置防火隔墙",
+      "consequence": "厨房火灾可直接蔓延至就餐区",
+      "photo_features": "厨房与餐厅之间为普通玻璃隔断，无防火门",
+      "typical_scene": "小型卫生院食堂、学校食堂",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·广西梧州某卫生院"
+    },
+    {
+      "id": "C024",
+      "facility": "电气线路",
+      "category": "电气防火",
+      "finding": "配电室电缆桥架穿墙孔洞未进行防火封堵",
+      "finding_keywords": [
+        "电缆",
+        "穿墙",
+        "防火封堵",
+        "配电室"
+      ],
+      "venue_type": "超市",
+      "severity": "medium",
+      "regulation_refs": [
+        "GB55037-2022 第6.3.3条"
+      ],
+      "cause": "施工遗漏，验收不严",
+      "consequence": "火灾时火焰和烟气沿电缆孔洞蔓延至相邻防火分区",
+      "photo_features": "电缆桥架穿墙处有明显缝隙，未用防火泥封堵",
+      "typical_scene": "商场超市、写字楼",
+      "created": "2026-07-22",
+      "source": "2025年中央安全生产考核巡查·陕西平利汉城精品超市"
+    },
+    {
+      "id": "C025",
+      "facility": "火灾报警系统",
+      "category": "自动报警",
+      "finding": "物业小区火灾报警系统瘫痪、消防水泵压力不达标、消防管道泄漏、消火栓无水",
+      "finding_keywords": [
+        "系统瘫痪",
+        "水泵",
+        "泄漏",
+        "无水",
+        "报警失效"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025 6.1.1"
+      ],
+      "cause": "物业长期不维护，维修资金不到位",
+      "consequence": "整个小区的自动消防系统完全失效",
+      "photo_features": "控制器面板黑屏或满屏故障灯",
+      "typical_scene": "老旧住宅小区",
+      "created": "2026-07-22",
+      "source": "2025年·新余市某物业小区行政处罚案"
+    },
+    {
+      "id": "C026",
+      "facility": "疏散通道",
+      "category": "疏散设施",
+      "finding": "工厂库房安全出口被化肥堆垛封堵，消防车道被占用",
+      "finding_keywords": [
+        "安全出口",
+        "封堵",
+        "堆垛",
+        "消防车道",
+        "占用"
+      ],
+      "venue_type": "工厂库房",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第28条",
+        "GB35181-2025 A.1"
+      ],
+      "cause": "仓储管理混乱，货物无序堆放",
+      "consequence": "判定为重大火灾隐患单位",
+      "photo_features": "安全出口门前堆满货物，仅容一人侧身通过",
+      "typical_scene": "工厂仓库、物流园区",
+      "created": "2026-07-22",
+      "source": "2024年·铁岭红杉树农业科技公司重大火灾隐患"
+    },
+    {
+      "id": "C027",
+      "facility": "建筑材料",
+      "category": "建筑防火",
+      "finding": "员工宿舍采用易燃泡沫夹芯彩钢板搭建",
+      "finding_keywords": [
+        "彩钢板",
+        "泡沫夹芯",
+        "易燃",
+        "宿舍"
+      ],
+      "venue_type": "烟花爆竹厂",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第26条",
+        "GB35181-2025 直接判定"
+      ],
+      "cause": "为节省成本使用易燃材料",
+      "consequence": "一旦起火迅速蔓延，产生剧毒烟气",
+      "photo_features": "墙面为蓝色夹芯彩钢板，夹层可见白色泡沫",
+      "typical_scene": "工地宿舍、临时建筑、小型厂房",
+      "created": "2026-07-22",
+      "source": "2024年·永州鹏旺烟花爆竹公司重大火灾隐患"
+    },
+    {
+      "id": "C028",
+      "facility": "建筑防火",
+      "category": "建筑防火",
+      "finding": "建筑面积超200㎡的台球俱乐部仅有一个安全出口",
+      "finding_keywords": [
+        "安全出口",
+        "不足",
+        "面积",
+        "单一出口"
+      ],
+      "venue_type": "台球俱乐部",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB55037-2022 第7.4.1条"
+      ],
+      "cause": "原有建筑结构限制，未进行改造",
+      "consequence": "判定重大火灾隐患，火灾时人员无法疏散",
+      "photo_features": "场所仅有一个出入口，未见第二个安全出口标识",
+      "typical_scene": "小型娱乐场所、网吧、棋牌室",
+      "created": "2026-07-22",
+      "source": "2024年·湘潭鑫仁台球俱乐部重大火灾隐患"
+    },
+    {
+      "id": "C029",
+      "facility": "灭火器",
+      "category": "消防管理",
+      "finding": "生产企业未设置室内消火栓系统和室外消火栓系统，仅配置少量灭火器",
+      "finding_keywords": [
+        "无消火栓",
+        "仅灭火器",
+        "消防设施缺失"
+      ],
+      "venue_type": "仓储物流",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB55037-2022 第8.1.9条"
+      ],
+      "cause": "建设时未按消防设计要求施工",
+      "consequence": "灭火器无法替代消火栓，大火灾时完全无法应对",
+      "photo_features": "大型仓库内仅有几个灭火器，无消火栓箱",
+      "typical_scene": "物流仓库、小型工厂",
+      "created": "2026-07-22",
+      "source": "2024年·石家庄呈诚供应链公司行政处罚（罚3.7万元）"
+    },
+    {
+      "id": "C030",
+      "facility": "电动自行车",
+      "category": "消防管理",
+      "finding": "快递网点私自连接电线为电动车充电，充电区域紧邻纸箱堆垛",
+      "finding_keywords": [
+        "电动车",
+        "充电",
+        "私拉电线",
+        "快递"
+      ],
+      "venue_type": "快递网点",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第27条"
+      ],
+      "cause": "无专用充电设施",
+      "consequence": "电动车电池起火引燃纸箱，快速蔓延",
+      "photo_features": "电动车在室内充电，旁边堆满快递纸箱",
+      "typical_scene": "快递网点、外卖站点、沿街商铺",
+      "created": "2026-07-22",
+      "source": "2024年·湘西古丈中通快递行政处罚（罚2000元）"
+    },
+    {
+      "id": "CAUTO0031",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding": "压力表指针在红色区域: 3楼走廊灭火器压力不足，指针在红区已超过1个月未处理",
+      "finding_keywords": [
+        "3楼走廊灭火器压力不足",
+        "指针在红区已超过1个月未处理压力表指针在红色区域",
+        "使用年限",
+        "年限"
+      ],
+      "venue_type": "office",
+      "severity": "high",
+      "regulation_refs": [
+        "GB50444-5.2.1"
+      ],
+      "cause": "3楼走廊灭火器压力不足，指针在红区已超过1个月未处理",
+      "consequence": "",
+      "photo_features": "",
+      "typical_scene": "office",
+      "created": "2026-07-22",
+      "source": "自动沉淀·实地检查"
+    },
+    {
+      "id": "CR001",
+      "facility": "灭火器",
+      "category": "灭火器材",
+      "finding": "灭火器喷射软管长度小于400mm，判定为不合格消防产品，逾期未改正",
+      "finding_keywords": [
+        "灭火器",
+        "不合格",
+        "软管",
+        "消防产品"
+      ],
+      "venue_type": "电竞酒店",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第65条第2款"
+      ],
+      "cause": "采购时未核对消防产品认证信息",
+      "consequence": "单位罚款7400元，负责人罚款600元",
+      "photo_features": "灭火器软管明显短于标准长度",
+      "typical_scene": "酒店、网吧等公众聚集场所",
+      "created": "2026-07-22",
+      "source": "资兴市消防救援大队·2025年8月行政处罚公示"
+    },
+    {
+      "id": "CR002",
+      "facility": "消火栓",
+      "category": "消火栓系统",
+      "finding": "小区单元楼消火栓无水，消防设施未保持完好有效",
+      "finding_keywords": [
+        "消火栓",
+        "无水",
+        "小区",
+        "设施失效"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第16条第1款第2项",
+        "消防法第60条第1款第1项"
+      ],
+      "cause": "物业长期不维护，管网泄漏",
+      "consequence": "被处罚款6000元",
+      "photo_features": "打开消火栓阀门无出水",
+      "typical_scene": "老旧住宅小区",
+      "created": "2026-07-22",
+      "source": "天津滨海新区消防救援支队·2025年9月行政处罚案"
+    },
+    {
+      "id": "CR003",
+      "facility": "室外消火栓",
+      "category": "消火栓系统",
+      "finding": "室外消火栓栓口损坏，微型消防站内灭火器失效",
+      "finding_keywords": [
+        "室外消火栓",
+        "损坏",
+        "灭火器失效",
+        "微型消防站"
+      ],
+      "venue_type": "市场",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第28条",
+        "消防法第60条第1款第2项"
+      ],
+      "cause": "缺乏定期巡检维护",
+      "consequence": "损坏消防器材2处，罚款1.4万元",
+      "photo_features": "消火栓栓口变形无法连接水带",
+      "typical_scene": "集贸市场、批发市场",
+      "created": "2026-07-22",
+      "source": "拉萨市堆龙德庆区消防救援大队·2026年7月行政处罚公示"
+    },
+    {
+      "id": "CR004",
+      "facility": "火灾报警系统",
+      "category": "自动报警",
+      "finding": "火灾报警系统瘫痪、消防水泵压力不达标、消防管道泄漏、消火栓无水，多项消防设施同时失效",
+      "finding_keywords": [
+        "报警系统",
+        "瘫痪",
+        "水泵",
+        "泄漏",
+        "消火栓无水"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "critical",
+      "regulation_refs": [
+        "江西省消防条例"
+      ],
+      "cause": "物业管理失职，维修资金长期不到位",
+      "consequence": "被处罚款1000元并责令整改",
+      "photo_features": "火灾报警控制器大面积故障灯亮",
+      "typical_scene": "老旧高层住宅小区",
+      "created": "2026-07-22",
+      "source": "新余市渝水区消防救援大队·2025年7月行政处罚",
+      "url": "http://jx.119.gov.cn/news-show-32961.html"
+    },
+    {
+      "id": "CR005",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "消防控制室未落实24小时两人值班制度，经责令整改后逾期仍未改正",
+      "finding_keywords": [
+        "消防控制室",
+        "值班",
+        "无人",
+        "逾期未改"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "high",
+      "regulation_refs": [
+        "江西省建筑消防设施管理规定"
+      ],
+      "cause": "物业公司为节省人力成本",
+      "consequence": "行政处罚，罚款",
+      "photo_features": "消防控制室仅1人在岗或无人值守",
+      "typical_scene": "住宅小区、写字楼",
+      "created": "2026-07-22",
+      "source": "新余市高新区消防救援大队·2026年4月行政处罚案"
+    },
+    {
+      "id": "CR006",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "养老院（约3000㎡重点养老服务场所）安排无证人员在消防控制室值班",
+      "finding_keywords": [
+        "无证",
+        "消防控制室",
+        "养老院",
+        "值班"
+      ],
+      "venue_type": "养老院",
+      "severity": "high",
+      "regulation_refs": [
+        "江西省消防条例第86条"
+      ],
+      "cause": "未安排人员参加消防设施操作员培训考试",
+      "consequence": "罚款1000元",
+      "photo_features": "值班人员无法出示消防设施操作员证书",
+      "typical_scene": "养老院、福利机构",
+      "created": "2026-07-22",
+      "source": "新余市分宜县消防救援大队·2025年4月行政处罚"
+    },
+    {
+      "id": "CR007",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding": "3200㎡商贸经营场所仅设1个安全出口，210㎡员工宿舍疏散条件严重不足",
+      "finding_keywords": [
+        "安全出口",
+        "不足",
+        "单一",
+        "大面积",
+        "员工宿舍"
+      ],
+      "venue_type": "商贸公司",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025",
+        "消防法第54条"
+      ],
+      "cause": "建筑原有结构限制，改造时未增设",
+      "consequence": "临时查封，责令停业整改",
+      "photo_features": "仅有一处出入口，无第二个安全出口标识",
+      "typical_scene": "商贸市场、大型仓库",
+      "created": "2026-07-22",
+      "source": "北京朝阳区消防救援支队·2026年7月执法",
+      "url": "https://m.gmw.cn/2026-07/22/content_1304536211.htm"
+    },
+    {
+      "id": "CR008",
+      "facility": "建筑材料",
+      "category": "建筑防火",
+      "finding": "卫生院顶楼会议室等采用易燃彩钢板搭建，判定为重大火灾隐患",
+      "finding_keywords": [
+        "彩钢板",
+        "易燃",
+        "会议室",
+        "重大隐患"
+      ],
+      "venue_type": "卫生院",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025"
+      ],
+      "cause": "建设时使用不达标材料节约成本",
+      "consequence": "判定重大火灾隐患单位，县政府挂牌督办，责令限期整改",
+      "photo_features": "楼顶建筑为蓝色夹芯彩钢板",
+      "typical_scene": "乡镇卫生院、学校临时建筑",
+      "created": "2026-07-22",
+      "source": "邵阳县塘田市镇·2026年5月重大火灾隐患挂牌督办"
+    },
+    {
+      "id": "CR009",
+      "facility": "建筑材料",
+      "category": "建筑防火",
+      "finding": "员工宿舍采用燃烧性能低于A级的金属夹芯板搭建",
+      "finding_keywords": [
+        "彩钢板",
+        "夹芯板",
+        "员工宿舍",
+        "易燃",
+        "A级"
+      ],
+      "venue_type": "工厂",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025",
+        "消防法第26条"
+      ],
+      "cause": "为降低建设成本使用非阻燃板材",
+      "consequence": "判定重大火灾隐患，县政府挂牌督办",
+      "photo_features": "宿舍外墙为金属夹芯彩钢板，夹层为可燃泡沫",
+      "typical_scene": "工厂工地、临时住宿区",
+      "created": "2026-07-22",
+      "source": "邵阳县亿荣沥青混凝土有限公司·2026年5月重大火灾隐患"
+    },
+    {
+      "id": "CR010",
+      "facility": "防火分隔",
+      "category": "建筑防火",
+      "finding": "多产权混合经营场所未明确消防管理职责，防火分隔不到位",
+      "finding_keywords": [
+        "多产权",
+        "混合经营",
+        "消防管理",
+        "职责不明",
+        "防火分隔"
+      ],
+      "venue_type": "商场",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第18条"
+      ],
+      "cause": "产权分散，无统一物业管理",
+      "consequence": "判定为重大火灾隐患单位，下发整改通知书",
+      "photo_features": "不同商户之间无有效防火分隔",
+      "typical_scene": "多产权商场、批发市场",
+      "created": "2026-07-22",
+      "source": "株洲尚格广场·2026年6月重大火灾隐患曝光"
+    },
+    {
+      "id": "CR011",
+      "facility": "消防水源",
+      "category": "消火栓系统",
+      "finding": "无消防水源，室内消火栓、自动喷水、排烟设施均不能正常运行",
+      "finding_keywords": [
+        "消防水源",
+        "消火栓",
+        "喷淋",
+        "排烟",
+        "全部失效"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第60条第1款第7项"
+      ],
+      "cause": "开发商遗留问题，物业无资金维修",
+      "consequence": "罚款4.2万元，法人涉嫌危险作业罪被刑事拘留",
+      "photo_features": "消防水泵停转，管道锈蚀无水",
+      "typical_scene": "问题楼盘、烂尾小区",
+      "created": "2026-07-22",
+      "source": "乌海广昊房地产·2026年行刑衔接典型案"
+    },
+    {
+      "id": "CR012",
+      "facility": "防火门",
+      "category": "防火分隔",
+      "finding": "综合楼防火门破损拆除、18楼防火门被拆除、管道井未封堵、屋顶水箱漏水",
+      "finding_keywords": [
+        "防火门",
+        "拆除",
+        "破损",
+        "管道井",
+        "未封堵",
+        "水箱漏水"
+      ],
+      "venue_type": "综合楼",
+      "severity": "high",
+      "regulation_refs": [
+        "江西省消防条例"
+      ],
+      "cause": "物业管理失职，日常维护缺失",
+      "consequence": "责令限期整改，逾期未改行政处罚",
+      "photo_features": "防火门缺失仅剩门框，管道井有缝隙",
+      "typical_scene": "商住综合楼、写字楼",
+      "created": "2026-07-22",
+      "source": "新余市渝水区消防救援大队·2025年12月检查案"
+    },
+    {
+      "id": "CR013",
+      "facility": "消防水泵",
+      "category": "消火栓系统",
+      "finding": "消火栓泵不能远程启动，消防设施未保持完好有效",
+      "finding_keywords": [
+        "水泵",
+        "远程启动",
+        "消火栓泵",
+        "不能启动"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第60条第1款第1项"
+      ],
+      "cause": "消防水泵控制柜未处于自动状态",
+      "consequence": "合并处罚款3万元",
+      "photo_features": "消防水泵控制柜处于手动状态",
+      "typical_scene": "高层住宅小区",
+      "created": "2026-07-22",
+      "source": "宁乡五街国际小区·2026年3月行政处罚"
+    },
+    {
+      "id": "CR014",
+      "facility": "自动喷水",
+      "category": "自动灭火",
+      "finding": "喷淋系统不能正常运行，排烟设施不能正常使用",
+      "finding_keywords": [
+        "喷淋",
+        "不能运行",
+        "排烟",
+        "失效"
+      ],
+      "venue_type": "商场市场",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第60条第1款第1项"
+      ],
+      "cause": "设施年久失修，无维保单位",
+      "consequence": "罚款6000元",
+      "photo_features": "末端试水阀打开无出水",
+      "typical_scene": "老旧商场、批发市场",
+      "created": "2026-07-22",
+      "source": "株洲淞北市场·2026年6月行政处罚"
+    },
+    {
+      "id": "CR015",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding": "幼儿园三层仅一部疏散楼梯，安全出口数量不足",
+      "finding_keywords": [
+        "安全出口",
+        "不足",
+        "幼儿园",
+        "仅一部楼梯"
+      ],
+      "venue_type": "幼儿园",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025",
+        "GB55037-2022 第7.4.1条"
+      ],
+      "cause": "原有建筑结构限制",
+      "consequence": "判定为重大火灾隐患单位",
+      "photo_features": "仅有一部楼梯通往楼上",
+      "typical_scene": "幼儿园、培训机构",
+      "created": "2026-07-22",
+      "source": "茶陵县星海幼儿园·2026年6月重大火灾隐患"
+    },
+    {
+      "id": "CR016",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding": "生产车间内安全出口被封闭（1处），违反消防法第28条",
+      "finding_keywords": [
+        "安全出口",
+        "封闭",
+        "车间",
+        "堵塞"
+      ],
+      "venue_type": "工厂车间",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第60条第1款第3项"
+      ],
+      "cause": "企业管理疏忽，货物堆放封堵出口",
+      "consequence": "罚款6000元",
+      "photo_features": "安全出口被货物或卷帘门封堵",
+      "typical_scene": "工厂车间、仓库",
+      "created": "2026-07-23",
+      "source": "江西大余县消防救援大队·2026年7月行政处罚公示",
+      "url": "http://www.jxdy.gov.cn/dyxxxgk/xfjc/"
+    },
+    {
+      "id": "CR017",
+      "facility": "安全出口",
+      "category": "疏散设施",
+      "finding": "安全出口设置电动卷帘门妨碍安全疏散",
+      "finding_keywords": [
+        "安全出口",
+        "卷帘门",
+        "疏散",
+        "妨碍"
+      ],
+      "venue_type": "企业厂房",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第60条第1款第3项"
+      ],
+      "cause": "为防盗安装卷帘门，忽略消防要求",
+      "consequence": "罚款8000元",
+      "photo_features": "安全出口安装电动卷帘门",
+      "typical_scene": "企业厂房、仓库",
+      "created": "2026-07-23",
+      "source": "河北临城县消防救援大队·2026年7月行政处罚",
+      "url": "https://www.lincheng.gov.cn/content/11062/67464.html"
+    },
+    {
+      "id": "CR018",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "高层民用建筑消防控制室未落实值班制度",
+      "finding_keywords": [
+        "高层",
+        "消防控制室",
+        "值班",
+        "未落实"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "high",
+      "regulation_refs": [
+        "高层民用建筑消防安全管理规定第26条"
+      ],
+      "cause": "物业公司削减安保人力成本",
+      "consequence": "罚款5000元",
+      "photo_features": "消防控制室无人值守或仅1人在岗",
+      "typical_scene": "高层住宅小区",
+      "created": "2026-07-23",
+      "source": "陕西沣东新城消防救援大队·2026年7月行政处罚公示",
+      "url": "http://fdxc.xixianxinqu.gov.cn/"
+    },
+    {
+      "id": "CR019",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "消防控制室安排不具备条件人员值班（启明星幼儿园）",
+      "finding_keywords": [
+        "幼儿园",
+        "消防控制室",
+        "不具备条件",
+        "值班"
+      ],
+      "venue_type": "幼儿园",
+      "severity": "high",
+      "regulation_refs": [
+        "广东省实施消防法办法第19条"
+      ],
+      "cause": "幼儿园未配备持证消防操作员",
+      "consequence": "罚款5300元",
+      "photo_features": "消防控制室值班人员无法出示操作员证",
+      "typical_scene": "幼儿园、学校、培训机构",
+      "created": "2026-07-23",
+      "source": "广东高州市消防救援大队·2026年7月行政处罚"
+    },
+    {
+      "id": "CR020",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "商场消防控制室仅安排1人值班且不具备相应条件",
+      "finding_keywords": [
+        "商场",
+        "消防控制室",
+        "1人值班",
+        "不具备条件"
+      ],
+      "venue_type": "商场",
+      "severity": "high",
+      "regulation_refs": [
+        "广东省实施消防法办法"
+      ],
+      "cause": "商场为节省成本安排无证人员",
+      "consequence": "罚款8000元",
+      "photo_features": "消控室仅1人在岗",
+      "typical_scene": "商场、购物中心",
+      "created": "2026-07-23",
+      "source": "广东中山横栏镇消防救援大队·2026年6月行政处罚",
+      "url": "https://gd.119.gov.cn/ywdt/gddt/content/post_4908151.html"
+    },
+    {
+      "id": "CR021",
+      "facility": "消防水带",
+      "category": "消火栓系统",
+      "finding": "消防水带实测长度比标称短1米以上，判定为不合格消防产品，逾期未整改",
+      "finding_keywords": [
+        "消防水带",
+        "不合格",
+        "长度不足",
+        "消防产品"
+      ],
+      "venue_type": "企业",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第65条第2款"
+      ],
+      "cause": "采购时未核对消防产品认证",
+      "consequence": "单位罚款5000元，消防安全管理人罚款500元",
+      "photo_features": "消防水带实测长度明显短于标称值",
+      "typical_scene": "各类企业单位",
+      "created": "2026-07-23",
+      "source": "广西柳州柳城县消防救援大队·2026年4月执法",
+      "url": "http://gx.119.gov.cn/portal/article/index/id/11495/"
+    },
+    {
+      "id": "CR022",
+      "facility": "防火间距",
+      "category": "建筑防火",
+      "finding": "再生资源回收站占用防火间距堆放回收物",
+      "finding_keywords": [
+        "防火间距",
+        "占用",
+        "回收站",
+        "堆放"
+      ],
+      "venue_type": "回收站",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第60条第1款第4项"
+      ],
+      "cause": "场地不足，占用防火间距堆放物品",
+      "consequence": "罚款15000元",
+      "photo_features": "建筑之间堆满回收废品",
+      "typical_scene": "废品回收站、仓储物流",
+      "created": "2026-07-23",
+      "source": "江西信丰县消防救援大队·2026年7月行政处罚公示"
+    },
+    {
+      "id": "CR023",
+      "facility": "疏散设施",
+      "category": "疏散设施",
+      "finding": "养老服务机构占用疏散通道、安全出口，且在通道停放电动自行车",
+      "finding_keywords": [
+        "养老院",
+        "疏散通道",
+        "占用",
+        "电动自行车"
+      ],
+      "venue_type": "养老服务机构",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第60条第1款第3项"
+      ],
+      "cause": "日常管理混乱，杂物和车辆占用通道",
+      "consequence": "罚款6000元",
+      "photo_features": "疏散通道堆放杂物和电动自行车",
+      "typical_scene": "养老院、福利机构",
+      "created": "2026-07-23",
+      "source": "江西信丰县消防救援大队·2026年7月行政处罚",
+      "url": "http://www.jxxf.gov.cn/xfxrmzfyyh/c104550/202607/"
+    },
+    {
+      "id": "CR024",
+      "facility": "自动喷水",
+      "category": "自动灭火",
+      "finding": "农贸市场未设置火灾自动报警系统和自动喷水灭火系统",
+      "finding_keywords": [
+        "农贸市场",
+        "未设置",
+        "报警系统",
+        "喷淋系统"
+      ],
+      "venue_type": "农贸市场",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025"
+      ],
+      "cause": "建成时未按标准配置，后期一直未增设",
+      "consequence": "判定重大火灾隐患，政府挂牌督办，责令限期整改",
+      "photo_features": "市场内无喷淋头和烟感探测器",
+      "typical_scene": "农贸市场、老旧市场",
+      "created": "2026-07-23",
+      "source": "湘潭韶山市消防救援大队·2026年7月重大火灾隐患挂牌督办"
+    },
+    {
+      "id": "CR025",
+      "facility": "建筑材料",
+      "category": "建筑防火",
+      "finding": "娱乐公司违规采用可燃泡沫彩钢夹芯板搭建",
+      "finding_keywords": [
+        "彩钢板",
+        "夹芯板",
+        "泡沫",
+        "娱乐场所"
+      ],
+      "venue_type": "娱乐场所",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025"
+      ],
+      "cause": "为降低建设成本使用可燃材料",
+      "consequence": "判定重大火灾隐患，立案处罚",
+      "photo_features": "墙面为泡沫夹芯彩钢板",
+      "typical_scene": "娱乐场所、临时建筑",
+      "created": "2026-07-23",
+      "source": "湘潭市消防救援支队·2026年7月重大火灾隐患公示"
+    },
+    {
+      "id": "CR026",
+      "facility": "地下车库",
+      "category": "建筑防火",
+      "finding": "小区地下车库消防设施全部瘫痪：火灾报警、喷淋、消火栓均无法正常使用",
+      "finding_keywords": [
+        "地下车库",
+        "瘫痪",
+        "报警",
+        "喷淋",
+        "消火栓"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025 6.1.1"
+      ],
+      "cause": "物业长期不维护，维修资金不到位",
+      "consequence": "判定重大火灾隐患",
+      "photo_features": "消防设施锈蚀损坏无法使用",
+      "typical_scene": "老旧住宅小区地下车库",
+      "created": "2026-07-23",
+      "source": "湘潭斑竹新苑小区·2026年7月重大火灾隐患公示"
+    },
+    {
+      "id": "CR027",
+      "facility": "防火分隔",
+      "category": "建筑防火",
+      "finding": "企业将地下车库改为生产车间和仓库，防火分区不符合要求",
+      "finding_keywords": [
+        "地下车库",
+        "改用途",
+        "生产车间",
+        "仓库",
+        "防火分区"
+      ],
+      "venue_type": "地下车库",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第54条"
+      ],
+      "cause": "企业违规改变建筑使用性质",
+      "consequence": "当场查封",
+      "photo_features": "地下车库内设置生产线和货物堆垛",
+      "typical_scene": "擅自改变用途的工业建筑",
+      "created": "2026-07-23",
+      "source": "福建晋江市消防救援大队·2026年7月集中整治行动"
+    },
+    {
+      "id": "CR028",
+      "facility": "消防设施",
+      "category": "消防管理",
+      "finding": "校外托管机构存在安全出口不足、灭火器配备不足、疏散指示不合规、防盗窗未开逃生窗口等多重隐患",
+      "finding_keywords": [
+        "校外托管",
+        "安全出口",
+        "灭火器",
+        "疏散指示",
+        "防盗窗"
+      ],
+      "venue_type": "校外托管机构",
+      "severity": "critical",
+      "regulation_refs": [
+        "消防法第54条"
+      ],
+      "cause": "开设时未进行消防安全评估",
+      "consequence": "依法临时查封",
+      "photo_features": "安全出口不足，防盗窗全封闭",
+      "typical_scene": "校外托管、培训机构",
+      "created": "2026-07-23",
+      "source": "广西贺州昭平县消防救援大队·2026年6月执法",
+      "url": "http://gx.119.gov.cn/index.php/portal/article/index/id/11742/"
+    },
+    {
+      "id": "CR029",
+      "facility": "消防控制室",
+      "category": "消防管理",
+      "finding": "消防控制室2名值班人员中仅1人持证，另1人不具备从业条件",
+      "finding_keywords": [
+        "2人值班",
+        "1人持证",
+        "不具备",
+        "从业条件"
+      ],
+      "venue_type": "住宅小区",
+      "severity": "medium",
+      "regulation_refs": [
+        "高层民用建筑消防安全管理规定"
+      ],
+      "cause": "持证人员不足，用无证人员顶班",
+      "consequence": "行政处罚",
+      "photo_features": "值班表显示仅1人持证",
+      "typical_scene": "住宅小区、写字楼",
+      "created": "2026-07-23",
+      "source": "广东肇庆市消防救援支队·2026年7月执法",
+      "url": "https://gd.119.gov.cn/ywdt/gddt/content/post_4926803.html"
+    },
+    {
+      "id": "CR030",
+      "facility": "建筑防火",
+      "category": "建筑防火",
+      "finding": "加油站二楼违规设置居住场所，易燃易爆场所与民用建筑混用",
+      "finding_keywords": [
+        "加油站",
+        "居住",
+        "二楼",
+        "易燃易爆",
+        "混用"
+      ],
+      "venue_type": "加油站",
+      "severity": "critical",
+      "regulation_refs": [
+        "GB35181-2025"
+      ],
+      "cause": "经营者在经营场所内设置生活区",
+      "consequence": "判定重大火灾隐患，立案处罚",
+      "photo_features": "加油站二楼设有床铺和生活用品",
+      "typical_scene": "加油站、加气站",
+      "created": "2026-07-23",
+      "source": "湘潭县消防救援大队·2026年7月重大火灾隐患公示"
+    },
+    {
+      "id": "CR031",
+      "facility": "消防报警",
+      "category": "自动报警",
+      "finding": "商超所在多业态混合建筑未明确消防管理职责，消防设施未统一管理",
+      "finding_keywords": [
+        "多业态",
+        "混合经营",
+        "职责不明",
+        "统一管理"
+      ],
+      "venue_type": "商超",
+      "severity": "high",
+      "regulation_refs": [
+        "消防法第18条"
+      ],
+      "cause": "多个产权单位各自管理，无统一物业",
+      "consequence": "判定重大火灾隐患，挂牌督办",
+      "photo_features": "不同楼层不同商户消防设施各自为政",
+      "typical_scene": "多业态混合建筑",
+      "created": "2026-07-23",
+      "source": "邵阳北塔区消防救援大队·2026年7月重大火灾隐患挂牌督办"
+    }
+  ]
+}

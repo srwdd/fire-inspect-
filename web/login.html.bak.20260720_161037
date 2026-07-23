@@ -44,10 +44,7 @@ input:focus{outline:none;border-color:#448aff}
 const { createApp } = Vue;
 const AUTH = axios.create({ baseURL: '/inspect/api/v1/auth' });
 createApp({
-  data(){
-    var u = localStorage.getItem('fire_username') || '';
-    return { username: u, password: '', error: '', remember: true };
-  },
+  data(){ return { username:'', password:'', error:'', remember: true }; },
   methods: {
     async login(){
       this.error = '';
@@ -58,7 +55,6 @@ createApp({
         var storage = this.remember ? localStorage : sessionStorage;
         storage.setItem('fire_token', d.token);
         storage.setItem('fire_user', JSON.stringify(d.user));
-        if (this.remember) { localStorage.setItem('fire_username', this.username); }
         window.location.href = '/inspect/web/';
       } catch(e) {
         this.error = e.response?.data?.detail || '登录失败';

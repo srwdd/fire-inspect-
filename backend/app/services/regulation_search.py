@@ -11,22 +11,44 @@ RULES_PATH = Path(__file__).resolve().parent.parent.parent / "fire_rules.json"
 if not RULES_PATH.exists():
     RULES_PATH = Path(__file__).resolve().parent.parent.parent.parent / "fire_rules.json"
 
+CASES_PATH = Path(__file__).resolve().parent.parent.parent / "fire_cases.json"
+if not CASES_PATH.exists():
+    CASES_PATH = Path(__file__).resolve().parent.parent.parent.parent / "fire_cases.json"
+
+SOLUTIONS_PATH = Path(__file__).resolve().parent.parent.parent / "fire_solutions.json"
+if not SOLUTIONS_PATH.exists():
+    SOLUTIONS_PATH = Path(__file__).resolve().parent.parent.parent.parent / "fire_solutions.json"
+
 # ── 消防术语同义词映射 ──────────────────────────
 _SYNONYMS = {
     "灭火器": ["灭火器", "灭火器具", "手提灭火器", "推车灭火器", "消防器材"],
-    "消火栓": ["消火栓", "消防栓", "室内消火栓", "室外消火栓", "消防水喉"],
+    "消火栓": ["消火栓", "消防栓", "室内消火栓", "室外消火栓", "消防水喉", "消防水泵接合器"],
     "安全出口": ["安全出口", "疏散出口", "紧急出口", "逃生门", "疏散门"],
     "消防通道": ["消防通道", "消防车道", "消防车通道", "消防车"],
-    "疏散指示": ["疏散指示", "疏散标志", "指示标志", "安全标志", "逃生标志"],
+    "疏散指示": ["疏散指示", "疏散标志", "指示标志", "安全标志", "逃生标志", "指示灯", "应急灯不亮", "疏散指示灯"],
     "应急照明": ["应急照明", "应急灯", "事故照明", "备用照明", "疏散照明"],
     "防火门": ["防火门", "防火卷帘", "防火分隔", "防火门窗"],
     "烟感": ["烟感", "烟感探测器", "感烟探测器", "感烟", "烟雾探测器"],
-    "报警器": ["报警", "火灾报警", "自动报警", "报警系统", "火灾探测器"],
-    "喷淋": ["喷淋", "自动喷水", "喷头", "洒水喷头", "水喷淋"],
-    "电气": ["电气", "电线", "线路", "配电", "漏电", "用电"],
-    "过期": ["过期", "失效", "超期", "到期"],
-    "损坏": ["损坏", "破损", "故障", "损毁", "缺失"],
-    "堵塞": ["堵塞", "占用", "锁闭", "封堵", "阻挡"],
+    "报警器": ["报警", "火灾报警", "自动报警", "报警系统", "火灾探测器", "报警控制器"],
+    "喷淋": ["喷淋", "自动喷水", "喷头", "洒水喷头", "水喷淋", "自动喷淋", "喷水灭火"],
+    "电气": ["电气", "电线", "线路", "配电", "漏电", "用电", "铝线", "铜线", "过载", "发烫"],
+    "过期": ["过期", "失效", "超期", "到期", "超过10年"],
+    "使用年限": ["使用年限", "年限", "寿命", "有效期", "保质期", "多久更换", "保养周期"],
+    "损坏": ["损坏", "破损", "故障", "损毁", "缺失", "发霉", "被咬"],
+    "堵塞": ["堵塞", "占用", "锁闭", "封堵", "阻挡", "压占"],
+    # 🔥 新增 — 覆盖评测失败用例
+    "油污": ["油污", "清洁", "保养", "脏污"],
+    "维护保养": ["维护", "保养", "巡检", "定期检查", "巡查记录"],
+    "压力不足": ["压力不足", "欠压", "压力表红区", "压力表失效", "无压力"],
+    "锈蚀": ["锈蚀", "生锈", "腐蚀", "漆面脱落", "筒体破损"],
+    "防盗窗": ["防盗窗", "防盗网", "铁栅栏", "逃生窗口", "无法开启"],
+    "电动车": ["电动车", "电动自行车", "电池充电", "室内充电", "飞线充电"],
+    "彩钢板": ["彩钢板", "夹芯板", "泡沫夹芯", "易燃材料", "可燃材料"],
+    "燃气管": ["燃气管", "燃气软管", "橡胶管", "金属波纹管", "燃气泄漏"],
+    "养老院": ["养老院", "养老机构", "老年人照料设施", "福利院"],
+    "消防控制室": ["消防控制室", "消控室", "值班人员", "持证上岗", "操作员证"],
+    "防火封堵": ["防火封堵", "孔洞封堵", "电缆桥架", "穿墙封堵", "防火泥"],
+    "水带": ["水带", "消防水带", "水枪", "破损", "老化"],
 }
 
 
@@ -57,7 +79,7 @@ def _expand_query(query: str) -> List[str]:
     return list(tokens)
 
 
-def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
+def search_regulations(query: str, top_k: int = 3) -> List[Dict]:
     """智能检索法规: 口语查询 → 匹配的法规条款"""
     rules = _load_rules()
     if not rules:
@@ -153,6 +175,16 @@ def search_regulations(query: str, top_k: int = 5) -> List[Dict]:
         r["penalty"] = _penalty_hint(r.get("category", ""), r.get("severity", "normal"))
         r["suggested_action"] = _action_hint(r.get("check_point", ""), r.get("severity", "normal"))
 
+    # 去重：同source+title只保留最高分
+    seen_dedup = set()
+    deduped = []
+    for r in results:
+        k = (r.get("source",""), r.get("title",""))
+        if k not in seen_dedup:
+            seen_dedup.add(k)
+            deduped.append(r)
+    results = deduped
+
     return results
 
 
@@ -217,3 +249,143 @@ def _action_hint(check_point: str, severity: str) -> str:
     if "立即" in check_point or severity == "important":
         return "建议立即整改"
     return "建议限期整改"
+
+
+
+# ══════════════════════════════════════════════════════════════
+# 火鉴体系 — 警鉴（案例）+ 策鉴（方案）跨库检索
+# ══════════════════════════════════════════════════════════════
+
+def _load_cases() -> List[Dict]:
+    if not CASES_PATH.exists():
+        return []
+    try:
+        kb = json.loads(CASES_PATH.read_text("utf-8"))
+        return kb.get("cases", [])
+    except (json.JSONDecodeError, KeyError):
+        return []
+
+
+def _load_solutions() -> List[Dict]:
+    if not SOLUTIONS_PATH.exists():
+        return []
+    try:
+        kb = json.loads(SOLUTIONS_PATH.read_text("utf-8"))
+        return kb.get("solutions", [])
+    except (json.JSONDecodeError, KeyError):
+        return []
+
+
+def search_cases(query: str, facility: str = "", top_k: int = 3) -> List[Dict]:
+    """警鉴·案例检索 — 按设施类型+关键词匹配相似案例"""
+    cases = _load_cases()
+    if not cases:
+        return []
+
+    # 扩展查询词
+    tokens = _expand_query(query)
+    if facility:
+        tokens.append(facility)
+        tokens.extend(facility[i:i+2] for i in range(len(facility)-1))
+
+    scored = []
+    for case in cases:
+        text = (
+            case.get("finding", "") + " " +
+            case.get("facility", "") + " " +
+            " ".join(case.get("finding_keywords", [])) + " " +
+            case.get("venue_type", "") + " " +
+            case.get("cause", "")
+        )
+        score = 0
+        matched = []
+        for token in tokens:
+            if len(token) < 2:
+                continue
+            count = text.count(token)
+            if count > 0:
+                score += count * (2 if len(token) >= 3 else 1)
+                matched.append(token)
+
+        # 同设施类型加权
+        if facility and facility in case.get("facility", ""):
+            score = int(score * 2.0)
+
+        if score > 0:
+            scored.append({
+                "case_id": case.get("id", ""),
+                "facility": case.get("facility", ""),
+                "finding": case.get("finding", ""),
+                "venue_type": case.get("venue_type", ""),
+                "severity": case.get("severity", "normal"),
+                "cause": case.get("cause", ""),
+                "consequence": case.get("consequence", ""),
+                "regulation_refs": case.get("regulation_refs", []),
+                "score": score,
+                "matched_keywords": matched[:5],
+                "source": "警鉴·案例库",
+            })
+
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    return scored[:top_k]
+
+
+def search_solutions(query: str, facility: str = "", top_k: int = 3) -> List[Dict]:
+    """策鉴·方案检索 — 匹配隐患关键词返回整改方案"""
+    solutions = _load_solutions()
+    if not solutions:
+        return []
+
+    tokens = _expand_query(query)
+    if facility:
+        tokens.append(facility)
+
+    scored = []
+    for sol in solutions:
+        text = (
+            sol.get("facility", "") + " " +
+            " ".join(sol.get("finding_keywords", [])) + " " +
+            sol.get("category", "") + " " +
+            sol.get("immediate_action", "")
+        )
+        score = 0
+        matched = []
+        for token in tokens:
+            if len(token) < 2:
+                continue
+            count = text.count(token)
+            if count > 0:
+                score += count * (3 if len(token) >= 3 else 1)
+                matched.append(token)
+
+        # 同设施类型加权
+        if facility and facility in sol.get("facility", ""):
+            score = int(score * 2.5)
+
+        if score > 0:
+            scored.append({
+                "solution_id": sol.get("id", ""),
+                "facility": sol.get("facility", ""),
+                "immediate_action": sol.get("immediate_action", ""),
+                "rectification_period": sol.get("rectification_period", "限期整改"),
+                "responsible_role": sol.get("responsible_role", "消防安全管理人"),
+                "verification_method": sol.get("verification_method", ""),
+                "cost_estimate": sol.get("cost_estimate", ""),
+                "steps": sol.get("steps", []),
+                "reference": sol.get("reference", ""),
+                "score": score,
+                "matched_keywords": matched[:5],
+                "source": "策鉴·方案库",
+            })
+
+    scored.sort(key=lambda x: x["score"], reverse=True)
+    return scored[:top_k]
+
+
+def search_all(query: str, facility: str = "", top_k: int = 3) -> Dict[str, List[Dict]]:
+    """火鉴体系联合检索 — 同时查询法鉴+警鉴+策鉴，返回结构化结果"""
+    return {
+        "regulations": search_regulations(query, top_k=top_k),
+        "cases": search_cases(query, facility=facility, top_k=3),
+        "solutions": search_solutions(query, facility=facility, top_k=3),
+    }

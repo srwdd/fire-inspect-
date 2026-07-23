@@ -46,7 +46,7 @@ body {
 }
 
 /* ── Header ─────────────────────────────────── */
-.app-header {
+.app-header { 
   background: linear-gradient(180deg, #1a1a3e 0%, var(--bg-deep) 100%);
   padding: 10px 14px 6px;
   display: flex;
@@ -766,7 +766,7 @@ body.light-mode {
 /* ── Light mode specific adjustments ────────── */
 body.light-mode { background: var(--bg-deep); color: var(--text-primary); }
 
-body.light-mode .app-header {
+body.light-mode .app-header { 
   background: linear-gradient(180deg, #1a3a5c 0%, #2d5a88 100%);
   border-bottom-color: rgba(0,0,0,.08);
 }

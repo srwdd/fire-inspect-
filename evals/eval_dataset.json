@@ -1,0 +1,797 @@
+{
+  "eval_suite": {
+    "name": "火准·AI消防评测数据集",
+    "version": "1.1.0",
+    "built_at": "2026-07-22",
+    "description": "标准化的AI评测用例，覆盖7大设施类别、3种判定结果、5种严重等级",
+    "metrics": {
+      "judgment_accuracy": "判定结果（合格/不合格/不涉及）是否正确",
+      "regulation_recall": "引用的法规条款是否相关且准确",
+      "action_relevance": "建议的整改措施是否匹配隐患类型",
+      "completeness": "回答是否覆盖法规+案例+方案三个维度",
+      "conciseness": "回答是否控制在300字以内"
+    }
+  },
+  "test_cases": [
+    {
+      "id": "E001",
+      "facility": "灭火器",
+      "input": "灭火器压力表指针在红色区域，生产日期2019年3月",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50444",
+        "GB50140"
+      ],
+      "expected_keywords": [
+        "压力不足",
+        "欠压",
+        "充装",
+        "更换"
+      ],
+      "severity": "high",
+      "scene": "office"
+    },
+    {
+      "id": "E002",
+      "facility": "灭火器",
+      "input": "灭火器筒体底部大面积锈蚀，漆面起皮脱落",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50444-2008 第5.4.3条",
+      "expected_keywords": [
+        "锈蚀",
+        "更换",
+        "防腐",
+        "报废"
+      ],
+      "severity": "high",
+      "scene": "workshop"
+    },
+    {
+      "id": "E003",
+      "facility": "灭火器",
+      "input": "灭火器被办公纸箱完全遮挡，找不到在哪",
+      "expected_judgment": "fail",
+      "expected_regulation": "消防法第28条",
+      "expected_keywords": [
+        "遮挡",
+        "清理",
+        "标识",
+        "通畅"
+      ],
+      "severity": "medium",
+      "scene": "office"
+    },
+    {
+      "id": "E004",
+      "facility": "灭火器",
+      "input": "灭火器压力表在绿色区域，生产日期2025年6月，外观完好",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50140-2005",
+      "expected_keywords": [
+        "合格",
+        "正常",
+        "可用"
+      ],
+      "severity": "normal",
+      "scene": "mall"
+    },
+    {
+      "id": "E005",
+      "facility": "灭火器",
+      "input": "厨房角落的灭火器上面全是油污，看不清压力表",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50444",
+        "GB50140"
+      ],
+      "expected_keywords": [
+        "油污",
+        "清洁",
+        "辨识",
+        "保养"
+      ],
+      "severity": "medium",
+      "scene": "restaurant"
+    },
+    {
+      "id": "E006",
+      "facility": "灭火器",
+      "input": "这个楼层有800平米但只有1具4kg灭火器够不够",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50140-2005 第6.1.1条",
+      "expected_keywords": [
+        "数量不足",
+        "配置",
+        "增加",
+        "A类火灾"
+      ],
+      "severity": "high",
+      "scene": "office"
+    },
+    {
+      "id": "E007",
+      "facility": "灭火器",
+      "input": "灭火器生产日期是2013年6月，外观看起来还行",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50444",
+        "GB50140"
+      ],
+      "expected_keywords": [
+        "过期",
+        "超期",
+        "报废",
+        "超过10年"
+      ],
+      "severity": "high",
+      "scene": "residential"
+    },
+    {
+      "id": "E008",
+      "facility": "消火栓",
+      "input": "消火栓箱被新装的货架完全挡住，打不开门",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50974-2014 第7.4.8条",
+      "expected_keywords": [
+        "遮挡",
+        "清理",
+        "清除",
+        "畅通"
+      ],
+      "severity": "high",
+      "scene": "warehouse"
+    },
+    {
+      "id": "E009",
+      "facility": "消火栓",
+      "input": "打开消火栓阀门没有水出来",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50974-2014 第7.4.12条",
+      "expected_keywords": [
+        "无水",
+        "阀门",
+        "供水",
+        "排查"
+      ],
+      "severity": "critical",
+      "scene": "office"
+    },
+    {
+      "id": "E010",
+      "facility": "消火栓",
+      "input": "室外消火栓井盖被私家车压住了",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50974",
+        "消防法"
+      ],
+      "expected_keywords": [
+        "压占",
+        "占用",
+        "移走",
+        "停车"
+      ],
+      "severity": "high",
+      "scene": "street"
+    },
+    {
+      "id": "E011",
+      "facility": "消火栓",
+      "input": "消火栓箱内水带水枪齐全，阀门能正常打开，出水压力正常",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50974-2014",
+      "expected_keywords": [
+        "正常",
+        "齐全",
+        "合格"
+      ],
+      "severity": "normal",
+      "scene": "mall"
+    },
+    {
+      "id": "E012",
+      "facility": "消火栓",
+      "input": "消火栓的水带发霉了还有老鼠咬的洞",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB6246",
+        "GB50974"
+      ],
+      "expected_keywords": [
+        "破损",
+        "发霉",
+        "更换水带",
+        "保养"
+      ],
+      "severity": "high",
+      "scene": "basement"
+    },
+    {
+      "id": "E013",
+      "facility": "消火栓",
+      "input": "消防水泵接合器被绿化带灌木丛埋没看不见了",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50974-2014 第5.4.8条",
+      "expected_keywords": [
+        "遮挡",
+        "绿化",
+        "清除",
+        "标识"
+      ],
+      "severity": "medium",
+      "scene": "community"
+    },
+    {
+      "id": "E014",
+      "facility": "安全出口",
+      "input": "KTV安全出口门被锁链锁住了，钥匙在前台",
+      "expected_judgment": "fail",
+      "expected_regulation": "消防法第28条",
+      "expected_keywords": [
+        "锁闭",
+        "拆除锁链",
+        "推闩式",
+        "逃生"
+      ],
+      "severity": "critical",
+      "scene": "ktv"
+    },
+    {
+      "id": "E015",
+      "facility": "疏散通道",
+      "input": "楼梯平台堆满了旧桌椅和纸箱，只能侧身通过",
+      "expected_judgment": "fail",
+      "expected_regulation": "消防法第28条",
+      "expected_keywords": [
+        "堆放",
+        "清理",
+        "杂物",
+        "净宽"
+      ],
+      "severity": "high",
+      "scene": "residential"
+    },
+    {
+      "id": "E016",
+      "facility": "安全出口",
+      "input": "安全出口门上方的指示灯不亮",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50016",
+        "GB51309"
+      ],
+      "expected_keywords": [
+        "指示标志",
+        "更换",
+        "不亮",
+        "应急灯"
+      ],
+      "severity": "medium",
+      "scene": "mall"
+    },
+    {
+      "id": "E017",
+      "facility": "疏散通道",
+      "input": "疏散走道宽度约1.5米，无杂物，指示灯明亮",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50016",
+      "expected_keywords": [
+        "畅通",
+        "合格",
+        "正常"
+      ],
+      "severity": "normal",
+      "scene": "office"
+    },
+    {
+      "id": "E018",
+      "facility": "安全出口",
+      "input": "这个是地下室，只有一个往上的楼梯出口",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB55037-2022 第7.4.1条",
+      "expected_keywords": [
+        "安全出口",
+        "不足",
+        "两个",
+        "增设"
+      ],
+      "severity": "critical",
+      "scene": "basement"
+    },
+    {
+      "id": "E019",
+      "facility": "疏散通道",
+      "input": "逃生窗外面安装了全封闭的防盗网，打不开",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "消防法",
+        "GB55037"
+      ],
+      "expected_keywords": [
+        "防盗网",
+        "逃生窗口",
+        "拆除",
+        "改装"
+      ],
+      "severity": "critical",
+      "scene": "residential"
+    },
+    {
+      "id": "E020",
+      "facility": "疏散通道",
+      "input": "电影院散场后疏散门都能正常打开，通道很通畅",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50016",
+      "expected_keywords": [
+        "畅通",
+        "合格",
+        "规范"
+      ],
+      "severity": "normal",
+      "scene": "cinema"
+    },
+    {
+      "id": "E021",
+      "facility": "安全出口",
+      "input": "安全出口的门是往里面拉的，不是往外推的",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50016 第6.4.11条",
+      "expected_keywords": [
+        "开启方向",
+        "疏散方向",
+        "改造"
+      ],
+      "severity": "high",
+      "scene": "restaurant"
+    },
+    {
+      "id": "E022",
+      "facility": "电气线路",
+      "input": "配电箱里电线乱糟糟的，好几根铜线裸露在外面",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50054 第4.1.2条",
+      "expected_keywords": [
+        "裸露",
+        "电工",
+        "绝缘",
+        "整理接线"
+      ],
+      "severity": "high",
+      "scene": "workshop"
+    },
+    {
+      "id": "E023",
+      "facility": "电气线路",
+      "input": "吊顶上面的电线直接放在木龙骨上，没有穿管",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50016 第10.2.3条",
+      "expected_keywords": [
+        "未穿管",
+        "金属管",
+        "阻燃",
+        "穿管保护"
+      ],
+      "severity": "high",
+      "scene": "shop"
+    },
+    {
+      "id": "E024",
+      "facility": "电气线路",
+      "input": "电缆桥架穿过防火墙的孔洞没封堵，能直接看到对面",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB55037-2022 第6.3.3条",
+      "expected_keywords": [
+        "防火封堵",
+        "堵料",
+        "封堵",
+        "电缆"
+      ],
+      "severity": "medium",
+      "scene": "office"
+    },
+    {
+      "id": "E025",
+      "facility": "电气线路",
+      "input": "配电间干净整洁，线路都有桥架和穿管，接地线完好",
+      "expected_judgment": "pass",
+      "expected_regulation": [
+        "GB50054",
+        "GB50016"
+      ],
+      "expected_keywords": [
+        "规范",
+        "合格",
+        "整洁"
+      ],
+      "severity": "normal",
+      "scene": "office"
+    },
+    {
+      "id": "E026",
+      "facility": "电气线路",
+      "input": "电动车在店里充电，充电器就放在纸箱旁边",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "消防法",
+        "GB55037"
+      ],
+      "expected_keywords": [
+        "电动车",
+        "室内充电",
+        "移除",
+        "集中充电"
+      ],
+      "severity": "high",
+      "scene": "shop"
+    },
+    {
+      "id": "E027",
+      "facility": "电气线路",
+      "input": "老房子用的是铝线，空调一开线路就发烫",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50054",
+        "GB50016"
+      ],
+      "expected_keywords": [
+        "铝线",
+        "过载",
+        "更换铜线",
+        "线路老化"
+      ],
+      "severity": "high",
+      "scene": "residential"
+    },
+    {
+      "id": "E028",
+      "facility": "电气线路",
+      "input": "厨房插座没有防水盖，油污很多",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50054",
+      "expected_keywords": [
+        "防水",
+        "插座",
+        "油污",
+        "清洁"
+      ],
+      "severity": "medium",
+      "scene": "restaurant"
+    },
+    {
+      "id": "E029",
+      "facility": "火灾报警",
+      "input": "火灾报警控制器上三个黄色故障灯亮着，消音键被胶带粘住了",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50116 第4.2.1条",
+      "expected_keywords": [
+        "故障",
+        "维修",
+        "维保",
+        "消音"
+      ],
+      "severity": "critical",
+      "scene": "hotel"
+    },
+    {
+      "id": "E030",
+      "facility": "火灾报警",
+      "input": "按了一下走廊的手动报警按钮，消防控制室没人响应",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB25506-2010",
+      "expected_keywords": [
+        "值班",
+        "响应",
+        "无响应",
+        "控制室"
+      ],
+      "severity": "critical",
+      "scene": "office"
+    },
+    {
+      "id": "E031",
+      "facility": "火灾报警",
+      "input": "烟感探测器的外壳发黄了，上面还有蜘蛛网",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50116",
+      "expected_keywords": [
+        "老化",
+        "清洁",
+        "探测器",
+        "更换"
+      ],
+      "severity": "medium",
+      "scene": "warehouse"
+    },
+    {
+      "id": "E032",
+      "facility": "火灾报警",
+      "input": "报警控制器正常，所有探测器指示灯绿色常亮，每月有测试记录",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50116",
+      "expected_keywords": [
+        "正常",
+        "合格",
+        "规范"
+      ],
+      "severity": "normal",
+      "scene": "mall"
+    },
+    {
+      "id": "E033",
+      "facility": "火灾报警",
+      "input": "消防控制室只有一个人值班而且没有操作员证",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB25506-2010 第4.2.1条",
+      "expected_keywords": [
+        "无证",
+        "值班",
+        "双人",
+        "持证"
+      ],
+      "severity": "high",
+      "scene": "hotel"
+    },
+    {
+      "id": "E034",
+      "facility": "火灾报警",
+      "input": "这个3000平米的大商场没有装火灾自动报警系统",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB55037-2022 第8.3.2条",
+      "expected_keywords": [
+        "未安装",
+        "应设未设",
+        "报警系统",
+        "增设"
+      ],
+      "severity": "critical",
+      "scene": "mall"
+    },
+    {
+      "id": "E035",
+      "facility": "防火门",
+      "input": "常闭防火门被灭火器抵住一直开着",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50016 第6.5.1条",
+      "expected_keywords": [
+        "常开",
+        "闭门器",
+        "移除挡住",
+        "常闭"
+      ],
+      "severity": "high",
+      "scene": "hospital"
+    },
+    {
+      "id": "E036",
+      "facility": "防火门",
+      "input": "防火门关上后底部缝隙能伸进去一个手指",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50877-2014",
+      "expected_keywords": [
+        "缝隙",
+        "密封",
+        "调整",
+        "防火分隔"
+      ],
+      "severity": "medium",
+      "scene": "office"
+    },
+    {
+      "id": "E037",
+      "facility": "防火门",
+      "input": "防火门闭门器坏了，门关上后会自己弹开",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50877-2014 第5.3.10条",
+      "expected_keywords": [
+        "闭门器",
+        "更换",
+        "维修",
+        "自动关闭"
+      ],
+      "severity": "high",
+      "scene": "school"
+    },
+    {
+      "id": "E038",
+      "facility": "防火门",
+      "input": "防火门完好，闭门器正常，门扇无变形，密封条完整",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50877-2014",
+      "expected_keywords": [
+        "合格",
+        "完好",
+        "正常"
+      ],
+      "severity": "normal",
+      "scene": "office"
+    },
+    {
+      "id": "E039",
+      "facility": "防火分隔",
+      "input": "仓库和生产车间之间只挂了塑料帘子没有防火门",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50016 第6.2.3条",
+      "expected_keywords": [
+        "防火分隔",
+        "防火门",
+        "塑料帘",
+        "隔墙"
+      ],
+      "severity": "critical",
+      "scene": "factory"
+    },
+    {
+      "id": "E040",
+      "facility": "防火分隔",
+      "input": "厨房和餐厅之间没有防火门，只装了普通玻璃门",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50016 第6.2.3条",
+      "expected_keywords": [
+        "防火分隔",
+        "防火门",
+        "厨房",
+        "玻璃门"
+      ],
+      "severity": "high",
+      "scene": "restaurant"
+    },
+    {
+      "id": "E041",
+      "facility": "自动喷水",
+      "input": "喷淋头被装修工人刷了乳胶漆全白了",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50084 第6.1.3条",
+      "expected_keywords": [
+        "涂料",
+        "覆盖",
+        "更换喷淋头",
+        "热敏"
+      ],
+      "severity": "high",
+      "scene": "shop"
+    },
+    {
+      "id": "E042",
+      "facility": "自动喷水",
+      "input": "打开末端试水阀，没有水出来",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB55037-2022 第10.2.5条",
+      "expected_keywords": [
+        "无水",
+        "末端试水",
+        "阀门",
+        "排查"
+      ],
+      "severity": "critical",
+      "scene": "office"
+    },
+    {
+      "id": "E043",
+      "facility": "自动喷水",
+      "input": "末端试水压力0.06MPa，水流指示器动作正常，报警铃声响起",
+      "expected_judgment": "pass",
+      "expected_regulation": "GB50084",
+      "expected_keywords": [
+        "正常",
+        "合格",
+        "达标"
+      ],
+      "severity": "normal",
+      "scene": "mall"
+    },
+    {
+      "id": "E044",
+      "facility": "自动喷水",
+      "input": "养老院有200个床位但是没有装自动喷淋系统",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB35181",
+        "GB55037"
+      ],
+      "expected_keywords": [
+        "应设未设",
+        "养老院",
+        "安装喷淋",
+        "增设"
+      ],
+      "severity": "critical",
+      "scene": "nursing_home"
+    },
+    {
+      "id": "E045",
+      "facility": "自动喷水",
+      "input": "仓库堆货高度离喷淋头只有10厘米",
+      "expected_judgment": "fail",
+      "expected_regulation": "GB50084",
+      "expected_keywords": [
+        "堆高",
+        "间距",
+        "障碍",
+        "调整"
+      ],
+      "severity": "high",
+      "scene": "warehouse"
+    },
+    {
+      "id": "E046",
+      "facility": "消防管理",
+      "input": "员工不会使用灭火器，说从来没培训过",
+      "expected_judgment": "fail",
+      "expected_regulation": "消防法第16条",
+      "expected_keywords": [
+        "培训",
+        "演练",
+        "使用灭火器",
+        "教育"
+      ],
+      "severity": "high",
+      "scene": "shop"
+    },
+    {
+      "id": "E047",
+      "facility": "消防管理",
+      "input": "上次消防检查是去年3月，巡检记录本只填到去年6月",
+      "expected_judgment": "fail",
+      "expected_regulation": "消防法第16条",
+      "expected_keywords": [
+        "巡检",
+        "巡查记录",
+        "制度",
+        "频次"
+      ],
+      "severity": "medium",
+      "scene": "office"
+    },
+    {
+      "id": "E048",
+      "facility": "消防管理",
+      "input": "每月有消防培训，每季度有演练，消防档案齐全",
+      "expected_judgment": "pass",
+      "expected_regulation": "消防法第16条",
+      "expected_keywords": [
+        "规范",
+        "齐全",
+        "合格",
+        "培训演练"
+      ],
+      "severity": "normal",
+      "scene": "school"
+    },
+    {
+      "id": "E049",
+      "facility": "建筑材料",
+      "input": "工地工人宿舍是用蓝色泡沫夹芯板搭的",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "消防法",
+        "GB55037"
+      ],
+      "expected_keywords": [
+        "泡沫夹芯板",
+        "彩钢板",
+        "拆除",
+        "不燃材料"
+      ],
+      "severity": "critical",
+      "scene": "construction"
+    },
+    {
+      "id": "E050",
+      "facility": "燃气安全",
+      "input": "后厨用的燃气管是普通橡胶管接了3米长还有两个接头",
+      "expected_judgment": "fail",
+      "expected_regulation": [
+        "GB50028",
+        "CJJ94"
+      ],
+      "expected_keywords": [
+        "软管",
+        "金属波纹管",
+        "接头",
+        "更换"
+      ],
+      "severity": "high",
+      "scene": "restaurant"
+    }
+  ]
+}

@@ -637,6 +637,9 @@ def submit_judge(inspection_id: str, req: JudgeRequest, user: dict = Depends(get
     }
     save_finding(inspection_id, finding)
 
+    # 火鉴·警鉴：自动沉淀 fail 案例
+    precipitate_finding(finding)
+
     # WebSocket broadcast to assistant
     try:
         print(f"[WS-DEBUG] broadcasting to {inspection_id}: item={req.item_index} result={req.result}", flush=True)

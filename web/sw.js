@@ -1,6 +1,6 @@
 // 消防监督检查智能辅助系统 — Service Worker
 // 策略：静态资源缓存优先 + API 网络优先（离线降级）
-const CACHE_STATIC = "fire-inspect-static-v14";
+const CACHE_STATIC = "fire-inspect-static-v15";
 const CACHE_CDN = "fire-inspect-cdn-v2";
 const CACHE_API = "fire-inspect-api-v2";
 
