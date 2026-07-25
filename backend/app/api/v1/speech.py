@@ -9,10 +9,11 @@ import tempfile
 import time
 from typing import Optional
 
-from fastapi import APIRouter, File, UploadFile, Query
+from fastapi import APIRouter, Depends, File, UploadFile, Query
 from pydantic import BaseModel
 
 from app.core.fuzzy_match import get_matcher
+from app.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -283,14 +284,14 @@ async def fuzzy_search(
 # ── AI 增强服务 ─────────────────────────────────
 
 @router.post("/ai-judge")
-async def ai_judge(req: dict):
+async def ai_judge(req: dict, user: dict = Depends(get_current_user)):
     """语音→AI结构化判定: voice_text + item_context → {result, note, suggested_fix}"""
     from app.services.ai_service import ai_judge_from_voice
     result = await ai_judge_from_voice(req.get("voice_text", ""), req.get("item_context", {}))
     return {"code": 0, "data": result}
 
 @router.post("/ai-summary")
-async def ai_summary(req: dict):
+async def ai_summary(req: dict, user: dict = Depends(get_current_user)):
     """AI 生成检查报告摘要"""
     from app.services.ai_service import ai_generate_summary
     summary = await ai_generate_summary(req)
@@ -308,7 +309,7 @@ async def search_all_endpoint(req: dict):
     return {"code": 0, "data": results}
 
 @router.post("/ai-qa")
-async def ai_qa(req: dict):
+async def ai_qa(req: dict, user: dict = Depends(get_current_user)):
     """AI 法规智能问答 — 火鉴三层知识库联合检索"""
     from app.services.ai_service import ai_regulation_qa
     from app.services.regulation_search import search_all
@@ -320,7 +321,7 @@ async def ai_qa(req: dict):
 
 
 @router.post("/ai-identify")
-async def ai_identify(req: dict):
+async def ai_identify(req: dict, user: dict = Depends(get_current_user)):
     """拍照→AI识别设施类型"""
     from app.services.ai_service import ai_identify_facility
     img = req.get("image", "")  # base64
@@ -333,7 +334,7 @@ async def ai_identify(req: dict):
     return {"code": 0, "data": result}
 
 @router.post("/ai-compare")
-async def ai_compare(req: dict):
+async def ai_compare(req: dict, user: dict = Depends(get_current_user)):
     """整改前后照片对比"""
     from app.services.ai_service import ai_compare_photos
     old_img = req.get("old_image", "")

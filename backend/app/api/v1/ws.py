@@ -26,20 +26,12 @@ from typing import Dict, List
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 
+from app.api.v1.auth import _decode_token
+
 router = APIRouter()
 
 # 房间: {inspection_id: [{ws, uid, role, is_participant, joined_at}]}
 _rooms: Dict[str, List[dict]] = {}
-
-
-def _decode_token(token: str) -> dict | None:
-    """解码 JWT（复刻 auth.py）"""
-    try:
-        payload_b64 = token.split('.')[1]
-        payload_b64 += '=' * (4 - len(payload_b64) % 4)
-        return json.loads(base64.urlsafe_b64decode(payload_b64))
-    except Exception:
-        return None
 
 
 def ws_broadcast(inspection_id: str, event: dict):

@@ -5,13 +5,13 @@ const CACHE_CDN = "fire-inspect-cdn-v2";
 const CACHE_API = "fire-inspect-api-v2";
 
 // ── 安装：预缓存核心静态资源 ──────────────────────
-// 注意：HTML 不在缓存列表中，始终从网络获取最新版本
+// 注意：HTML 不在缓存列表中，始终从网络获取最新版本；
+// sw.js 自身也不预缓存（避免旧 SW 被缓存拖住无法更新）
 const STATIC_ASSETS = [
-  "/inspect/web/app_v170.js",
+  "/inspect/web/app_v176.js",
   "/inspect/web/styles_v3.css",
   "/inspect/web/manifest.json",
   "/inspect/web/app-extras.js",
-  "/inspect/web/sw.js",
 ];
 
 self.addEventListener("install", (event) => {

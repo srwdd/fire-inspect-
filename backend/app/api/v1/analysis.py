@@ -1,9 +1,10 @@
-﻿from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.db import crud, schemas
 from app.db.schemas import AnalysisResponse
 from app.db.session import get_db
+from app.dependencies import get_current_user
 from app.services.analyzer import analyzer_service
 from app.services.memory.long_term_memory import long_term_memory_service
 from app.services.storage import storage_service
@@ -17,6 +18,7 @@ async def upload_and_analyze(
     scene: str = Form("campus", description="Scene hint"),
     force: bool = Form(False, description="Force reanalyze and bypass cache"),
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     local_path = None
     try:

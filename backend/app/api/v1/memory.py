@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.db import crud
+from app.dependencies import get_current_user
 from app.db.schemas import (
     CoreMemoryCreateRequest,
     CoreMemoryListResponse,
@@ -64,6 +65,7 @@ def get_memory_overview(
     scene: str = Query("campus", max_length=40),
     query: str = Query("", max_length=800),
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     data = long_term_memory_service.build_long_term_context(db, query=query or scene, scene=scene)
 
@@ -89,6 +91,7 @@ def get_memory_snapshot(
     session_id: str = Query("", max_length=60),
     query: str = Query("", max_length=800),
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     """Return a unified snapshot of all four memory layers.
 
@@ -200,6 +203,7 @@ def list_core_rules(
     scope: str = Query("", max_length=40, description="Scope filter. Empty = all."),
     include_disabled: bool = Query(False),
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     scope_filter = (scope or "").strip().lower() or None
     rows = crud.list_core_memory_rules(db, scope=scope_filter, include_disabled=include_disabled)
@@ -290,6 +294,7 @@ def list_memory_tasks(
     status: str = Query("open", max_length=30),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     rows = crud.list_memory_tasks(db, status=status, scene=scene, limit=limit)
     tasks: List[MemoryTaskItem] = []
@@ -325,6 +330,7 @@ def update_memory_task_status(
     task_id: str,
     payload: MemoryTaskStatusRequest,
     db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user),
 ):
     row = crud.update_memory_task_status(db, task_id=task_id, status=payload.status)
     if not row:
@@ -349,7 +355,7 @@ def update_memory_task_status(
 
 
 @router.post("/rebuild-index")
-def rebuild_long_term_index(db: Session = Depends(get_db)):
+def rebuild_long_term_index(db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
     return long_term_memory_service.rebuild_index(db)
 
 

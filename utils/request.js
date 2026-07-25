@@ -14,17 +14,19 @@ function buildApiUrl(path) {
 }
 
 /**
- * 处理请求错误，显示toast提示并抛出错误
+ * 处理请求错误，显示toast提示并通过 reject 传播错误
+ * 注意：在 wx.request 的异步回调里 throw 不会被外层 Promise 捕获，
+ * 必须显式调用 reject，否则 Promise 永远 pending（页面卡在加载态）。
  * @param {string} message 错误消息
- * @param {Error} error 原始错误对象
+ * @param {Function} reject Promise 的 reject 回调
  */
-function handleRequestError(message, error = null) {
+function handleRequestError(message, reject) {
   wx.showToast({
     title: message,
     icon: 'none',
     duration: 2000
   });
-  throw new Error(message);
+  reject(new Error(message));
 }
 
 /**
@@ -49,18 +51,14 @@ function apiGet(path, params = {}) {
       success: (res) => {
         // 检查HTTP状态码
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            resolve(res.data);
-          } catch (error) {
-            handleRequestError('响应数据格式错误');
-          }
+          resolve(res.data);
         } else {
-          handleRequestError(`请求失败 (${res.statusCode})`);
+          handleRequestError(`请求失败 (${res.statusCode})`, reject);
         }
       },
       fail: (err) => {
         console.error('网络请求失败:', err);
-        handleRequestError('网络连接失败，请检查网络设置');
+        handleRequestError('网络连接失败，请检查网络设置', reject);
       }
     });
   });
@@ -88,18 +86,14 @@ function apiPost(path, data = {}) {
       success: (res) => {
         // 检查HTTP状态码
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            resolve(res.data);
-          } catch (error) {
-            handleRequestError('响应数据格式错误');
-          }
+          resolve(res.data);
         } else {
-          handleRequestError(`请求失败 (${res.statusCode})`);
+          handleRequestError(`请求失败 (${res.statusCode})`, reject);
         }
       },
       fail: (err) => {
         console.error('网络请求失败:', err);
-        handleRequestError('网络连接失败，请检查网络设置');
+        handleRequestError('网络连接失败，请检查网络设置', reject);
       }
     });
   });
@@ -131,15 +125,15 @@ function apiUploadImage(path, filePath, formData = {}) {
             const data = JSON.parse(res.data);
             resolve(data);
           } catch (error) {
-            handleRequestError('响应数据格式错误');
+            handleRequestError('响应数据格式错误', reject);
           }
         } else {
-          handleRequestError(`上传失败 (${res.statusCode})`);
+          handleRequestError(`上传失败 (${res.statusCode})`, reject);
         }
       },
       fail: (err) => {
         console.error('文件上传失败:', err);
-        handleRequestError('文件上传失败，请重试');
+        handleRequestError('文件上传失败，请重试', reject);
       }
     });
   });

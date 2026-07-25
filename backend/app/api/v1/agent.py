@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.dependencies import get_current_user
 from app.services.agent import agent_service
 
 router = APIRouter()
@@ -60,7 +61,7 @@ class AgentChatResponse(BaseModel):
 
 
 @router.post("/chat", response_model=AgentChatResponse)
-def chat_with_agent(payload: AgentChatRequest, db: Session = Depends(get_db)):
+def chat_with_agent(payload: AgentChatRequest, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
     return agent_service.chat(
         db=db,
         message=payload.message,

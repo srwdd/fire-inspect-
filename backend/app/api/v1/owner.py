@@ -6,10 +6,11 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 
 from app.core.checklist_engine import checklist_engine
+from app.dependencies import get_current_user
 from app.db.storage import (
     get_owner_submission, create_owner_submission,
     update_owner_item, submit_owner, list_owner_submissions,
@@ -85,7 +86,7 @@ def submit_owner_check(code: str):
 # ── 消防员端 ──
 
 @router.delete("/submissions/{code}")
-def delete_owner_submission(code: str):
+def delete_owner_submission(code: str, user: dict = Depends(get_current_user)):
     """消防员删除业主提交"""
     from app.db.storage import _connect
     with _connect() as conn:
@@ -94,7 +95,7 @@ def delete_owner_submission(code: str):
     return {"code": 0, "msg": "已删除"}
 
 @router.get("/submissions")
-def get_owner_submissions(org_id: int = 0):
+def get_owner_submissions(org_id: int = 0, user: dict = Depends(get_current_user)):
     """消防员查看所有业主提交"""
     subs = list_owner_submissions(org_id)
     return {"code": 0, "data": [{
@@ -112,7 +113,7 @@ def get_owner_submissions(org_id: int = 0):
 
 
 @router.get("/submissions/{code}")
-def get_owner_submission_detail(code: str):
+def get_owner_submission_detail(code: str, user: dict = Depends(get_current_user)):
     """消防员查看某业主提交详情"""
     sub = get_owner_submission(code)
     if not sub:
@@ -132,7 +133,7 @@ def get_owner_submission_detail(code: str):
 
 
 @router.post("/submissions/{code}/review")
-def review_owner_submission(code: str, status: str = "reviewed", reason: str = ""):
+def review_owner_submission(code: str, status: str = "reviewed", reason: str = "", user: dict = Depends(get_current_user)):
     """消防员审核（通过/退回）"""
     if status == "returned":
         update_owner_return(code, reason)
@@ -142,7 +143,7 @@ def review_owner_submission(code: str, status: str = "reviewed", reason: str = "
 
 
 @router.post("/submissions/{code}/return")
-def return_owner_submission(code: str, reason: str = ""):
+def return_owner_submission(code: str, reason: str = "", user: dict = Depends(get_current_user)):
     """消防员退回业主提交（需修改）"""
     update_owner_return(code, reason)
     return {"code": 0, "msg": "已退回"}
@@ -161,7 +162,8 @@ def create_owner_link(
     venue_name: str = "",
     venue_address: str = "",
     inspector_id: int = 0,
-    org_id: int = 0
+    org_id: int = 0,
+    user: dict = Depends(get_current_user)
 ):
     """消防员生成业主自查链接"""
     import secrets

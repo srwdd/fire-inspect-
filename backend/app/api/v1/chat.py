@@ -7,8 +7,9 @@ import os
 from typing import Any, Dict, List, Literal, Optional, Union
 
 import requests
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.core.config import settings
+from app.dependencies import get_current_user
 from pydantic import BaseModel, Field, conint, confloat
 
 router = APIRouter()
@@ -52,9 +53,10 @@ class ChatCompletionRequest(BaseModel):
 
 
 @router.post("/completions")
-def create_chat_completion(payload: ChatCompletionRequest):
+def create_chat_completion(payload: ChatCompletionRequest, user: dict = Depends(get_current_user)):
     """
     Proxy request to SiliconFlow OpenAI-compatible chat completions API.
+    需登录（该接口消耗服务器付费 API 额度）。
     """
     if payload.stream:
         raise HTTPException(status_code=400, detail="stream=true is not supported by this proxy endpoint.")

@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from app.core.checklist_engine import checklist_engine
 from app.api.v1.ws import ws_broadcast
-from app.dependencies import verify_api_key, get_current_user
+from app.dependencies import get_current_user
 
 # ── 加载 .env 文件 ────────────────────────────────────
 _ENV_FILE = Path(__file__).resolve().parent.parent.parent.parent / ".env"
@@ -30,7 +30,9 @@ if _ENV_FILE.exists():
             if _key not in _os.environ:
                 _os.environ[_key] = _val
 
-router = APIRouter(prefix="", tags=["检查流程"], dependencies=[Depends(verify_api_key)])
+# 路由级 JWT 认证：检查流程全部端点需登录（原 verify_api_key 在未配置时默认放行，已移除）。
+# 各端点函数体内的 user: dict = Depends(get_current_user) 用于获取用户信息，与此处不冲突。
+router = APIRouter(prefix="", tags=["检查流程"], dependencies=[Depends(get_current_user)])
 
 # ── SQLite 持久化存储 ───────────────────────────────
 from app.db.storage import (
@@ -784,7 +786,7 @@ async def photo_evidence(
     images_bytes = [await f.read() for f in files]
     from app.core.photo_analyzer import analyze_photo
     analysis = await analyze_photo(
-        image_bytes=image_bytes,
+        images_bytes=images_bytes,
         item_context={"facility": item["facility"], "check_point": item["check_point"], "regulation": item.get("regulation", {})},
         api_key=api_key,
         base_url=_os.environ.get("SILICONFLOW_BASE_URL", "https://api.siliconflow.cn/v1"),

@@ -2,7 +2,7 @@
 import os as _os
 from typing import Optional
 
-from fastapi import Header, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
 
 
 async def verify_api_key(
@@ -13,6 +13,9 @@ async def verify_api_key(
 
     未设置 API_KEY 时跳过验证（本地开发模式）。
     已设置时，请求必须携带匹配的 X-API-Key header。
+
+    注意：业务路由应优先使用 get_current_user（JWT）认证，
+    本依赖仅保留给未来的开放 API 场景。
     """
     expected = _os.environ.get("API_KEY", "").strip()
     if not expected:
@@ -32,3 +35,10 @@ async def get_current_user(authorization: str = Header(None)) -> dict:
     if not payload:
         raise HTTPException(status_code=401, detail="登录已过期，请重新登录")
     return payload
+
+
+async def require_admin(user: dict = Depends(get_current_user)) -> dict:
+    """要求管理员角色，否则 403。"""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="需要管理员权限")
+    return user

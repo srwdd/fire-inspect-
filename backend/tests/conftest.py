@@ -2,9 +2,18 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.core.rate_limiter import login_limiter
 
 TEST_USER = "lead1"
 TEST_PASSWORD = "123456"
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_limiter():
+    """每个测试前清空登录限流状态，避免跨测试的 IP/账号封锁串扰。"""
+    login_limiter._attempts.clear()
+    login_limiter._blocked.clear()
+    yield
 
 
 @pytest.fixture
