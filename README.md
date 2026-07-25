@@ -182,19 +182,29 @@ The project includes reproducible retrieval and guardrail evaluation scripts und
 > **2026-07-25 评测体系修正**：旧版数据（dev-650/blind-650，evidence tree Top-1 0.5938/0.5338，guardrail precision 1.000）已废止——它们存在金标泄漏（查询扩展直接注入期望规则 ID）、benchmark 期望 ID 与当前 KB 零交集（不可复现）、开放集评测无应接受样本（precision 退化为空集上的 1.000）三个问题。
 > 下表为**清除泄漏后、在当前 KB（134 条）上可复现**的真实数字。复现方法见表下。
 
-Retrieval（benchmark: `retrieval_benchmark_large_v2.json`，600 例，模板合成 dev 集，KB v2.1 共 230 条，keyword 通道，无 dense/rerank API）：
+Retrieval（benchmark: `retrieval_benchmark_large_v2.json`，600 例，模板合成 dev 集，KB v2.1 共 230 条，服务器全通道）：
 
-| Setting | Dataset | Top-1 | Top-3 | MRR |
-| --- | --- | ---: | ---: | ---: |
-| BM25（独立实现，非系统开关） | tmpl-600 | 0.4117 | 0.5583 | 0.4929 |
-| Hybrid（rule_retriever 全管线） | tmpl-600 | **0.4433** | **0.6633** | **0.5691** |
+| Setting | Top-1 | Top-3 | MRR | Avg Latency |
+| --- | ---: | ---: | ---: | ---: |
+| BM25（独立实现，非系统开关） | 0.4117 | 0.5583 | 0.4929 | 1.6ms |
+| Hybrid（keyword 通道） | **0.4433** | **0.6650** | **0.5689** | 59ms |
+| Hybrid+dense+rerank | 0.4433 | 0.6650 | 0.5689 | 12498ms |
+
+LLM 基线对照（100 例，qwen-plus，95% bootstrap CI）：
+
+| Method | Top-1 | Top-3 | MRR |
+| --- | ---: | ---: | ---: |
+| B_standard（单查询 keyword RAG） | 0.36 (0.27–0.46) | 0.61 | 0.4888 |
+| Ours 全方法 | **0.44 (0.34–0.54)** | **0.67** | **0.5785** |
+| direct-LLM 无 RAG（条款级公平口径） | 0.11 | 0.13 | 0.1379 |
 
 Open-set guardrail（benchmark: `retrieval_benchmark_open_set_v2.json`，200 例 = 100 应拒答 + 100 应接受；判决走管线真实 `evaluate_guardrail`）：
 
 | Method | Refusal Precision | Refusal Recall | F1 | AUROC |
 | --- | ---: | ---: | ---: | ---: |
-| guardrail module（t=0.5） | **0.9851** | 0.6600 | 0.7904 | 0.8181 |
+| guardrail module 词表（t=0.5，管线现役） | **0.9851** | 0.6600 | 0.7904 | 0.8181 |
 | guardrail module（t=0.7） | 1.0000 | 0.6600 | 0.7952 | — |
+| LLM 二分类（qwen-plus） | 0.6623 | **1.0000** | 0.7968 | — |
 | empty-retrieval baseline（旧口径） | 0.000 | 0.000 | — | — |
 
 复现：
@@ -209,9 +219,11 @@ python eval_open_set_guardrail.py
 
 Interpretation:
 
-- Hybrid 相比独立 BM25：Top-1 +3.16pt，Top-3 **+10.50pt**，MRR +0.076——多查询扩展/证据树的主要价值在提升候选覆盖率而非单发命中，且该优势在 KB 从 134 条扩到 230 条后依然稳定。这与旧版 "+8.46pt" 的宣称差距很大，旧数字含金标泄漏水分。
-- KB v2.1（230 条）比旧库（134 条）检索难度明显更高：同 benchmark 方法下 Top-1 全面下降 ~8-10pt——知识库扩大后区分度是当前瓶颈，dense/rerank 通道（需 API key）和服务端 direct-LLM 条款级基线见 `FIRE_FIX_20260725.md` 第三轮记录。
-- Guardrail 拒答精度高（0.985，100 个应接受样本只误拒 1 个），但 recall 0.66 仍是短板：34% 的超范围问题措辞像正常消防提问，词表信号抓不到。这是后续改进方向（LLM 二分类或 denser 信号）。
+- Hybrid 相比独立 BM25：Top-1 +3.16pt，Top-3 **+10.67pt**，MRR +0.076——多查询扩展/证据树的主要价值在提升候选覆盖率而非单发命中，且该优势在 KB 从 134 条扩到 230 条后依然稳定。这与旧版 "+8.46pt" 的宣称差距很大，旧数字含金标泄漏水分。
+- **dense+rerank 通道指标与 keyword-only 完全相同、延迟高 210 倍**（59ms→12.5s）。消融实验同样显示去掉 query_rewrite/text_repair 指标不变——多个"高级组件"在当前 benchmark 上无实测贡献，是纯 API 成本。需排查混合权重是否真正生效，再决定调参或下线。
+- **RAG 核心价值被公平证实**：条款级口径下 direct-LLM（qwen-plus 无检索）Top-1 仅 0.11，RAG 管线 0.44，CI 不重叠——检索增强带来约 4 倍法条引用准确率。
+- Guardrail 拒答精度高（0.985，100 个应接受样本只误拒 1 个），recall 0.66 是短板；但 LLM 二分类对照实验显示它会把 recall 拉满的同时误拒 51% 合法查询——词表（漏放）与 LLM（误拒）错误模式互补，正确方向是两级守护（词表初筛 + 边界 LLM 复核），而非 LLM 替代。
+- KB v2.1（230 条）比旧库（134 条）检索难度明显更高：同 benchmark 方法下 Top-1 全面下降 ~8-10pt——知识库扩大后区分度是当前瓶颈。
 - 当前 benchmark 为模板合成集（从 KB 反向生成），只能作为 dev 集；`evals/eval_dataset.json` 有 50 条人工编写用例（三层知识库冒烟口径），真实巡检图像 + 人工标注的评测集是后续工作。
 - The system is a research prototype rather than a certified fire-safety product.
 
