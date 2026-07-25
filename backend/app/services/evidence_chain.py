@@ -99,9 +99,8 @@ def _build_rules(analysis: Dict, item_context: Dict) -> Dict:
 
 def _find_related_regulations(analysis: Dict, item_context: Dict) -> List[str]:
     """从 fire_rules.json 查找相关法规补充条款"""
-    rules_path = Path(__file__).resolve().parent.parent.parent / "fire_rules.json"
-    if not rules_path.exists():
-        rules_path = Path(__file__).resolve().parent.parent.parent.parent / "fire_rules.json"
+    # canonical KB：app/data/fire_rules.json（与 settings.RULES_FILE 一致）
+    rules_path = Path(__file__).resolve().parent.parent / "data" / "fire_rules.json"
     if not rules_path.exists():
         return []
 

@@ -414,34 +414,6 @@ class RuleRetriever:
                     continue
             expansions.extend(related_terms)
 
-        special_boosts = [
-            (
-                [
-                    "\u767b\u9ad8\u6d88\u9632\u8f66\u64cd\u4f5c\u573a\u5730",
-                    "\u6d88\u9632\u8f66\u901a\u9053",
-                    "\u6551\u63f4\u573a\u5730",
-                    "\u5360\u7528",
-                    "\u5835\u585e",
-                ],
-                ["rescue access", "operation ground", "fire lane", "blocked", "hmbf-22", "firelaw-28"],
-            ),
-            (
-                ["\u5b9a\u671f\u9632\u706b\u68c0\u67e5", "\u5b9a\u671f\u68c0\u67e5", "periodic inspection", "fire inspection"],
-                ["periodic inspection requirement", "scheduled fire inspection", "hmbf-35", "firelaw-16"],
-            ),
-            (
-                ["\u5e94\u6025\u9884\u6848", "\u706d\u706b\u548c\u5e94\u6025\u758f\u6563\u9884\u6848", "emergency plan"],
-                ["emergency evacuation plan", "fire response plan", "hmbf-43", "firelaw-16"],
-            ),
-            (
-                ["\u6d88\u9632\u6f14\u7ec3", "\u5e94\u6025\u6f14\u7ec3", "evacuation drill", "fire drill"],
-                ["regular drill", "hmbf-44", "firelaw-16"],
-            ),
-        ]
-        for trigger_words, boost_terms in special_boosts:
-            if any(word.lower() in lower_text for word in trigger_words):
-                expansions.extend(boost_terms)
-
         synonym_map = [
             (["电动车", "电瓶车", "电摩"], ["电动自行车", "停放", "充电"]),
             (["楼道", "楼梯口"], ["疏散走道", "楼梯间", "安全出口", "公共门厅"]),
@@ -487,8 +459,9 @@ class RuleRetriever:
 
     @classmethod
     def _rule_to_text(cls, rule: Dict[str, Any]) -> str:
+        # 注意：rule id 故意不纳入检索文本——内部编号不应成为可检索特征，
+        # 防止查询扩展意外（或人为）注入金标 ID 时直接命中答案。
         text_parts = [
-            str(rule.get("id", "")),
             str(rule.get("source", "")),
             str(rule.get("article", "")),
             str(rule.get("title", "")),

@@ -118,6 +118,57 @@ def evaluate_profile(name: str, cases: List[Dict[str, Any]], overrides: Dict[str
     }
 
 
+def evaluate_bm25_baseline(cases: List[Dict[str, Any]], top_k: int) -> Dict[str, Any]:
+    """独立 BM25 基线：不经过 rule_retriever 的任何开关，保证公平对照。"""
+    from app.services.bm25_baseline import BM25Baseline
+
+    bm25 = BM25Baseline()
+    rows: List[Dict[str, Any]] = []
+    latency_ms_values: List[float] = []
+    for case in cases:
+        begin = perf_counter()
+        hits = bm25.search(case["query"], top_k=top_k)
+        elapsed_ms = (perf_counter() - begin) * 1000.0
+        latency_ms_values.append(elapsed_ms)
+        returned_ids = [str(item.get("id", "")) for item in hits]
+        expected = set(case["expected_ids"])
+        hit_top1 = bool(returned_ids[:1] and returned_ids[0] in expected)
+        hit_top3 = any(rule_id in expected for rule_id in returned_ids[: min(3, len(returned_ids))])
+        rr = reciprocal_rank(returned_ids[:top_k], case["expected_ids"])
+        rows.append(
+            {
+                "name": case["name"],
+                "query": case["query"],
+                "scene": case["scene"],
+                "expected_ids": case["expected_ids"],
+                "returned_ids": returned_ids,
+                "hit_top1": hit_top1,
+                "hit_top3": hit_top3,
+                "mrr": rr,
+                "latency_ms": round(elapsed_ms, 2),
+                "debug": {},
+            }
+        )
+
+    top1 = sum(1 for row in rows if row["hit_top1"])
+    top3 = sum(1 for row in rows if row["hit_top3"])
+    sorted_latency = sorted(latency_ms_values)
+    p95_idx = int(round(0.95 * (len(sorted_latency) - 1))) if sorted_latency else 0
+    p95_latency = sorted_latency[p95_idx] if sorted_latency else 0.0
+    return {
+        "profile": "bm25 (independent)",
+        "case_count": len(rows),
+        "top1_hits": top1,
+        "top3_hits": top3,
+        "top1_hit_rate": round(top1 / len(rows), 4),
+        "top3_hit_rate": round(top3 / len(rows), 4),
+        "mrr": round(mean(row["mrr"] for row in rows), 4),
+        "avg_latency_ms": round(mean(latency_ms_values), 2) if latency_ms_values else 0.0,
+        "p95_latency_ms": round(p95_latency, 2),
+        "rows": rows,
+    }
+
+
 def build_profiles(enable_query_rewrite: bool) -> List[tuple[str, Dict[str, Any]]]:
     profiles = [
         (
@@ -169,6 +220,10 @@ def main(argv: Iterable[str] | None = None) -> int:
 
     cases = load_cases(args.benchmark)
     reports = []
+    # 独立 BM25 基线永远第一个跑（不依赖 rule_retriever 与任何 API key）
+    bm25_report = evaluate_bm25_baseline(cases, top_k=max(args.top_k, 3))
+    reports.append(bm25_report)
+    print_summary(bm25_report)
     for profile_name, overrides in build_profiles(args.enable_query_rewrite):
         report = evaluate_profile(profile_name, cases, overrides, top_k=max(args.top_k, 3))
         reports.append(report)

@@ -217,18 +217,26 @@ def evaluate_guardrail(
         decision.reasons.append("weak_query_no_anchor")
         decision.signals["weak_query_no_anchor"] = 1.0
 
-    # Signal 5: top-1 retrieval score low (if available from debug)
+    # Signal 5: top-1 retrieval score low (if available from debug or rules)
+    top1_score: Optional[float] = None
     if debug and isinstance(debug, dict):
         scores = debug.get("scores") or debug.get("ranking_scores") or []
         if isinstance(scores, list) and scores:
             try:
                 top1_score = float(scores[0])
             except (TypeError, ValueError):
-                top1_score = 0.0
-            decision.signals["top1_score"] = top1_score
-            if top1_score < cfg.top1_score_min:
-                score += cfg.weight_low_top1_score
-                decision.reasons.append(f"low_top1_score:{top1_score:.2f}")
+                top1_score = None
+    if top1_score is None and retrieved_rules:
+        # 回退：从 top1 规则自带 score 字段读取（retrieve_with_debug 的输出格式）
+        try:
+            top1_score = float(retrieved_rules[0].get("score", 0.0))
+        except (TypeError, ValueError, AttributeError):
+            top1_score = None
+    if top1_score is not None:
+        decision.signals["top1_score"] = top1_score
+        if top1_score < cfg.top1_score_min:
+            score += cfg.weight_low_top1_score
+            decision.reasons.append(f"low_top1_score:{top1_score:.2f}")
 
     # Signal 6: query-token-in-top-rule (lexical coverage check)
     if retrieved_rules:

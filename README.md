@@ -179,27 +179,40 @@ flowchart LR
 
 The project includes reproducible retrieval and guardrail evaluation scripts under `backend/`.
 
+> **2026-07-25 评测体系修正**：旧版数据（dev-650/blind-650，evidence tree Top-1 0.5938/0.5338，guardrail precision 1.000）已废止——它们存在金标泄漏（查询扩展直接注入期望规则 ID）、benchmark 期望 ID 与当前 KB 零交集（不可复现）、开放集评测无应接受样本（precision 退化为空集上的 1.000）三个问题。
+> 下表为**清除泄漏后、在当前 KB（134 条）上可复现**的真实数字。复现方法见表下。
+
+Retrieval（benchmark: `retrieval_benchmark_large_v2.json`，600 例，模板合成 dev 集，keyword 通道，无 dense/rerank API）：
+
 | Setting | Dataset | Top-1 | Top-3 | MRR |
 | --- | --- | ---: | ---: | ---: |
-| Dynamic retrieval | dev-650 | 0.5092 | 0.9123 | 0.7019 |
-| Set selection | dev-650 | 0.5092 | 0.9000 | 0.7047 |
-| Evidence tree | dev-650 | **0.5938** | 0.9015 | **0.7447** |
-| Dynamic retrieval | blind-650 | 0.4554 | 0.8769 | 0.6555 |
-| Set selection | blind-650 | 0.4554 | 0.8662 | 0.6560 |
-| Evidence tree | blind-650 | **0.5338** | 0.8585 | **0.6899** |
+| BM25（独立实现，非系统开关） | tmpl-600 | 0.5183 | 0.6817 | 0.6074 |
+| Hybrid（rule_retriever 全管线） | tmpl-600 | **0.5250** | **0.7800** | **0.6611** |
 
-Open-set guardrail evaluation:
+Open-set guardrail（benchmark: `retrieval_benchmark_open_set_v2.json`，200 例 = 100 应拒答 + 100 应接受；判决走管线真实 `evaluate_guardrail`）：
 
-| Guardrail | Samples | Refusal Precision | Refusal Recall | False Accept |
+| Method | Refusal Precision | Refusal Recall | F1 | AUROC |
 | --- | ---: | ---: | ---: | ---: |
-| hybrid_local | 200 | 1.000 | 0.290 | 142 |
-| strict_guardrail | 200 | **1.000** | **0.365** | **127** |
+| guardrail module（t=0.5） | **0.9851** | 0.6600 | 0.7904 | 0.8062 |
+| guardrail module（t=0.7） | 1.0000 | 0.6600 | 0.7952 | — |
+| empty-retrieval baseline（旧口径） | 0.000 | 0.000 | — | — |
+
+复现：
+
+```bash
+cd backend
+python build_large_benchmark.py --out retrieval_benchmark_large_v2.json \
+  --open-set-out retrieval_benchmark_open_set_v2.json --target-size 600 --open-set-size 200
+python eval_retrieval.py --benchmark retrieval_benchmark_large_v2.json --enable-query-rewrite
+python eval_open_set_guardrail.py
+```
 
 Interpretation:
 
-- Evidence tree improves Top-1 by about **8.46 points** on the dev set and **7.84 points** on the blind set compared with dynamic retrieval.
-- Guardrail precision is high, but refusal recall remains an important future-work direction.
-- The benchmark focuses on rule retrieval and evidence grounding; the system is a research prototype rather than a certified fire-safety product.
+- Hybrid 相比独立 BM25：Top-1 仅 +0.67pt，但 Top-3 **+9.83pt**、MRR +0.054——多查询扩展/证据树的主要价值在提升候选覆盖率而非单发命中。这与旧版 "+8.46pt" 的宣称差距很大，旧数字含金标泄漏水分。
+- Guardrail 拒答精度高（0.985，100 个应接受样本只误拒 1 个），但 recall 0.66 仍是短板：34% 的超范围问题措辞像正常消防提问，词表信号抓不到。这是后续改进方向（LLM 二分类或 denser 信号）。
+- 当前 benchmark 为模板合成集（从 KB 反向生成），只能作为 dev 集；真实巡检图像 + 人工标注的评测集是下一阶段工作，届时数字才代表真实场景水平。
+- The system is a research prototype rather than a certified fire-safety product.
 
 ## Quick Start
 

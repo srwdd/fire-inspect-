@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -342,12 +342,21 @@ def build_large_cases(
     return deduped
 
 
-def build_open_set_cases(size: int, seed: int) -> List[Dict[str, Any]]:
+def build_open_set_cases(size: int, seed: int, rules: List[Dict[str, Any]] | None = None) -> List[Dict[str, Any]]:
+    """开放集评测集：一半应拒答（超范围/无隐患），一半应接受（真实隐患查询）。
+
+    2026-07-25 修复：旧版全部为 expect_refusal=True，导致 precision 退化为
+    空集上的 1.000（零信息量）。现在必须混合两类样本，precision 才有定义。
+    """
     rng = random.Random(seed + 1007)
     scenes = ["campus", "dormitory", "office", "residential", "factory", "industrial", "construction"]
     cases: List[Dict[str, Any]] = []
 
-    for i in range(size):
+    n_refusal = size // 2
+    n_accept = size - n_refusal
+
+    # ── 应拒答：非消防话题 / 无实际隐患的提问 ──
+    for i in range(n_refusal):
         scene = scenes[i % len(scenes)]
         scene_text = SCENE_TEXT.get(scene, scene)
         q = OPEN_SET_TEMPLATES[i % len(OPEN_SET_TEMPLATES)].format(scene=scene, scene_text=scene_text)
@@ -357,7 +366,7 @@ def build_open_set_cases(size: int, seed: int) -> List[Dict[str, Any]]:
             q += " " + HARD_DISTRACTORS[i % len(HARD_DISTRACTORS)]
         cases.append(
             {
-                "name": f"open_set_{i:04d}",
+                "name": f"open_set_refuse_{i:04d}",
                 "scene": scene,
                 "query": q,
                 "expected_ids": [],
@@ -366,6 +375,35 @@ def build_open_set_cases(size: int, seed: int) -> List[Dict[str, Any]]:
                 "source": "open_set_protocol",
             }
         )
+
+    # ── 应接受：真实隐患查询（误拒 = false refusal，计入 precision 分母）──
+    if rules:
+        rng2 = random.Random(seed + 3077)
+        pool = list(rules)
+        rng2.shuffle(pool)
+        for i in range(n_accept):
+            rule = pool[i % len(pool)]
+            zh_phrase, en_phrase = _hazard_phrase(rule)
+            scene_list = rule.get("scene") or ["campus"]
+            scene = scene_list[i % len(scene_list)]
+            scene_text = SCENE_TEXT.get(scene, scene)
+            q = POSITIVE_TEMPLATES[i % len(POSITIVE_TEMPLATES)].format(
+                scene=scene,
+                scene_text=scene_text,
+                hazard_phrase=zh_phrase,
+                hazard_phrase_en=en_phrase,
+            )
+            cases.append(
+                {
+                    "name": f"open_set_accept_{i:04d}",
+                    "scene": scene,
+                    "query": q,
+                    "expected_ids": [rule["id"]],
+                    "expect_refusal": False,
+                    "difficulty": "open_set_accept",
+                    "source": "open_set_accept",
+                }
+            )
 
     rng.shuffle(cases)
     return cases
@@ -400,8 +438,20 @@ def main() -> int:
     rules = load_rules(args.rules)
     manifest = load_json(args.manifest)
 
+    # 2026-07-25：过滤期望 ID 不在当前 KB 中的种子用例（旧 KB 的遗留 ID
+    # 会让评测结果不可复现）。KB 是评测的唯一事实来源。
+    known_ids = {r["id"] for r in rules}
+    seed_before = len(seed_cases)
+    seed_cases = [
+        {**c, "expected_ids": [x for x in c["expected_ids"] if x in known_ids]}
+        for c in seed_cases
+    ]
+    seed_cases = [c for c in seed_cases if c["expected_ids"]]
+    if seed_before - len(seed_cases):
+        print(f"[build] dropped {seed_before - len(seed_cases)}/{seed_before} seed cases with unknown expected_ids")
+
     large_cases = build_large_cases(seed_cases, rules, manifest, target_size=max(args.target_size, len(seed_cases)), seed=args.seed)
-    open_set_cases = build_open_set_cases(size=max(args.open_set_size, 20), seed=args.seed)
+    open_set_cases = build_open_set_cases(size=max(args.open_set_size, 20), seed=args.seed, rules=rules)
 
     args.out.write_text(json.dumps(large_cases, ensure_ascii=False, indent=2), encoding="utf-8")
     args.open_set_out.write_text(json.dumps(open_set_cases, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import json
@@ -237,7 +237,14 @@ class AnalyzerService:
         stage1_result: Dict[str, Any],
         stage1_raw: str,
         retrieval_debug: Dict[str, Any],
+        guard_decision: Any = None,
     ) -> Dict[str, Any]:
+        guard_info = guard_decision.to_dict() if guard_decision is not None else None
+        refusal_note = (
+            guard_decision.refusal_message
+            if guard_decision is not None and guard_decision.refusal_message
+            else "Stage2 compliance inference was skipped because rule retrieval confidence is too low."
+        )
         return {
             "overall_risk": "warning",
             "summary": "No sufficiently relevant regulations were retrieved. Returned conservative result to avoid unsupported inference.",
@@ -245,7 +252,7 @@ class AnalyzerService:
                 {
                     "type": "Insufficient regulatory evidence",
                     "risk": "warning",
-                    "desc": "Stage2 compliance inference was skipped because rule retrieval confidence is too low.",
+                    "desc": refusal_note,
                     "suggest": "Expand the knowledge base or improve scene-specific rule coverage.",
                 }
             ],
@@ -258,6 +265,7 @@ class AnalyzerService:
                 "provider": "knowledge_guardrail",
                 "status": "guarded",
                 "error": "No relevant rules passed retrieval thresholds",
+                "guardrail": guard_info,
                 "stage1_model": self.vision_model,
                 "stage2_model": self.text_model,
                 "retrieval": retrieval_debug,
@@ -481,19 +489,6 @@ class AnalyzerService:
                 " ".join(stage1_result.get("keywords", [])),
             ]
         ).lower()
-        multi_plug_tokens = ["两个插头", "多插头", "多个插头", "插头", "两台设备", "多台设备", "一箱多机"]
-        has_multi_plug = any(token in stage1_text for token in multi_plug_tokens) and (
-            "两个" in stage1_text or "多" in stage1_text or "两台" in stage1_text or "一箱多机" in stage1_text
-        )
-        stage1_raw_norm = re.sub(r"\s+", " ", stage1_raw.lower())
-        has_two_outlets = (
-            bool(re.search(r"\btwo\s+(?:power\s+|electrical\s+)?outlets?\b", stage1_raw_norm))
-            or bool(re.search(r"\btwo\s+(?:power\s+|electrical\s+)?outlets?\b", stage1_text))
-            or "2 outlets" in stage1_raw_norm
-            or "2 outlet" in stage1_raw_norm
-            or ("two" in stage1_text and "outlet" in stage1_text)
-        )
-
         # Retrieve rules from knowledge base using stage1 output.
         retrieval_query = " ".join(
             [
@@ -513,42 +508,25 @@ class AnalyzerService:
         rules = retrieval_result["rules"]
         retrieval_debug = retrieval_result["debug"]
 
-        # Industrial/construction safety guidance: inject dedicated switch-box rule
-        # when visual cues indicate "one box, multiple devices".
-        industrial_scenes = {"industrial", "construction", "factory"}
-        trigger_text = retrieval_query.lower()
-        if scene in industrial_scenes and any(
-            token in trigger_text
-            for token in ["配电箱", "开关箱", "插头", "一箱多机", "临时用电", "多台设备"]
-        ):
-            for rule in getattr(rule_retriever, "rules", []):
-                if str(rule.get("id", "")) == "IND-POWER-001":
-                    if all(str(r.get("id", "")) != "IND-POWER-001" for r in rules):
-                        rules = [rule] + list(rules)
-                    break
+        # 开放集守护：问题超出消防领域或检索证据不足时保守拒答，
+        # 避免 Stage2 在弱证据上强行下结论（2026-07-25 接入，此前为死代码）。
+        from app.services.guardrail import evaluate_guardrail
+        guard_decision = evaluate_guardrail(
+            query=retrieval_query,
+            scene=scene,
+            retrieved_rules=rules,
+            debug=retrieval_debug,
+        )
+        retrieval_debug = dict(retrieval_debug or {})
+        retrieval_debug["guardrail"] = guard_decision.to_dict()
 
-        if has_two_outlets:
-            forced_rule = {
-                "id": "IND-POWER-001",
-                "source": "安全用电管理要点(工业/工地)",
-                "article": "临电-01",
-                "title": "Dedicated switch box per equipment",
-                "scene": ["industrial", "construction", "factory"],
-                "hazard_type": "multi_device_one_box",
-                "text": "严禁用同一个开关箱直接控制2台及2台以上的用电设备。",
-            }
-            if all(str(r.get("id", "")) != "IND-POWER-001" for r in rules):
-                rules = [forced_rule] + list(rules)
-            retrieval_debug = dict(retrieval_debug or {})
-            retrieval_debug["force_rule"] = "IND-POWER-001"
-            retrieval_debug["force_reason"] = "two_outlets_detected"
-
-        if not rules:
+        if not rules or guard_decision.should_refuse:
             return self._finalize_with_cache(
                 self._guardrail_no_rules(
                     stage1_result=stage1_result,
                     stage1_raw=stage1_raw,
                     retrieval_debug=retrieval_debug,
+                    guard_decision=guard_decision,
                 ),
                 scene=scene,
                 image_hash=image_hash,
@@ -558,10 +536,6 @@ class AnalyzerService:
 
         # Stage 2: compliance judgement with retrieved rules.
         stage2_prompt = self._build_stage2_prompt(scene, stage1_result, rules)
-        if has_multi_plug or has_two_outlets:
-            stage2_prompt += (
-                "\n\nSAFETY_NOTE: 严禁用同一个开关箱直接控制2台及2台以上的用电设备。"
-            )
         stage2_messages = [
             {
                 "role": "system",
@@ -610,20 +584,6 @@ class AnalyzerService:
                 cache_hit=False,
                 forced=force_refresh,
             )
-
-        if has_two_outlets:
-            items = stage2_parsed.get("items")
-            if not isinstance(items, list):
-                items = []
-            items.append(
-                {
-                    "type": "用电安全隐患",
-                    "risk": "danger",
-                    "desc": "检测到配电箱存在两个插头，疑似一箱多机。",
-                    "suggest": "严禁用同一个开关箱直接控制2台及2台以上的用电设备。",
-                }
-            )
-            stage2_parsed["items"] = items
 
         return self._finalize_with_cache(
             self._normalize_final(

@@ -7,9 +7,8 @@ import re
 from pathlib import Path
 from typing import Dict, List
 
-RULES_PATH = Path(__file__).resolve().parent.parent.parent / "fire_rules.json"
-if not RULES_PATH.exists():
-    RULES_PATH = Path(__file__).resolve().parent.parent.parent.parent / "fire_rules.json"
+# canonical KB：app/data/fire_rules.json（与 settings.RULES_FILE 一致）
+RULES_PATH = Path(__file__).resolve().parent.parent / "data" / "fire_rules.json"
 
 CASES_PATH = Path(__file__).resolve().parent.parent.parent / "fire_cases.json"
 if not CASES_PATH.exists():

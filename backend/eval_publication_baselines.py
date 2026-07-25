@@ -100,7 +100,7 @@ def summarize_rows(profile: str, rows: List[Dict[str, Any]], latency_ms: List[fl
     mrr_values = [float(r["mrr"]) for r in rows]
     sorted_latency = sorted(latency_ms)
     p95_idx = int(round(0.95 * (len(sorted_latency) - 1))) if sorted_latency else 0
-    return {
+    summary = {
         "profile": profile,
         "case_count": len(rows),
         "top1_hit_rate": round(mean(top1_values), 4) if rows else 0.0,
@@ -113,6 +113,19 @@ def summarize_rows(profile: str, rows: List[Dict[str, Any]], latency_ms: List[fl
         "p95_latency_ms": round(sorted_latency[p95_idx], 2) if sorted_latency else 0.0,
         "rows": rows,
     }
+    # 条款级指标（命中公开法条即可，不苛求内部私有 ID）
+    if rows and "hit_top1_article" in rows[0]:
+        top1a_values = [1.0 if r.get("hit_top1_article") else 0.0 for r in rows]
+        top3a_values = [1.0 if r.get("hit_top3_article") else 0.0 for r in rows]
+        mrra_values = [float(r.get("mrr_article", 0.0)) for r in rows]
+        summary.update({
+            "top1_article_hit_rate": round(mean(top1a_values), 4),
+            "top3_article_hit_rate": round(mean(top3a_values), 4),
+            "mrr_article": round(mean(mrra_values), 4),
+            "top1_article_ci95": bootstrap_ci(top1a_values),
+            "top3_article_ci95": bootstrap_ci(top3a_values),
+        })
+    return summary
 
 
 def evaluate_retrieval_profile(
@@ -225,6 +238,48 @@ def extract_rule_ids_from_text(text: str, aliases: Dict[str, List[str]]) -> List
     return hits
 
 
+_KB_ARTICLE_MAP: Dict[str, str] | None = None
+
+
+def load_kb_article_map() -> Dict[str, str]:
+    """rule_id → 规范化条款签名 'source|article'。
+
+    条款级评分（2026-07-25）：direct-LLM 基线不再要求猜中内部私有 ID，
+    只要引用到正确的公开法条（source+article）即算命中。
+    无 article 的规则回退为 id 本身。
+    """
+    global _KB_ARTICLE_MAP
+    if _KB_ARTICLE_MAP is None:
+        from app.core.config import settings as _settings
+        raw = json.loads(_settings.RULES_FILE.read_text(encoding="utf-8"))
+        rules = raw.get("rules", []) if isinstance(raw, dict) else []
+        out: Dict[str, str] = {}
+        for rule in rules:
+            rid = str(rule.get("id", "")).strip()
+            if not rid:
+                continue
+            source = re.sub(r"\s+", "", str(rule.get("source", ""))).lower()
+            article = re.sub(r"\s+", "", str(rule.get("article", ""))).lower()
+            out[rid] = f"{source}|{article}" if article else f"id|{rid}"
+        _KB_ARTICLE_MAP = out
+    return _KB_ARTICLE_MAP
+
+
+def article_level_scores(returned_ids: Sequence[str], expected_ids: Sequence[str]) -> Dict[str, Any]:
+    """把 returned/expected 的 rule id 映射到条款签名后计算命中指标。"""
+    kb = load_kb_article_map()
+    expected_articles = {kb.get(x, f"id|{x}") for x in expected_ids}
+    returned_articles = [kb.get(x, f"id|{x}") for x in returned_ids]
+    hit_top1 = bool(returned_articles[:1] and returned_articles[0] in expected_articles)
+    hit_top3 = any(a in expected_articles for a in returned_articles[:3])
+    rr = 0.0
+    for idx, article in enumerate(returned_articles, start=1):
+        if article in expected_articles:
+            rr = 1.0 / idx
+            break
+    return {"hit_top1_article": hit_top1, "hit_top3_article": hit_top3, "mrr_article": round(rr, 4)}
+
+
 def canonical_rule_ids(
     raw_ids: Sequence[Any],
     content: str,
@@ -260,6 +315,7 @@ def refresh_cached_row(row: Dict[str, Any], aliases: Dict[str, List[str]]) -> Di
     refreshed["hit_top1"] = bool(returned_ids[:1] and returned_ids[0] in expected)
     refreshed["hit_top3"] = any(rule_id in expected for rule_id in returned_ids[:3])
     refreshed["mrr"] = reciprocal_rank(returned_ids, refreshed.get("expected_ids") or [])
+    refreshed.update(article_level_scores(returned_ids, refreshed.get("expected_ids") or []))
     return refreshed
 
 
@@ -367,6 +423,7 @@ def evaluate_direct_model(
                 "hit_top1": bool(returned_ids[:1] and returned_ids[0] in expected),
                 "hit_top3": any(rule_id in expected for rule_id in returned_ids[:3]),
                 "mrr": reciprocal_rank(returned_ids, case["expected_ids"]),
+                **article_level_scores(returned_ids, case["expected_ids"]),
                 "latency_ms": round(elapsed, 2),
                 "raw_content": content,
                 "parsed": parsed,
@@ -467,6 +524,7 @@ def evaluate_rag_model(
                     "hit_top1": bool(returned_ids[:1] and returned_ids[0] in expected),
                     "hit_top3": any(rule_id in expected for rule_id in returned_ids[:3]),
                     "mrr": reciprocal_rank(returned_ids, case["expected_ids"]),
+                    **article_level_scores(returned_ids, case["expected_ids"]),
                     "latency_ms": round(elapsed, 2),
                     "raw_content": content,
                     "parsed": parsed,
