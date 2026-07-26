@@ -47,10 +47,32 @@ DATASET = Path(__file__).resolve().parent / "eval_dataset.json"
 OUT = BACKEND / "experiments_e2e_quality_v1.json"
 
 
+_CN_DIGITS = {"零": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4,
+              "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+
+
+def _cn_to_int(text: str) -> str:
+    """中文数字转阿拉伯数字（第X条语境）：二十八->28、十六->16、五->5。
+    2026-07-26：KB article 用'第二十八条'而标注用'第28条'，不转换会假阴性。"""
+    def _conv(match):
+        s = match.group(1)
+        if "百" in s:
+            return s  # 超过两位的不处理（消防条款极少用到）
+        if "十" in s:
+            left, _, right = s.partition("十")
+            tens = _CN_DIGITS.get(left, 1) if left else 1
+            ones = _CN_DIGITS.get(right, 0) if right else 0
+            return str(tens * 10 + ones)
+        return str(_CN_DIGITS.get(s, s))
+
+    import re as _re
+    return _re.sub(r"第([零一二两三四五六七八九十]{1,3})条", lambda m: "第" + _conv(m) + "条", text)
+
+
 def _norm_reg(text: str) -> str:
-    """法条编号匹配归一化：GB50444 vs GB 50444-2008 的空格差异。
-    2026-07-26：未归一化时法条召回被低估到 0.08（字符串假阴性）。"""
-    return "".join(str(text or "").split()).lower()
+    """法条编号匹配归一化：GB50444 vs GB 50444-2008 的空格差异 +
+    中文数字条号转换。两次修正历史：0.08（空格假阴性）→ 0.40 → 加上数字转换。"""
+    return _cn_to_int("".join(str(text or "").split()).lower())
 
 
 def risk_matches(predicted: str, expected_judgment: str, strict: bool) -> bool:
