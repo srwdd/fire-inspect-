@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -76,11 +76,18 @@ class Settings(BaseSettings):
     RAG_SUBQUERY_MAX: int = 3
     RAG_ENABLE_DENSE_RETRIEVAL: bool = True
     RAG_EMBEDDING_MODEL: str = "BAAI/bge-m3"
+    # Embedding/Rerank 可独立于主 LLM 的 base_url（2026-07-26 新增）。
+    # 背景：服务器主 LLM 走 DashScope，但 BAAI/* 模型只在 SiliconFlow 有，
+    # 且 DashScope compatible-mode 没有 /rerank 端点——此前 dense 索引
+    # 永远建不起来、rerank 永远 404，错误被静默吞掉（指标零变化+延迟210倍）。
+    # 留空则回退到 SILICONFLOW_BASE_URL。
+    RAG_EMBEDDING_BASE_URL: str = ""
     RAG_EMBEDDING_BATCH_SIZE: int = 16
     RAG_DENSE_WEIGHT: float = 0.15
     RAG_MIN_DENSE_SCORE: float = 0.2
     RAG_ENABLE_RERANK: bool = True
     RAG_RERANK_MODEL: str = "BAAI/bge-reranker-v2-m3"
+    RAG_RERANK_BASE_URL: str = ""
     RAG_RERANK_TOP_N: int = 6
     RAG_RERANK_WEIGHT: float = 0.35
     RAG_ENABLE_DYNAMIC_TOP_K: bool = True

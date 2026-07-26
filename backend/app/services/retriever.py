@@ -32,6 +32,16 @@ class RuleRetriever:
         self.embedding_cache_dir.mkdir(parents=True, exist_ok=True)
         self._load_rules()
 
+    @staticmethod
+    def _embedding_base_url() -> str:
+        """Embedding 服务地址：优先 RAG_EMBEDDING_BASE_URL，回退主 LLM 地址。"""
+        return (settings.RAG_EMBEDDING_BASE_URL or settings.SILICONFLOW_BASE_URL).rstrip("/")
+
+    @staticmethod
+    def _rerank_base_url() -> str:
+        """Rerank 服务地址：优先 RAG_RERANK_BASE_URL，回退主 LLM 地址。"""
+        return (settings.RAG_RERANK_BASE_URL or settings.SILICONFLOW_BASE_URL).rstrip("/")
+
     def _load_rules(self) -> None:
         file_path = settings.RULES_FILE
         self.rules = []
@@ -67,6 +77,9 @@ class RuleRetriever:
         self._dense_rule_norms = []
         self._dense_index_ready = False
         self._dense_cache_hit = False
+        # 不清除 _dense_error：重置通常正是由错误触发的，错误信息要留给 debug 输出
+
+    _dense_error: str = ""
 
     @staticmethod
     def _safe_text(value: Any, max_len: int = 500) -> str:
@@ -165,7 +178,7 @@ class RuleRetriever:
 
         try:
             response = requests.post(
-                f"{self.base_url}/embeddings",
+                f"{self._embedding_base_url()}/embeddings",
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
@@ -208,17 +221,29 @@ class RuleRetriever:
         return {"ok": True, "vectors": vectors}
 
     def _rerank_request(self, api_key: str, query: str, documents: List[str], top_n: int) -> Dict[str, Any]:
-        payload = {
-            "model": settings.RAG_RERANK_MODEL,
-            "query": query,
-            "documents": documents,
-            "top_n": max(1, min(top_n, len(documents))),
-            "return_documents": False,
-        }
+        base = self._rerank_base_url()
+        # DashScope 的 rerank 不在 compatible-mode 下（/rerank 会 404），
+        # 走原生端点且请求/响应格式不同（2026-07-26 适配 gte-rerank-v2）。
+        if "dashscope" in base:
+            url = "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank"
+            payload = {
+                "model": settings.RAG_RERANK_MODEL,
+                "input": {"query": query, "documents": documents},
+                "parameters": {"top_n": max(1, min(top_n, len(documents))), "return_documents": False},
+            }
+        else:
+            url = f"{base}/rerank"
+            payload = {
+                "model": settings.RAG_RERANK_MODEL,
+                "query": query,
+                "documents": documents,
+                "top_n": max(1, min(top_n, len(documents))),
+                "return_documents": False,
+            }
 
         try:
             response = requests.post(
-                f"{self.base_url}/rerank",
+                url,
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
@@ -237,7 +262,7 @@ class RuleRetriever:
         except Exception:
             return {"ok": False, "error": "invalid_json", "results": []}
 
-        results = body.get("results") or body.get("data") or []
+        results = body.get("results") or body.get("data") or (body.get("output") or {}).get("results") or []
         if not isinstance(results, list):
             return {"ok": False, "error": "invalid_results", "results": []}
         return {"ok": True, "results": results}
@@ -643,16 +668,23 @@ class RuleRetriever:
 
         rule_texts = [self._rule_to_text(rule) for rule in self.rules]
         batch_size = max(int(settings.RAG_EMBEDDING_BATCH_SIZE), 1)
+        # DashScope text-embedding-v3 单批上限 10 条（超过报 400）
+        if "dashscope" in self._embedding_base_url():
+            batch_size = min(batch_size, 10)
         vectors: List[List[float]] = []
         for index in range(0, len(rule_texts), batch_size):
             batch = rule_texts[index : index + batch_size]
             result = self._embedding_request(api_key, batch)
             if not result.get("ok"):
+                # 2026-07-26：错误必须可见——此前 dense 建库失败被静默吞掉，
+                # 评测表现为"指标与 keyword 完全一致 + 延迟高 210 倍"
+                self._dense_error = str(result.get("error", "unknown"))
                 self._reset_dense_index()
                 return False
             vectors.extend(result.get("vectors", []))
 
         if len(vectors) != len(self.rules):
+            self._dense_error = f"vector_count_mismatch:{len(vectors)}!={len(self.rules)}"
             self._reset_dense_index()
             return False
 
@@ -1826,8 +1858,10 @@ class RuleRetriever:
                     "enabled": bool(settings.RAG_ENABLE_DENSE_RETRIEVAL),
                     "active": dense_enabled,
                     "model": settings.RAG_EMBEDDING_MODEL,
+                    "base_url": self._embedding_base_url(),
                     "cache_hit": self._dense_cache_hit,
                     "index_ready": self._dense_index_ready,
+                    "error": getattr(self, "_dense_error", ""),
                 },
                 "rerank": {
                     "enabled": bool(settings.RAG_ENABLE_RERANK),

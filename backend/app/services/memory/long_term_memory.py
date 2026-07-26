@@ -17,7 +17,8 @@ from app.db import crud, models
 
 class LongTermMemoryService:
     def __init__(self) -> None:
-        self.base_url = settings.SILICONFLOW_BASE_URL.rstrip("/")
+        # embedding 服务地址与 RAG 通道一致：优先 RAG_EMBEDDING_BASE_URL
+        self.base_url = (settings.RAG_EMBEDDING_BASE_URL or settings.SILICONFLOW_BASE_URL).rstrip("/")
         self.embedding_model = settings.LONG_MEMORY_EMBEDDING_MODEL or settings.RAG_EMBEDDING_MODEL
         self.cache_dir = settings.LONG_MEMORY_CACHE_DIR
         self.index_file = settings.LONG_MEMORY_INDEX_FILE
