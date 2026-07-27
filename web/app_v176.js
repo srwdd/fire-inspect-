@@ -2,6 +2,13 @@ const { createApp } = Vue;
 const API_BASE = window.location.pathname.includes('/inspect') ? '/inspect/api/v1/inspection' : '/api/v1/inspection';
 const API = axios.create({ baseURL: API_BASE });
 
+// 裸 axios 调用的鉴权头（2026-07-27：后端接口全面启用 JWT 后，
+// 绕过 API 实例拦截器的裸调用会 401 —— 人员下拉/AI 语音功能失灵的原因）
+function authHeaders() {
+  var t = localStorage.getItem('fire_token') || sessionStorage.getItem('fire_token');
+  return t ? { headers: { Authorization: 'Bearer ' + t } } : {};
+}
+
 // ── 本地 QR 码生成器（无外部依赖）──
 var QRGen = (function() {
   // QR 码版本1-4的纠错和容量表（L级别）
@@ -796,8 +803,10 @@ createApp({
         this.showScaleInput = true;
       this.selectedLeadId = (this.currentUser && this.currentUser.id) || 0;
       this.selectedAssistId = 0;
-      if (this.currentUser && this.currentUser.org_id) {
-        axios.get(API_BASE.replace("/inspection", "/auth") + "/users?org_id=" + this.currentUser.org_id).then(r => { this.orgUsers = r.data.data || []; }).catch(() => {});
+      // 2026-07-27：无条件加载人员——admin 的 org_id=0（后端返回全部用户），
+      // 原条件 org_id 为假时跳过导致 admin 主办/协办下拉永远为空
+      if (this.currentUser) {
+        axios.get(API_BASE.replace("/inspection", "/auth") + "/users?org_id=" + (this.currentUser.org_id || 0), authHeaders()).then(r => { this.orgUsers = r.data.data || []; }).catch(() => {});
       }
         this.selectedSubType = '';
         this.scaleForm = { area: '', staff: '', floors: '', buildings: '1' };
@@ -1193,7 +1202,7 @@ createApp({
             check_point: this.currentItem.check_point || '',
             regulation: this.currentItem.regulation?.source || this.currentItem.source || ''
           }
-        });
+        }, authHeaders());
         var d = r.data.data;
         if (d && d.result) {
           this.judge(d.result, d.note || '');
@@ -1208,7 +1217,7 @@ createApp({
       if (!this.report) return;
       this.aiSummarizing = true;
       try {
-        var r = await axios.post('/inspect/api/v1/speech/ai-summary', this.report);
+        var r = await axios.post('/inspect/api/v1/speech/ai-summary', this.report, authHeaders());
         this.aiSummary = r.data.data.summary || '';
       } catch(e) { this.showToast('AI摘要生成失败', 'error'); }
       this.aiSummarizing = false;
@@ -1218,7 +1227,7 @@ createApp({
       if (!q) return;
       this.aiAnswering = true;
       try {
-        var r = await axios.post('/inspect/api/v1/speech/ai-qa', { question: q });
+        var r = await axios.post('/inspect/api/v1/speech/ai-qa', { question: q }, authHeaders());
         this.aiAnswer = r.data.data.answer || '';
         this.showAiAnswer = true;
         this._renderAiAnswerModal();
@@ -1265,7 +1274,7 @@ createApp({
       var lastPhoto = photos[photos.length - 1];
       this.aiIdentifying = true;
       try {
-        var r = await axios.post('/inspect/api/v1/speech/ai-identify', { image: lastPhoto });
+        var r = await axios.post('/inspect/api/v1/speech/ai-identify', { image: lastPhoto }, authHeaders());
         var d = r.data.data;
         if (d && d.facility_type) {
           this.aiPhotoResult = d;
@@ -1306,7 +1315,7 @@ createApp({
         var r = await axios.post('/inspect/api/v1/speech/ai-compare', {
           old_image: oldPhoto, new_image: newPhoto,
           facility: item.facility || ''
-        });
+        }, authHeaders());
         var d = r.data.data;
         if (d) {
           var msg = d.verdict + (d.changes ? ': ' + d.changes : '');
