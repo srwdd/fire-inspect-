@@ -730,7 +730,22 @@ createApp({
         this._itemsCache = this._itemsCache || {};
         for (const item of all) {
           this._itemsCache[item.item_index] = item;
+          // 2026-07-27：恢复检查时从服务端合并的 result/note 还原已判进度
+          if (item.result && !this.judgments[item.item_index]) {
+            this.judgments[item.item_index] = { result: item.result, note: item.note || '' };
+          }
         }
+        // 重新统计已判/不合格数（恢复场景下本地计数为 0）
+        var jc = 0, fc = 0;
+        for (var k in this.judgments) {
+          if (!this.judgments[k]) continue;
+          jc++;
+          if (this.judgments[k].result === 'fail') fc++;
+        }
+        if (jc > this.judgedCount) { this.judgedCount = jc; this.failCount = fc; }
+        // 恢复场景：resume 先 goToItem 后 preload 存在竞态——进度还原后
+        // 补触发完成流程（否则恢复一个已判满的检查会卡在 100% 空白页）
+        if (this.judgedCount >= this.totalItems && !this.inspected) { this.completeInspection(); }
       } catch(e) { console.error('preload failed:', e); }
     },
     async goToItem(index) {
@@ -1973,6 +1988,10 @@ createApp({
 
     // (photo/report/voice 方法委托到 APP_EXTRAS — 见 app-extras.js)
     uploadPhoto(e) { APP_EXTRAS.uploadPhoto.call(this, e); },
+    // 内部交叉引用也必须显式委托（APP_EXTRAS 方法里的 this 是 Vue 组件，
+    // this._doUploadPhotos / this._parseVoiceJudgment 在组件上不存在会 TypeError）
+    _doUploadPhotos() { return APP_EXTRAS._doUploadPhotos.call(this); },
+    _parseVoiceJudgment(t) { return APP_EXTRAS._parseVoiceJudgment.call(this, t); },
     confirmPhotoResult() { APP_EXTRAS.confirmPhotoResult.call(this); },
     uploadRecheckPhoto(e) { APP_EXTRAS.uploadRecheckPhoto.call(this, e); },
     viewReport() { return APP_EXTRAS.viewReport.call(this); },

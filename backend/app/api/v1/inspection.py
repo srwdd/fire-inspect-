@@ -567,11 +567,26 @@ def get_item(inspection_id: str, item_index: int):
 
 @router.get("/{inspection_id}/items")
 def get_all_items(inspection_id: str, user: dict = Depends(get_current_user)):
-    """获取检查单全部项目 — 供前端快速跳转预加载"""
+    """获取检查单全部项目 — 供前端快速跳转预加载。
+
+    2026-07-27：合并 findings 的判定结果（result/note），恢复检查时前端才能
+    还原已判进度——此前刷新页面后已判计数归零、完成校验失效。
+    同一项多次判定时取最新一条 finding。
+    """
     state = _require_state(inspection_id)
     items = state.get("items", [])
+    from app.db.storage import get_findings
+    latest: Dict[int, Dict[str, Any]] = {}
+    for f in get_findings(inspection_id):
+        idx = f.get("item_index")
+        if isinstance(idx, int):
+            latest[idx] = f
     for i, item in enumerate(items):
         item["item_index"] = i
+        f = latest.get(i)
+        if f:
+            item["result"] = f.get("result", "")
+            item["note"] = f.get("note", "")
     return {"code": 0, "data": items}
 
 
