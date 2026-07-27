@@ -753,8 +753,11 @@ createApp({
       this._updateStickyActionBar();
       if (index < 0) return;
       if (index >= this.totalItems) {
-        if (this.judgedCount >= this.totalItems) { this.completeInspection(); }
-        return;
+        if (this.judgedCount >= this.totalItems) { this.completeInspection(); return; }
+        // 2026-07-27：currentIndex 越界（如协办判满后主办恢复）时回落到最后一项——
+        // 否则 currentItem 为空，整个完成确认区（含"等待协办确认"栏）都不渲染，
+        // 页面卡死在 16/15 空白态
+        index = this.totalItems - 1;
       }
       // 优先从缓存读取，缓存未命中才请求 API
       let item = this._itemsCache && this._itemsCache[index];

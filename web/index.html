@@ -608,9 +608,9 @@ if ('serviceWorker' in navigator) {
     <!-- 底部完成按钮 (当所有项已判定但尚未触发完成时显示) -->
     <div v-if="currentItem && judgedCount >= totalItems && !inspected" class="complete-float">
       <button v-if="!hasAssistant || !wsConnected" class="btn-finish-all" @click="completeInspection">✅ 全部判定完毕，生成检查报告</button>
-      <button v-if="hasAssistant && wsConnected && !pendingConfirm" class="btn-finish-all" @click="completeInspection" style="background:#fa8c16">📋 提请协办确认</button>
-      <div v-if="pendingConfirm && hasAssistant" style="margin:12px 0;padding:12px;background:#e8f4fd;border:1px solid #91caff;border-radius:10px;text-align:center;color:#0958d9;font-size:13px">⏳ 等待协办确认中...</div>
-      <div v-if="pendingConfirm && !hasAssistant" style="margin:12px 0;padding:14px;background:#fff7e6;border:2px solid #faad14;border-radius:10px;text-align:center">
+      <button v-if="myRole === 'lead' && hasAssistant && wsConnected && !pendingConfirm" class="btn-finish-all" @click="completeInspection" style="background:#fa8c16">📋 提请协办确认</button>
+      <div v-if="pendingConfirm && myRole === 'lead'" style="margin:12px 0;padding:12px;background:#e8f4fd;border:1px solid #91caff;border-radius:10px;text-align:center;color:#0958d9;font-size:13px">⏳ 等待协办确认中...</div>
+      <div v-if="pendingConfirm && myRole === 'assist'" style="margin:12px 0;padding:14px;background:#fff7e6;border:2px solid #faad14;border-radius:10px;text-align:center">
         <div style="font-weight:700;margin-bottom:8px;font-size:15px">📋 主办提请完成检查</div>
         <button @click="assistantConfirm" style="padding:10px 30px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer">✅ 确认完成</button>
       </div>
@@ -958,7 +958,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v176.js?v=2026072708"></script>
+<script src="app_v176.js?v=2026072710"></script>
 
     <!-- 
 </body>
