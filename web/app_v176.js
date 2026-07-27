@@ -471,6 +471,7 @@ createApp({
       wsReconnectTimer: null,
       wsReconnectDelay: 1000,
       hasAssistant: false,       // 选了协办才启用 WS
+      myRole: 'lead',            // 本方角色（lead/assist），joinInspection 时写入
       pendingConfirm: false,     // 等待协办确认中
       nineSmallSubTypes: [
         '小商店/小超市', '小餐饮/小吃店', '小旅馆/民宿', '小娱乐/网吧',
@@ -1017,8 +1018,16 @@ createApp({
 
     // === 检查完成 ===
     completeInspection() {
+      // 协办判完：只通知主办，不发起确认流程（确认流程只能由主办发起）
+      if (this.myRole === 'assist' && !this.inspected) {
+        this.wsSend({ type: 'assist_done' });
+        this.inspected = true;
+        this.currentItem = null;
+        this.showToast('已全部判完，等待主办完成检查', 'info');
+        return;
+      }
       // 有协办且未确认 → 提请协办确认
-      if (this.hasAssistant && !this.pendingConfirm) {
+      if (this.myRole === 'lead' && this.hasAssistant && !this.pendingConfirm) {
         if (this.wsConnected) {
           this.requestConfirm();
           return;
@@ -1399,6 +1408,9 @@ createApp({
         this.judgments = {};
         this.judgedCount = 0;
         this.failCount = 0;
+        // 2026-07-27：记录本方角色——协办端的完成逻辑与主办不同，
+        // 此前无脑 hasAssistant=true 导致协办判完后错误地"提请协办确认"
+        this.myRole = insp.role || 'lead';
         this.hasAssistant = true;
         this.page = 'inspect';
         await this.goToItem(this.currentIndex);
@@ -1476,9 +1488,14 @@ createApp({
       } else if (type === 'jump') {
         this.goToItem(msg.target_index);
       } else if (type === 'request_confirm') {
-        // 协办端：主办提请完成，弹出确认提示
-        this.pendingConfirm = true;
-        this.showToast('📋 主办已完成检查，请确认', 'info');
+        // 协办端：主办提请完成，弹出确认提示（主办端忽略自己发的）
+        if (this.myRole === 'assist') {
+          this.pendingConfirm = true;
+          this.showToast('📋 主办已完成检查，请确认', 'info');
+        }
+      } else if (type === 'assist_done') {
+        // 主办端：协办已判完全部项目
+        this.showToast('✅ 协办已完成全部判定，请完成检查', 'info');
       } else if (type === 'confirmed') {
         // 主办端：协办已确认
         this.showToast('✅ 协办已确认', 'info');
@@ -1491,6 +1508,7 @@ createApp({
     },
     // 主办提请协办确认
     requestConfirm() {
+      if (this.myRole === 'assist') return;
       this.pendingConfirm = true;
       this.wsSend({
         type: 'request_confirm',
