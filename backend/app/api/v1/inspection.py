@@ -639,8 +639,13 @@ def submit_judge(inspection_id: str, req: JudgeRequest, user: dict = Depends(get
     }
     save_finding(inspection_id, finding)
 
-    # 火鉴·警鉴：自动沉淀 fail 案例
-    precipitate_finding(finding)
+    # 火鉴·警鉴：自动沉淀 fail 案例（沉淀失败不应阻断判定）
+    try:
+        from app.services.case_precipitate import precipitate_finding
+        precipitate_finding(finding)
+    except Exception as ex:
+        import logging
+        logging.getLogger("fire_inspect").warning(f"case precipitate failed for {inspection_id}: {ex}")
 
     # WebSocket broadcast to assistant
     try:
@@ -1069,8 +1074,9 @@ def delete_inspection(inspection_id: str, user: dict = Depends(get_current_user)
     if state.get("status")!="in_progress":
         raise HTTPException(400,"只能删除进行中的检查")
     with _connect() as conn:
-        conn.execute("DELETE FROM inspections WHERE id=?",(inspection_id,))
+        conn.execute("DELETE FROM rectifications WHERE inspection_id=?",(inspection_id,))
         conn.execute("DELETE FROM findings WHERE inspection_id=?",(inspection_id,))
+        conn.execute("DELETE FROM inspections WHERE id=?",(inspection_id,))
         conn.commit()
     return {"code":0,"msg":"已删除"}
 
