@@ -1030,6 +1030,8 @@ createApp({
     },
     async generateReport() {
       try {
+        // 2026-07-27：先回写完成状态（未全部判定时后端会 400，静默继续出报告）
+        try { await API.post(`/${this.inspectionId}/complete`); } catch(e) { console.info('complete writeback skipped:', e.response?.data?.detail || e.message); }
         const r = await API.get(`/${this.inspectionId}/report`);
         this.report = r.data.data; localStorage.setItem("fire_last_inspection_id", this.inspectionId);
         var h = JSON.parse(localStorage.getItem("fire_inspection_history") || "[]"); h = h.filter(function(e) { return e.id !== this.inspectionId; }); h.unshift({id: this.inspectionId, name: this.report.venue_name, date: this.report.date, score: this.report.assessment.score, color: this.report.assessment.color, total: this.report.summary.checked, fail: this.report.summary.fail}); if (h.length > 5) h = h.slice(0,5); localStorage.setItem("fire_inspection_history", JSON.stringify(h)); this.inspectionHistory = h;

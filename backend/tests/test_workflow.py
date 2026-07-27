@@ -61,3 +61,35 @@ class TestInspectionWorkflow:
         resp = client.post(f"/api/v1/inspection/{workflow_id}/judge",
                            json={"item_index": 0, "result": "pass", "note": "x"})
         assert resp.status_code == 401
+
+
+class TestCompleteInspection:
+    """完成状态回写（2026-07-27）：全部判定后才能 complete，且状态落库。"""
+
+    def test_complete_partial_rejected(self, client, auth_headers, workflow_id):
+        resp = client.post(f"/api/v1/inspection/{workflow_id}/complete", headers=auth_headers)
+        assert resp.status_code == 400
+        assert "未判定" in str(resp.json().get("detail", ""))
+
+    def test_complete_after_all_judged(self, client, auth_headers, workflow_id):
+        insp = workflow_id
+        # 判完所有项
+        resp = client.get(f"/api/v1/inspection/{insp}/items", headers=auth_headers)
+        items = resp.json()["data"]
+        for i in range(len(items)):
+            r = client.post(f"/api/v1/inspection/{insp}/judge", headers=auth_headers,
+                            json={"item_index": i, "result": "pass", "note": "t"})
+            assert r.status_code == 200
+        # 完成
+        resp = client.post(f"/api/v1/inspection/{insp}/complete", headers=auth_headers)
+        assert resp.status_code == 200
+        # 重复完成 → already
+        resp = client.post(f"/api/v1/inspection/{insp}/complete", headers=auth_headers)
+        assert resp.status_code == 200 and resp.json().get("already") is True
+        # 已完成的检查不能再删除
+        resp = client.delete(f"/api/v1/inspection/{insp}", headers=auth_headers)
+        assert resp.status_code == 400
+        # 完成后出现在最近完成列表（active?include_completed=1）
+        resp = client.get("/api/v1/inspection/active?include_completed=1", headers=auth_headers)
+        completed = [x for x in resp.json()["data"] if x["inspection_id"] == insp and x["status"] == "completed"]
+        assert len(completed) == 1

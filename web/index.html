@@ -280,8 +280,9 @@ if ('serviceWorker' in navigator) {
         </div>
         <button @click="joinInspection(insp)" style="padding:6px 14px;background:var(--accent-blue);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;margin-left:8px">
           {{ insp.role === 'lead' ? '继续' : '加入' }}
-        <span @click.stop="deleteInspection(insp.inspection_id)" style="font-size:10px;color:#999;cursor:pointer;margin-left:6px" title="删除">🗑</span>
         </button>
+        <!-- 删除按钮独立于加入按钮（2026-07-27：原先嵌在按钮内部，误触即删） -->
+        <span @click.stop="deleteInspection(insp.inspection_id)" style="font-size:14px;color:#c0392b;cursor:pointer;margin-left:8px;padding:6px" title="删除检查">🗑</span>
       </div>
     </div>
 
@@ -957,7 +958,7 @@ if ('serviceWorker' in navigator) {
 
     </div>
 
-<script src="app_v176.js?v=2026072705"></script>
+<script src="app_v176.js?v=2026072706"></script>
 
     <!-- 
 </body>

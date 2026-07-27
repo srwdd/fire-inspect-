@@ -149,7 +149,11 @@ def start_inspection(req: StartRequest, user: dict = Depends(get_current_user)):
         "location": req.location, "inspector": req.inspector,
         "staff_count": req.staff_count, "floor_count": req.floor_count, "area_sqm": req.area_sqm,
         "staff_sample": staff_sample, "floor_sample": floor_sample,
-        "org_id": req.org_id, "lead_id": req.lead_id, "assist_id": req.assist_id, "venue_addr": req.venue_addr,
+        # 2026-07-27：org_id/lead_id 未显式传时取登录用户——否则 org_id=0 的
+        # 检查单在完成列表（按 org 过滤）里永远不可见
+        "org_id": req.org_id or user.get("oid", 0),
+        "lead_id": req.lead_id or user.get("uid", 0),
+        "assist_id": req.assist_id, "venue_addr": req.venue_addr,
         "total_items": len(items), "mandatory_count": mandatory_count,
         "sample_count": len(items) - mandatory_count,
         "current_index": 0, "items": items,
@@ -900,6 +904,28 @@ def _nav_hint(item: dict) -> str:
 
 
 # ── 7. 生成报告 ─────────────────────────────────────
+
+@router.post("/{inspection_id}/complete")
+def complete_inspection(inspection_id: str, user: dict = Depends(get_current_user)):
+    """完成检查：全部检查项均有判定后，状态写为 completed（2026-07-27 新增）。
+
+    此前前端出报告不回写状态——完成的检查永远挂在"进行中"，
+    最近完成列表/复查提醒/统计全部失真。
+    """
+    state = _require_state(inspection_id)
+    if state.get("status") == "completed":
+        return {"code": 0, "msg": "已是完成状态", "already": True}
+    if state.get("status") != "in_progress":
+        raise HTTPException(400, f"当前状态({state.get('status')})不能标记完成")
+    items = state.get("items", [])
+    findings = get_findings(inspection_id)
+    judged = {f.get("item_index") for f in findings if isinstance(f.get("item_index"), int)}
+    remaining = len(items) - len(judged)
+    if remaining > 0:
+        raise HTTPException(400, f"还有 {remaining} 项未判定，不能完成检查")
+    update_inspection_status(inspection_id, "completed")
+    return {"code": 0, "msg": "检查已完成", "total": len(items)}
+
 
 @router.get("/{inspection_id}/report")
 def generate_report(inspection_id: str, user: dict = Depends(get_current_user)):
