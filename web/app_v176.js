@@ -1018,10 +1018,34 @@ createApp({
     // === 检查完成 ===
     completeInspection() {
       // 有协办且未确认 → 提请协办确认
-      if (this.hasAssistant && this.wsConnected && !this.pendingConfirm) {
-        this.requestConfirm();
+      if (this.hasAssistant && !this.pendingConfirm) {
+        if (this.wsConnected) {
+          this.requestConfirm();
+          return;
+        }
+        // 2026-07-27：WS 未连上时不再静默跳过协办确认（此前恢复页面后
+        // 快速判完会绕过协办直接出报告，协办端永远收不到"请确认"）。
+        // 等 WS 连接最多 4 秒，连上则提请确认，超时由用户决定。
+        this.showToast('正在连接协办端…', 'info');
+        var self = this;
+        var waited = 0;
+        var timer = setInterval(function() {
+          waited += 500;
+          if (self.wsConnected) {
+            clearInterval(timer);
+            if (!self.pendingConfirm && !self.inspected) self.requestConfirm();
+          } else if (waited >= 4000) {
+            clearInterval(timer);
+            if (confirm('协办端未连接。点"确定"跳过协办确认直接出报告，点"取消"稍后再试。')) {
+              self._finishWithoutConfirm();
+            }
+          }
+        }, 500);
         return;
       }
+      this._finishWithoutConfirm();
+    },
+    _finishWithoutConfirm() {
       this.inspected = true;
       this.currentItem = null;
       this.currentSectionName = '';
